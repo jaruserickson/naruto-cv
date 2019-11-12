@@ -41,6 +41,8 @@ Some options:
  - As the images from myanimelist probably aren't enough, I'm going to use [google_image_download](https://github.com/hardikvasa/google-images-download) to download using keywords, and validate the links manually.
  - The image validator is necessary since google images has some fail cases: ![](readme-images/image_validator_fail.png)
  - I found that there was some duplication and a large amount of unusable images past around 30 images on google images - so I set the limit as such. If I really need more I can try another resource.
+ - There was a couple URLs the validator could see but requests couldn't download, and as such, these were blacklisted in the download shell script.
+ - There's currently 765 different pictures of characters in the dataset after this.
 #### CNN Face Detection
  - Not started.
 #### Village Symbol Recognition
