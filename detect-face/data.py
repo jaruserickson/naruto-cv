@@ -25,16 +25,16 @@ def create_dataset(test_split=0.2):
         for imgfile in os.listdir(f'{data_dir}/{char}'):
             img = cv2.imread(f'{data_dir}/{char}/{imgfile}')
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)  # Use RGB image.
-            crop = annotations[char][imgfile.split('.')[0]]
-            img = crop_and_resize(img, crop, (IMG_INPUT_SIZE, IMG_INPUT_SIZE))
+            bndboxes = annotations[char][imgfile.split('.')[0]]
+            for crop in bndboxes:  # There can be more than one bounding box.
+                sized = crop_and_resize(img, crop, (IMG_INPUT_SIZE, IMG_INPUT_SIZE))
 
-            # Add data to sets
-            img_set.append(img)
-            class_set.append(char)
+                # Add data to sets
+                img_set.append(sized)
+                class_set.append(crop['name'])
 
     # Split data
     cut = round(len(img_set) * test_split)
-
     test_data = (np.array(img_set[:cut]), np.array(class_set[:cut]))
     train_data = (np.array(img_set[cut:]), np.array(class_set[cut:]))
 
