@@ -10,12 +10,6 @@ Some example clips we're planning to be able to run on:
  - [Naruto Opening 2](https://www.youtube.com/watch?v=SRn99oN1p_c)
  - [Naruto and Hinata Wedding](https://www.youtube.com/watch?v=BoMBsDIGkKI)
 
-### Dataset Note:
-The annotations are in the following form:
-```
-image_path x_min,y_min,x_max,y_max,class_id
-```
-where the coordinates are the annotated coordinates of their face.
 
 ### Facial Detection Network
 Some options:
