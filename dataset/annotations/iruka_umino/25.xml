@@ -1,0 +1,26 @@
+<annotation>
+	<folder>iruka_umino</folder>
+	<filename>25.png</filename>
+	<path>/home/jacob/Desktop/code/csc420/naruto-cv/dataset/data/iruka_umino/25.png</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>420</width>
+		<height>420</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>iruka_umino</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>144</xmin>
+			<ymin>85</ymin>
+			<xmax>312</xmax>
+			<ymax>262</ymax>
+		</bndbox>
+	</object>
+</annotation>

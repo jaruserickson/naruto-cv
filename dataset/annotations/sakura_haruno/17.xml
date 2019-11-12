@@ -1,0 +1,26 @@
+<annotation>
+	<folder>sakura_haruno</folder>
+	<filename>17.png</filename>
+	<path>/home/jacob/Desktop/code/csc420/naruto-cv/dataset/data/sakura_haruno/17.png</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>756</width>
+		<height>1012</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>sakura_haruno</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>254</xmin>
+			<ymin>70</ymin>
+			<xmax>418</xmax>
+			<ymax>288</ymax>
+		</bndbox>
+	</object>
+</annotation>

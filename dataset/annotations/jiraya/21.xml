@@ -1,0 +1,26 @@
+<annotation>
+	<folder>jiraya</folder>
+	<filename>21.png</filename>
+	<path>/home/jacob/Desktop/code/csc420/naruto-cv/dataset/data/jiraya/21.png</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>150</width>
+		<height>200</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>jiraya</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>22</xmin>
+			<ymin>35</ymin>
+			<xmax>63</xmax>
+			<ymax>94</ymax>
+		</bndbox>
+	</object>
+</annotation>

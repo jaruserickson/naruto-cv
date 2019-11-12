@@ -1,0 +1,26 @@
+<annotation>
+	<folder>ino_yamanaka</folder>
+	<filename>20.png</filename>
+	<path>/home/jacob/Desktop/code/csc420/naruto-cv/dataset/data/ino_yamanaka/20.png</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>640</width>
+		<height>1057</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>ino_yamanaka</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>271</xmin>
+			<ymin>232</ymin>
+			<xmax>410</xmax>
+			<ymax>378</ymax>
+		</bndbox>
+	</object>
+</annotation>

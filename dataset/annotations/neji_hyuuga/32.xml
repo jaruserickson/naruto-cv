@@ -1,0 +1,26 @@
+<annotation>
+	<folder>neji_hyuuga</folder>
+	<filename>32.png</filename>
+	<path>/home/jacob/Desktop/code/csc420/naruto-cv/dataset/data/neji_hyuuga/32.png</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>396</width>
+		<height>320</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>neji_hyuuga</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>35</xmin>
+			<ymin>19</ymin>
+			<xmax>352</xmax>
+			<ymax>267</ymax>
+		</bndbox>
+	</object>
+</annotation>

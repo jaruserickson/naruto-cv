@@ -1,0 +1,26 @@
+<annotation>
+	<folder>konan</folder>
+	<filename>22.png</filename>
+	<path>/home/jacob/Desktop/code/csc420/naruto-cv/dataset/data/konan/22.png</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>1920</width>
+		<height>1072</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>konan</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>903</xmin>
+			<ymin>148</ymin>
+			<xmax>1032</xmax>
+			<ymax>261</ymax>
+		</bndbox>
+	</object>
+</annotation>

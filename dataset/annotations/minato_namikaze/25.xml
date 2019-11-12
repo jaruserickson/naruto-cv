@@ -1,0 +1,26 @@
+<annotation>
+	<folder>minato_namikaze</folder>
+	<filename>25.png</filename>
+	<path>/home/jacob/Desktop/code/csc420/naruto-cv/dataset/data/minato_namikaze/25.png</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>848</width>
+		<height>530</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>minato_namikaze</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>227</xmin>
+			<ymin>17</ymin>
+			<xmax>614</xmax>
+			<ymax>388</ymax>
+		</bndbox>
+	</object>
+</annotation>

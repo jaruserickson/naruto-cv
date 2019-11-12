@@ -1,0 +1,26 @@
+<annotation>
+	<folder>shikamaru_nara</folder>
+	<filename>21.png</filename>
+	<path>/home/jacob/Desktop/code/csc420/naruto-cv/dataset/data/shikamaru_nara/21.png</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>1000</width>
+		<height>789</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>shikamaru_nara</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>286</xmin>
+			<ymin>34</ymin>
+			<xmax>668</xmax>
+			<ymax>566</ymax>
+		</bndbox>
+	</object>
+</annotation>

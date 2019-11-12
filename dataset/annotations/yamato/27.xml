@@ -1,0 +1,26 @@
+<annotation>
+	<folder>yamato</folder>
+	<filename>27.png</filename>
+	<path>/home/jacob/Desktop/code/csc420/naruto-cv/dataset/data/yamato/27.png</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>355</width>
+		<height>767</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>yamato</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>62</xmin>
+			<ymin>82</ymin>
+			<xmax>238</xmax>
+			<ymax>288</ymax>
+		</bndbox>
+	</object>
+</annotation>

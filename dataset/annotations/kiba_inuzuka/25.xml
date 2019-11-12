@@ -1,0 +1,26 @@
+<annotation>
+	<folder>kiba_inuzuka</folder>
+	<filename>25.png</filename>
+	<path>/home/jacob/Desktop/code/csc420/naruto-cv/dataset/data/kiba_inuzuka/25.png</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>260</width>
+		<height>195</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>kiba_inuzuka</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>88</xmin>
+			<ymin>39</ymin>
+			<xmax>121</xmax>
+			<ymax>68</ymax>
+		</bndbox>
+	</object>
+</annotation>

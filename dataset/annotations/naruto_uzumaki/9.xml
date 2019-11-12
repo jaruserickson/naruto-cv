@@ -1,0 +1,26 @@
+<annotation>
+	<folder>naruto_uzumaki</folder>
+	<filename>9.png</filename>
+	<path>/home/jacob/Desktop/code/csc420/naruto-cv/dataset/data/naruto_uzumaki/9.png</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>1600</width>
+		<height>1853</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>naruto_uzumaki</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>773</xmin>
+			<ymin>521</ymin>
+			<xmax>1244</xmax>
+			<ymax>1010</ymax>
+		</bndbox>
+	</object>
+</annotation>

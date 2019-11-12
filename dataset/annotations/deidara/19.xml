@@ -1,0 +1,26 @@
+<annotation>
+	<folder>deidara</folder>
+	<filename>19.png</filename>
+	<path>/home/jacob/Desktop/code/csc420/naruto-cv/dataset/data/deidara/19.png</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>500</width>
+		<height>600</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>deidara</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>184</xmin>
+			<ymin>27</ymin>
+			<xmax>352</xmax>
+			<ymax>188</ymax>
+		</bndbox>
+	</object>
+</annotation>

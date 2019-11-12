@@ -1,0 +1,26 @@
+<annotation>
+	<folder>shino_aburame</folder>
+	<filename>19.png</filename>
+	<path>/home/jacob/Desktop/code/csc420/naruto-cv/dataset/data/shino_aburame/19.png</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>5098</width>
+		<height>2776</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>shino_aburame</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>1856</xmin>
+			<ymin>84</ymin>
+			<xmax>3120</xmax>
+			<ymax>1348</ymax>
+		</bndbox>
+	</object>
+</annotation>

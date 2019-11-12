@@ -1,0 +1,26 @@
+<annotation>
+	<folder>pain</folder>
+	<filename>14.png</filename>
+	<path>/home/jacob/Desktop/code/csc420/naruto-cv/dataset/data/pain/14.png</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>540</width>
+		<height>557</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>pain</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>69</xmin>
+			<ymin>64</ymin>
+			<xmax>524</xmax>
+			<ymax>500</ymax>
+		</bndbox>
+	</object>
+</annotation>

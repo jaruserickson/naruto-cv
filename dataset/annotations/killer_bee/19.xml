@@ -1,0 +1,26 @@
+<annotation>
+	<folder>killer_bee</folder>
+	<filename>19.png</filename>
+	<path>/home/jacob/Desktop/code/csc420/naruto-cv/dataset/data/killer_bee/19.png</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>592</width>
+		<height>334</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>killer_bee</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>189</xmin>
+			<ymin>60</ymin>
+			<xmax>393</xmax>
+			<ymax>291</ymax>
+		</bndbox>
+	</object>
+</annotation>

@@ -1,0 +1,26 @@
+<annotation>
+	<folder>sasuke_uchiha</folder>
+	<filename>19.png</filename>
+	<path>/home/jacob/Desktop/code/csc420/naruto-cv/dataset/data/sasuke_uchiha/19.png</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>640</width>
+		<height>1024</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>sasuke_uchiha</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>93</xmin>
+			<ymin>105</ymin>
+			<xmax>395</xmax>
+			<ymax>420</ymax>
+		</bndbox>
+	</object>
+</annotation>

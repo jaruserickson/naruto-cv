@@ -1,0 +1,26 @@
+<annotation>
+	<folder>itachi_uchiha</folder>
+	<filename>22.png</filename>
+	<path>/home/jacob/Desktop/code/csc420/naruto-cv/dataset/data/itachi_uchiha/22.png</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>1024</width>
+		<height>1707</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>itachi_uchiha</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>352</xmin>
+			<ymin>386</ymin>
+			<xmax>677</xmax>
+			<ymax>663</ymax>
+		</bndbox>
+	</object>
+</annotation>
