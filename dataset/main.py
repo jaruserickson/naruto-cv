@@ -68,5 +68,6 @@ if __name__ == '__main__':
     if not path.isdir('./data'):
         mkdir('./data')
     # Download character images.
-    # get_MAL_characters()
+    get_MAL_characters()
+    # Extract info from included annotations folder.
     extract_annotation_info()
