@@ -38,7 +38,8 @@ Some options:
  - I found that lpbcascade_animeface didn't work too well on Naruto characters, so I'd have to annotate them manually.
  - I decided on using [labelImg](https://github.com/tzutalin/labelImg) to annotate the images I'd retrieved.
  - While creating the dataset, when I found characters with rather "normal" faces I would include their hair as a way to add more keypoints to their classification.
- - As the images from myanimelist probably aren't enough, I'm going to use [google_image_download](https://github.com/hardikvasa/google-images-download) to download using keywords, and validate the links manually.
+ - There was around 290 pictures after using only MyAnimeList.
+ - As the images from MyAnimeList probably aren't enough, I'm going to use [google_image_download](https://github.com/hardikvasa/google-images-download) to download using keywords, and validate the links manually.
  - The image validator is necessary since google images has some fail cases: ![](readme-images/image_validator_fail.png)
  - I found that there was some duplication and a large amount of unusable images past around 30 images on google images - so I set the limit as such. If I really need more I can try another resource.
  - There was a couple URLs the validator could see but requests couldn't download, and as such, these were blacklisted in the download shell script.
