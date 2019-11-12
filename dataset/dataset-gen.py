@@ -1,11 +1,13 @@
 """ Generate a dataset of naruto characters. """
 import cv2
 import sys
-from os import path, mkdir, listdir
 import requests
 import shutil
 import json
 import time
+from os import path, mkdir, listdir
+from xml.dom import minidom
+from collections import defaultdict
 
 # Top 30 characters from the latest character poll.
 with open('characters.json', 'r') as characters:
@@ -24,7 +26,7 @@ def get_MAL_characters():
             mkdir(datapath)
             # Get images for the character
             resp = requests.get(f'https://api.jikan.moe/v3/character/{CHARACTER_ID[char]}/pictures')
-            
+
             # Save the images of the character
             if resp.status_code == 200:
                 pictures = resp.json()['pictures']
@@ -42,15 +44,32 @@ def get_MAL_characters():
             print(f'Skipping {char}. Data already downloaded.')
 
 
-def propogate_annotations():
-    """ Propogate annotations files from annotations folder into the data folder """
-    for char in listdir('./data'):
+def extract_annotation_info():
+    """ Extract annotation info from Pascal VOC format xml to JSON for easy use. """
+    get_xml_val = lambda x, y: x.getElementsByTagName(y)[0].firstChild.data
+    annotations = defaultdict(defaultdict)
+    for char in listdir('./annotations'):
         for fname in listdir(f'./annotations/{char}'):
-            shutil.copy2(f'./annotations/{char}/{fname}', f'./data/{char}')
+            info = minidom.parse(f'./annotations/{char}/{fname}')
+
+            char_obj = info.getElementsByTagName('object')[0]
+            bndbox = char_obj.getElementsByTagName('bndbox')[0]
+
+            ann = {
+                'xmin': get_xml_val(bndbox, 'xmin'),
+                'ymin': get_xml_val(bndbox, 'ymin'),
+                'xmax': get_xml_val(bndbox, 'xmax'),
+                'ymax': get_xml_val(bndbox, 'ymax'),
+            }
+            annotations[get_xml_val(char_obj, 'name')][fname.split('.')[0]] = ann
+
+    with open('./annotations.json', 'w') as outfile:
+        json.dump(annotations, outfile)
+
 
 if __name__ == '__main__':
     if not path.isdir('./data'):
         mkdir('./data')
     # Download character images.
-    get_MAL_characters()
-    propogate_annotations()
+    # get_MAL_characters()
+    extract_annotation_info()
