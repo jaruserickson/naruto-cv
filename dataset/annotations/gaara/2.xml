@@ -1,0 +1,26 @@
+<annotation>
+	<folder>gaara</folder>
+	<filename>2.png</filename>
+	<path>/home/jacob/Desktop/code/csc420/naruto-cv/dataset/data/gaara/2.png</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>0</width>
+		<height>0</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>gaara</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>66</xmin>
+			<ymin>21</ymin>
+			<xmax>220</xmax>
+			<ymax>184</ymax>
+		</bndbox>
+	</object>
+</annotation>

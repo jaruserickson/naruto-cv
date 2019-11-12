@@ -1,0 +1,26 @@
+<annotation>
+	<folder>kakashi_hatake</folder>
+	<filename>2.png</filename>
+	<path>/home/jacob/Desktop/code/csc420/naruto-cv/dataset/data/kakashi_hatake/2.png</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>0</width>
+		<height>0</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>kakashi_hatake</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>44</xmin>
+			<ymin>53</ymin>
+			<xmax>178</xmax>
+			<ymax>202</ymax>
+		</bndbox>
+	</object>
+</annotation>

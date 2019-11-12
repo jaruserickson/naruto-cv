@@ -1,0 +1,26 @@
+<annotation>
+	<folder>kisame_hoshigaki</folder>
+	<filename>2.png</filename>
+	<path>/home/jacob/Desktop/code/csc420/naruto-cv/dataset/data/kisame_hoshigaki/2.png</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>0</width>
+		<height>0</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>kisame_hoshigaki</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>48</xmin>
+			<ymin>26</ymin>
+			<xmax>216</xmax>
+			<ymax>255</ymax>
+		</bndbox>
+	</object>
+</annotation>

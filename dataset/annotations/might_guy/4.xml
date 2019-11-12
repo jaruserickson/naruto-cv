@@ -1,0 +1,26 @@
+<annotation>
+	<folder>might_guy</folder>
+	<filename>4.png</filename>
+	<path>/home/jacob/Desktop/code/csc420/naruto-cv/dataset/data/might_guy/4.png</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>0</width>
+		<height>0</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>might_guy</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>67</xmin>
+			<ymin>50</ymin>
+			<xmax>187</xmax>
+			<ymax>162</ymax>
+		</bndbox>
+	</object>
+</annotation>

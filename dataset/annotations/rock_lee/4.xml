@@ -1,0 +1,26 @@
+<annotation>
+	<folder>rock_lee</folder>
+	<filename>4.png</filename>
+	<path>/home/jacob/Desktop/code/csc420/naruto-cv/dataset/data/rock_lee/4.png</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>0</width>
+		<height>0</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>rock_lee</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>70</xmin>
+			<ymin>19</ymin>
+			<xmax>197</xmax>
+			<ymax>146</ymax>
+		</bndbox>
+	</object>
+</annotation>

@@ -42,36 +42,15 @@ def get_MAL_characters():
             print(f'Skipping {char}. Data already downloaded.')
 
 
-def detect(filename, cascade_file="./lbpcascade_animeface.xml"):
-    """ Detect anime faces in an image provided using OpenCV Cascade.
-
-        Keyword arguments:
-        filename    -- (str) filename to detect upon
-        cascade_file -- (str) provided animeface cascade_file
-    """
-    if not path.isfile(cascade_file):
-        raise RuntimeError(f'{cascade_file}: not found')
-
-    cascade = cv2.CascadeClassifier(cascade_file)
-    image = cv2.imread(filename, cv2.IMREAD_COLOR)
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    gray = cv2.equalizeHist(gray)
-
-    faces = cascade.detectMultiScale(
-        gray, scaleFactor=1.1, minNeighbors=5, minSize=(24, 24))
-
-    for x, y, w, h in faces:  # Face bounds
-        cv2.rectangle(image, (x, y), (x+w, y+h), (0, 0, 255), 2)
-
-    cv2.imshow('Face Detection', image)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-
+def propogate_annotations():
+    """ Propogate annotations files from annotations folder into the data folder """
+    for char in listdir('./data'):
+        for fname in listdir(f'./annotations/{char}'):
+            shutil.copy2(f'./annotations/{char}/{fname}', f'./data/{char}')
 
 if __name__ == '__main__':
+    if not path.isdir('./data'):
+        mkdir('./data')
     # Download character images.
     get_MAL_characters()
-    # Go through all the images downloaded and detect.
-    for char in listdir('./data'):
-        for img in listdir(path.join('./data', char)):
-            detect(path.join('./data', char, img))
+    propogate_annotations()

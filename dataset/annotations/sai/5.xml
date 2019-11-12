@@ -1,0 +1,26 @@
+<annotation>
+	<folder>sai</folder>
+	<filename>5.png</filename>
+	<path>/home/jacob/Desktop/code/csc420/naruto-cv/dataset/data/sai/5.png</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>0</width>
+		<height>0</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>sai</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>52</xmin>
+			<ymin>41</ymin>
+			<xmax>199</xmax>
+			<ymax>193</ymax>
+		</bndbox>
+	</object>
+</annotation>
