@@ -18,7 +18,7 @@ Some options:
 
 
 ### Tasks
-- [ ] Create a dataset of character faces with tags, pulling character images from [Jikan](https://jikan.moe/), and cropping faces using the detector [lbpcascade_animeface](https://github.com/nagadomi/lbpcascade_animeface) (Note: this detector will only be used during the generation of the dataset, and only to crop faces). [IN PROGRESS]
+- [ ] Create a dataset of character faces with tags, pulling character images from [Jikan](https://jikan.moe/), and cropping faces using the detector [lbpcascade_animeface](https://github.com/nagadomi/lbpcascade_animeface) (Note: this detector will only be used during the generation of the dataset, and only to crop faces).
    - If more character pictures are needed, we’ll manually pick them to be added from Google Images.
 - [ ] Train a network with the created dataset to detect and classify character faces.
   - [ ] Draw a bounding box around the character faces, with their name as the tag.
@@ -34,6 +34,14 @@ Some options:
  - Some characters largely change in appearance throughout the show
 
 ### Notes
+#### Dataset
  - I found that lpbcascade_animeface didn't work too well on Naruto characters, so I'd have to annotate them manually.
  - I decided on using [labelImg](https://github.com/tzutalin/labelImg) to annotate the images I'd retrieved.
  - While creating the dataset, when I found characters with rather "normal" faces I would include their hair as a way to add more keypoints to their classification.
+ - As the images from myanimelist probably aren't enough, I'm going to use [google_image_download](https://github.com/hardikvasa/google-images-download) to download using keywords, and validate the links manually.
+ - The image validator is necessary since google images has some fail cases: ![](readme-images/image_validator_fail.png)
+ - I found that there was some duplication and a large amount of unusable images past around 30 images on google images - so I set the limit as such. If I really need more I can try another resource.
+#### CNN Face Detection
+ - Not started.
+#### Village Symbol Recognition
+ - Not started.

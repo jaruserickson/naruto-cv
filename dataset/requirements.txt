@@ -1,4 +1,6 @@
 requests
+google_images_download
+tqdm
 
 # Linting
 pylint
