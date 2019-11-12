@@ -4,7 +4,6 @@ import os
 import numpy as np
 import cv2
 
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 IMG_INPUT_SIZE = 256
 
 def create_dataset(test_split=0.2):
