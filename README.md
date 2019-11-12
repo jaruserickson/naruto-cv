@@ -45,6 +45,6 @@ Some options:
  - There was a couple URLs the validator could see but requests couldn't download, and as such, these were blacklisted in the download shell script.
  - There's currently 765 different pictures of characters in the dataset after this.
 #### CNN Face Detection
- - Not started.
+ - Planning on using a YOLO based CNN to detect and track characters - need more research into the network to proceed.
 #### Village Symbol Recognition
  - Not started.
