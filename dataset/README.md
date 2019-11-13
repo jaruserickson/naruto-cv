@@ -3,8 +3,8 @@
 ## Notes
 There's a bunch of files here, so I'm going to list their utility as such:
 1. Image validation
-    - `get-image-links.sh` - Generate a file "google_images.txt" using `characters.txt` as search terms for `image_validator.py` to ingest. It will output `validated_images.json`
-    - `image_validator.py` will open a GUI to manually validate images from google images. ![](../readme-images/image_validator.png)
+    - `get-image-links.sh` - Generate a file `google_images.txt` (not pre-generated in repo) using `characters.txt` as search terms.
+    - `image_validator.py` will open a GUI to manually validate images from google images.  It will output `validated_images.json` ![](../readme-images/image_validator.png)
 2. Image downloading
     - `download_mal.py` - Downloads images from the characters listed in `characters.json`
     - `download_validated.py` - Downloads prevalidated images from the step above.
@@ -21,4 +21,15 @@ To download the full dataset for usage locally, run the following:
 ```
 python3 download_mal.py
 python3 download_validated.py
+```
+
+## Extras
+If you would like to perform manual validation on the google images downloads:
+```
+./get-image-links.sh
+python3 image_validator.py
+```
+If you want to re-generate `annotations.json`:
+```
+python3 get_annotations_file.py
 ```
