@@ -26,12 +26,10 @@ def create_dataset(test_split=0.2):
             img = cv2.imread(f'{data_dir}/{char}/{imgfile}')
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)  # Use RGB image.
             bndboxes = annotations[char][imgfile.split('.')[0]]
-            for crop in bndboxes:  # There can be more than one bounding box.
-                sized = crop_and_resize(img, crop, (IMG_INPUT_SIZE, IMG_INPUT_SIZE))
-
+            for box in bndboxes:  # There can be more than one bounding box.
                 # Add data to sets
-                img_set.append(sized)
-                class_set.append(crop['name'])
+                img_set.append(img)
+                class_set.append(box['name'])
 
     # Split data
     cut = round(len(img_set) * test_split)
@@ -58,11 +56,12 @@ def crop_and_resize(img, crop, size):
 if __name__ == '__main__':
     # Get dataset.
     TRAIN_DS, _ = create_dataset()
-    choice = np.random.randint(len(TRAIN_DS[0]))
 
-    # Plot the randomly chosen image.
-    import matplotlib.pyplot as plt
-    plt.imshow(TRAIN_DS[0][choice])
-    plt.title(TRAIN_DS[1][choice])
-    plt.axis('off')
-    plt.show()
+    while True:
+        # Plot the randomly chosen image.
+        import matplotlib.pyplot as plt
+        choice = np.random.randint(len(TRAIN_DS[0]))
+        plt.imshow(TRAIN_DS[0][choice])
+        plt.title(TRAIN_DS[1][choice])
+        plt.axis('off')
+        plt.show()
