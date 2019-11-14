@@ -3,6 +3,7 @@ import shutil
 import json
 import time
 import requests
+from os import path, mkdir
 
 # Top 30 characters from the latest character poll.
 with open('characters.json', 'r') as characters:
