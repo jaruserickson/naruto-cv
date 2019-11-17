@@ -48,3 +48,8 @@ Some options:
  - Planning on using a YOLO based CNN to detect and track characters - need more research into the network to proceed.
 #### Village Symbol Recognition
  - Not started.
+#### Main Application
+ - Goal was to create a simple gui which would display a video as we processed it, as well as help the debugging process once we get to testing using videos.
+ - Tried to implement the gui using Qt, but this ended up requiring more work to install and learn their video player widgets than it did to create my own OpenCV based version
+ - Also tried a MatPlotLib version, but live plotting is not well supported in MatPlotLib, and the solution was too slow to be feasible.
+ - Currently there is a working OpenCV based gui and backend which sends video frames to the algo as needed and provides some simple commands via keyboard shortcuts to play/pause the video, etc. The gui can also easily be extended.
