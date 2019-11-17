@@ -19,21 +19,6 @@ def parse_arguments(argv, prog=''):
                         type=str,
                         help='Video file',
                         required=True)
-    parser.add_argument('--start-frame',
-                        type=int,
-                        help='Frame at which to start',
-                        default=0,
-                        required=False)
-    parser.add_argument('--stop-frame',
-                        type=int,
-                        help='Frame at which to stop',
-                        default=-1,
-                        required=False)
-    parser.add_argument('--step-frame',
-                        type=int,
-                        help='Frame step size',
-                        default=1,
-                        required=False)
     parser.add_argument('--enable-character-recognition',
                         type=bool,
                         help='Enable/disable character recognition',
@@ -61,9 +46,6 @@ def main(argv, prog=''):
     app = Application()
 
     app.set_vidfile(args.vid_file)
-    app.set_start_frame(args.start_frame)
-    app.set_stop_frame(args.stop_frame)
-    app.set_step_frame(args.step_frame)
     app.set_enable_character_recognition(args.enable_character_recognition)
     app.set_enable_village_symbol_detection(args.enable_village_symbol_detection)
 

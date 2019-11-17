@@ -5,31 +5,31 @@ application
 import cv2
 import matplotlib.pyplot as plt
 import time
+import threading
+
+from algoctrl import AlgoCtrl
+from vidctrl import VidCtrl
 
 
 class Application():
+    """ Main application """
     def __init__(self):
         """ Initialize application """
         self._vidfile = None
         self._enable_character_recognition = None
         self._enable_village_symbol_detection = None
-        self._start_frame = None
-        self._stop_frame = None
-        self._step_frame = None
         self._fps = 24
+
+        self._output = None
+        self._frame = None
+        self._frame_lock = threading.Lock()
+        self._output_lock = threading.Lock()
+        self._new_frame_event = threading.Event()
+        self._end_frame_event = threading.Event()
 
     """ Attribute setters """
     def set_vidfile(self, vidfile):
         self._vidfile = vidfile
-
-    def set_start_frame(self, n):
-        self._start_frame = n
-        
-    def set_stop_frame(self, n):
-        self._stop_frame = n
-
-    def set_step_frame(self, n):
-        self._step_frame = n
 
     def set_enable_character_recognition(self, flag):
         self._enable_character_recognition = flag
@@ -39,47 +39,59 @@ class Application():
 
     def run(self):
         """ Run the application """
+        algo = AlgoCtrl(self, self._new_frame_event, self._end_frame_event)
+        algo.set_enable_character_recognition(self._enable_character_recognition)
+        algo.set_enable_village_symbol_detection(self._enable_village_symbol_detection)
+        video = VidCtrl(self, self._new_frame_event, self._end_frame_event, self._vidfile)
 
-        # open video file
-        cap = cv2.VideoCapture(self._vidfile)
+        video.start()
+        algo.start()
 
-        if not cap.isOpened():
-            print('Error opening video file')
-            return 1
-
-        n = 0
-        timer = time.clock()
-
-        # main loop
-        while(True):
-            # read frame
-            ret, frame = cap.read()
-
-            # check if valid frame
-            if not ret:
-                break
-
-            if n < self._start_frame or n % self._step_frame != 0:
-                continue
-
-            if self._stop_frame > 0 and n >= self._stop_frame:
-                break
-
-            # do processing here
-
-            # display
-            cv2.imshow('Application', frame)
-            
-            time_left = max(1, int((1. / self._fps - (time.clock() - timer)) * 1000))
-            if cv2.waitKey(time_left) & 0xFF == ord('q'):
-                break
-            else:
-                timer = time.clock()
-
-            n += 1
-
-        # release 
-        cap.release()
-        cv2.destroyAllWindows()
+        video.join()
+        algo.join()
 
         return 0
+
+    def set_frame(self, frame):
+        """ Set the next frame for processing """
+        self._frame_lock.acquire()
+        self._frame = frame
+        self._frame_lock.release()
+
+        # trigger new frame event
+        self._new_frame_event.set()
+
+    def get_frame(self):
+        """ Retrieve the current frame """
+        self._frame_lock.acquire()
+
+        if self._frame is not None:
+            frame = self._frame.copy()
+        else:
+            frame = None
+
+        self._frame_lock.release()
+        self._new_frame_event.clear()
+        return frame
+
+    def set_output(self, output):
+        """ Set the output of the most recent frame """
+        self._output_lock.acquire()
+        self._output = output
+        self._output_lock.release()
+
+        # trigger end of frame
+        self._end_frame_event.set()
+
+    def get_output(self):
+        """ Get the most recent frame's output """
+        self._output_lock.acquire()
+
+        if self._output is not None:
+            output = self._output.copy()
+        else:
+            output = None
+
+        self._output_lock.release()
+        self._end_frame_event.clear()
+        return output
