@@ -23,6 +23,7 @@ class VidCtrl(threading.Thread):
         self._end_frame_event = end_frame_event
 
         self._capture = cv2.VideoCapture(self._vidfile)
+        self._window_name = 'Naruto CV'
         self._cur_frame = None
 
     def load_frame(self):
@@ -41,6 +42,18 @@ class VidCtrl(threading.Thread):
         else:
             return None
 
+    def key_event(self, key):
+        """ Process a key event """
+        if key & 0xFF == ord('q'):
+            return 1
+        elif key & 0xFF == ord(' '):
+            while cv2.waitKey(0) & 0xFF != ord(' '):
+                pass
+        elif key & 0xFF == ord('n'):
+            self._next_frame_num += self._fps * 10
+        
+        return 0
+
     def run(self):
         """ Run """
         if not self._capture.isOpened():
@@ -51,6 +64,8 @@ class VidCtrl(threading.Thread):
         self._cur_frame = self.load_frame()
         self._app.set_frame(self._cur_frame)
         
+        # initialize window
+        cv2.namedWindow(self._window_name, cv2.WINDOW_NORMAL | cv2.WINDOW_GUI_EXPANDED)
         timer = time.clock()
 
         # main loop
@@ -64,10 +79,13 @@ class VidCtrl(threading.Thread):
 
             # display the current frame
             print('Displaying frame')
-            cv2.imshow('Application', self._cur_frame)
+            cv2.imshow(self._window_name, self._cur_frame)
             
+            # wait and process key events
             time_left = max(1, int((1. / self._fps - (time.clock() - timer)) * 1000))
-            if cv2.waitKey(time_left) & 0xFF == ord('q'):
+            key = cv2.waitKey(time_left)
+
+            if self.key_event(key) != 0:
                 break
             else:
                 timer = time.clock()
