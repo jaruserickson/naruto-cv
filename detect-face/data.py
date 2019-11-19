@@ -4,7 +4,7 @@ import os
 import numpy as np
 import cv2
 
-IMG_INPUT_SIZE = 256
+IMG_INPUT_SIZE = 448
 
 def create_dataset(test_split=0.2):
     """ Create the dataset for use in tensorflow.
@@ -28,8 +28,18 @@ def create_dataset(test_split=0.2):
             bndboxes = annotations[char][imgfile.split('.')[0]]
             for box in bndboxes:  # There can be more than one bounding box.
                 # Add data to sets
-                img_set.append(img)
-                class_set.append(box['name'])
+                x_scale = IMG_INPUT_SIZE / img.shape[1]
+                y_scale = IMG_INPUT_SIZE / img.shape[0]
+
+                resized = cv2.resize(img, (IMG_INPUT_SIZE, IMG_INPUT_SIZE))
+                resizebox = {
+                    'name': box['name'],
+                    'xmax': int(np.round(int(box['xmax']) * x_scale)),
+                    'ymax': int(np.round(int(box['ymax']) * y_scale)),
+                    'xmin': int(np.round(int(box['xmin']) * x_scale)),
+                    'ymin': int(np.round(int(box['ymin']) * y_scale))}
+                img_set.append(resized)
+                class_set.append(resizebox)
 
     # Split data
     cut = round(len(img_set) * test_split)
@@ -40,28 +50,19 @@ def create_dataset(test_split=0.2):
     return train_data, test_data
 
 
-def crop_and_resize(img, crop, size):
-    """ Crop and resize a numpy image.
-
-        Keyword arguments:
-        img  -- (np.array) An image to crop.
-        crop -- (dict) A dict containing the crop dimensions (xmin, ymin, xmax, ymax)
-        size -- (tuple) A tuple containing x and y size of output image
-    """
-    cropped = img[int(crop['ymin']):int(crop['ymax']), int(crop['xmin']):int(crop['xmax'])]
-    return cv2.resize(cropped, size)
-
-
 # Display usage.
 if __name__ == '__main__':
-    # Get dataset.
+    # Get dataset. (cached since this isn't a real case)
     TRAIN_DS, _ = create_dataset()
 
     while True:
         # Plot the randomly chosen image.
         import matplotlib.pyplot as plt
         choice = np.random.randint(len(TRAIN_DS[0]))
-        plt.imshow(TRAIN_DS[0][choice])
-        plt.title(TRAIN_DS[1][choice])
+        im = TRAIN_DS[0][choice]
+        box = TRAIN_DS[1][choice]
+        print(box)
+        plt.imshow(cv2.rectangle(im, (box['xmax'], box['ymax']), (box['xmin'], box['ymin']), (255, 0, 0), 2))
+        plt.title(box['name'])
         plt.axis('off')
         plt.show()
