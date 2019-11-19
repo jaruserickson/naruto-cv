@@ -14,10 +14,7 @@ class Application():
     """ Main application """
     def __init__(self):
         """ Initialize application """
-        self._vidfile = None
-        self._enable_character_recognition = None
-        self._enable_village_symbol_detection = None
-        self._fps = 24
+        self._args = None
 
         self._output = None
         self._frame = None
@@ -27,21 +24,18 @@ class Application():
         self._end_frame_event = threading.Event()
 
     """ Attribute setters """
-    def set_vidfile(self, vidfile):
-        self._vidfile = vidfile
-
-    def set_enable_character_recognition(self, flag):
-        self._enable_character_recognition = flag
-        
-    def set_enable_village_symbol_detection(self, flag):
-        self._enable_village_symbol_detection = flag
+    def set_args(self, args):
+        self._args = args
 
     def run(self):
         """ Run the application """
         algo = AlgoCtrl(self, self._new_frame_event, self._end_frame_event)
-        algo.set_enable_character_recognition(self._enable_character_recognition)
-        algo.set_enable_village_symbol_detection(self._enable_village_symbol_detection)
-        video = VidCtrl(self, self._new_frame_event, self._end_frame_event, self._vidfile)
+        algo.set_enable_character_recognition(self._args.enable_character_recognition)
+        algo.set_enable_village_symbol_detection(self._args.enable_village_symbol_detection)
+
+        video = VidCtrl(self, self._new_frame_event, self._end_frame_event, self._args.vid_file)
+        video.set_mode(self._args.mode)
+        video.set_fps(self._args.fps)
 
         video.start()
         algo.start()

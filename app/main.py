@@ -29,6 +29,16 @@ def parse_arguments(argv, prog=''):
                         help='Enable/disable village symbol detection',
                         default=True,
                         required=False)
+    parser.add_argument('--mode',
+                        type=str,
+                        help="Video mode - can be either 'video' to read from a video or 'images' to read from an folder of images",
+                        default='video',
+                        required=False)
+    parser.add_argument('--fps',
+                        type=int,
+                        help='Frames per second',
+                        default=24,
+                        required=False)
                         
     # run parser
     args, unprocessed_argv = parser.parse_known_args(argv)
@@ -44,10 +54,7 @@ def main(argv, prog=''):
 
     # create and initialize application object
     app = Application()
-
-    app.set_vidfile(args.vid_file)
-    app.set_enable_character_recognition(args.enable_character_recognition)
-    app.set_enable_village_symbol_detection(args.enable_village_symbol_detection)
+    app.set_args(args)
 
     # run application
     app.run()
