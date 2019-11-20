@@ -13,7 +13,8 @@ Some example clips we're planning to be able to run on:
 
 ### Facial Detection Network
 Some options:
- - [MTCNN](https://arxiv.org/abs/1604.02878)
+ - [R-CNN](https://arxiv.org/pdf/1311.2524.pdf)
+ - [RetinaNet](https://arxiv.org/pdf/1708.02002.pdf)
  - [YOLO](https://arxiv.org/pdf/1506.02640v5.pdf)
 
 
@@ -45,7 +46,40 @@ Some options:
  - There was a couple URLs the validator could see but requests couldn't download, and as such, these were blacklisted in the download shell script.
  - There's currently 765 different pictures of characters in the dataset after this.
 #### CNN Face Detection
- - Planning on using a YOLO based CNN to detect and track characters - need more research into the network to proceed.
+ - Initially planned on using a YOLO CNN to detect and track characters.
+ - I've done quite a bit of reading into the details of YOLO. The papers and articles of which are listed below.
+   - [You Only Look Once: Unified, Real-Time Object Detection](https://arxiv.org/pdf/1506.02640.pdf)
+   - [YOLO9000: Better, Faster, Stronger](https://arxiv.org/pdf/1612.08242.pdf)
+   - [YOLOv3: An Incremental Improvement](https://arxiv.org/pdf/1804.02767.pdf)
+   - [Understanding YOLO](https://hackernoon.com/understanding-yolo-f5a74bbc7967)
+   - [YOLO - You only look once, real time object detection explained](https://towardsdatascience.com/yolo-you-only-look-once-real-time-object-detection-explained-492dc9230006)
+ - YOLO seems like a good solution.
+ - I'm going to take a look at some other networks.
+   - [R-CNN, Fast R-CNN, Faster R-CNN, YOLO - Object Detection Algorithms](https://towardsdatascience.com/r-cnn-fast-r-cnn-faster-r-cnn-yolo-object-detection-algorithms-36d53571365e)
+   - [Faster R-CNN: Towards Real-Time Object Detection with Region Proposal Networks](https://arxiv.org/pdf/1506.01497.pdf)
+   - [Zero to Hero: Guide to Object Detection using Deep Learning: Faster R-CNN, YOLO, SSD](https://cv-tricks.com/object-detection/faster-r-cnn-yolo-ssd/)
+   - [SSD: Single Shot MultiBox Detector](https://arxiv.org/pdf/1512.02325.pdf)
+ - After reading the above resources, SSD and YOLO seem like the obvious choices. 
+ - I need to figure out how to input the data into these networks however, since we're using a hand-built dataset.
+   -  I'd assume our best bet will be to mimick the PASCAL VOC dataset's format and use it as such.
+ - I'm toying with the idea of simply following a tutorial or using a framework since the networks are quite complex (compared to U-Net, for example) when it comes down to not only the data input but their exact implementation (their layers can get quite complex) and decoding their output. I'm going to need a little more help on it.
+
+There's a number of implementations of both YOLO and SSD on github:
+ - YOLO
+   - [eriklindernoren/PyTorch-YOLOv3](https://github.com/eriklindernoren/PyTorch-YOLOv3) (3k :star:)
+   - [ayooshkathuria/pytorch-yolo-v3](https://github.com/ayooshkathuria/pytorch-yolo-v3) (2.3k :star:)
+   - [allanzelener/YAD2K](https://github.com/allanzelener/YAD2K) (2.1k :star:)
+   - [ayooshkathuria/YOLO_v3_tutorial_from_scratch](https://github.com/ayooshkathuria/YOLO_v3_tutorial_from_scratch) (1.5k :star:)
+   
+ - SSD
+   - [NVIDIA Implementation of SSD](https://pytorch.org/hub/nvidia_deeplearningexamples_ssd/)
+   - [balancap/SSD-Tensorflow](https://github.com/balancap/SSD-Tensorflow) (3.5k :star:)
+   - [amdegroot/ssd.pytorch](https://github.com/amdegroot/ssd.pytorch) (3k :star:)
+   - [sgrvinod/a-PyTorch-Tutorial-to-Object-Detection](https://github.com/sgrvinod/a-PyTorch-Tutorial-to-Object-Detection) (700 :star:)
+ - Others
+   - [PyTorch Implementation of Faster R-CNN](https://pytorch.org/docs/stable/torchvision/models.html#object-detection-instance-segmentation-and-person-keypoint-detection)
+   
+   
 #### Village Symbol Recognition
  - Not started.
 #### Main Application
