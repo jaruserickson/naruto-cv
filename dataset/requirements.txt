@@ -2,6 +2,6 @@ requests
 google_images_download
 tqdm
 tensorflow-gpu==1.15.0
-
+pytube
 # Linting
 pylint

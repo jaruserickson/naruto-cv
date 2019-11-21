@@ -132,7 +132,6 @@ if __name__ == '__main__':
     if not os.path.isdir('vid_data'):
         os.mkdir('vid_data')
         os.mkdir('vid_data/videos')
-        os.mkdir('vid_data/frames')
 
     vid_links = [
         ('https://www.youtube.com/watch?v=hWp61OEy4R4', 'NARUTO IN 18 MINUTES.mp4'),

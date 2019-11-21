@@ -6,9 +6,10 @@ Given a scene from an episode of *Naruto*, track major character's faces, and id
 
 ### Source Clips
 Some example clips we're planning to be able to run on:
- - [Naruto Shippuden Opening 18](https://www.youtube.com/watch?v=HdgD7E6JEE4)
- - [Naruto Opening 2](https://www.youtube.com/watch?v=SRn99oN1p_c)
- - [Naruto and Hinata Wedding](https://www.youtube.com/watch?v=BoMBsDIGkKI)
+ - [Naruto Shippuden Opening 18](https://www.youtube.com/watch?v=HdgD7E6JEE4) (Character variety)
+ - [Naruto Opening 2](https://www.youtube.com/watch?v=SRn99oN1p_c) (Character variety)
+ - [Naruto and Hinata Wedding](https://www.youtube.com/watch?v=BoMBsDIGkKI) (Character variety)
+ - [Naruto vs Sasuke](https://www.youtube.com/watch?v=u_1onhckHuw) (Validation of the two main characters, and their augmentations during a fight scene.)
 
 
 ### Facial Detection Network
@@ -46,10 +47,11 @@ Some options:
  - There was a couple URLs the validator could see but requests couldn't download, and as such, these were blacklisted in the download shell script.
  - There's currently 765 different pictures of characters in the dataset after this.
  - After successfully running the below Faster R-CNN network on the dataset created, I've come to the conclusion that we're going to need more pictures.
- - Some options for expanding the dataset:
-   - Use the google-images + validator to expand code (downside: won't yield the greatest results)
-   - Ideally I'll use something mainly with shots of Naruto, potentially even an episode or two which are dense with characters.
-     - Might be worth designing a quick app that scrubs through a video and lets me choose frames that will be included.
+ - I'll be using [pytube](https://github.com/nficano/pytube) to download a playlist I've put together (excluding the sample videos above, since those are our test set and we ideally don't want to overlap - although some overlap is inevitable) of clips of each character, then use a slightly modified validator to pick out frames I like and output them to a csv file `validated_frames.csv`. This file will be able to be fed into the youtube video downloader to extract only the frames we've validated.
+   - When putting the playlist together, fan-made "AMVs" (Anime Music Videos) came in handy since there was a large amount of color correction, warps and other augmentations already embedded into the videos. They also allowed easier splitting of training and eval data.
+   - The Validator ended up looking as follows. Choose frame will add the frame and filename to a CSV file `validated_frames.csv`. ![](/readme-images/video_frame_picker.png)
+   - I went with Tkinter here since Matplotlib is actually super slow at rendering images. If I have time I'll "modernize" the google-image validator to use Tkinter UI and CSV output.
+ - At this point there's a lot of stuff to set up and do to get the dataset running, so I'm going to create either a Makefile or a shell file that runs everything in order. This needs to be done for the face detector as well, since its setup was pretty beefy.
 #### CNN Face Detection
  - Initially planned on using a YOLO CNN to detect and track characters.
  - I've done quite a bit of reading into the details of YOLO. The papers and articles of which are listed below.
