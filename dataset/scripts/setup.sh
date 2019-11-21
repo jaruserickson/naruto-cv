@@ -30,3 +30,7 @@ python3 generate_tfrecord.py --csv_input=images/test_labels.csv --image_dir=imag
 cd ~/tensorflow/models/research/object_detection
 cp ~/tensorflow/models/research/object_detection/legacy/train.py ~/tensorflow/models/research/object_detection
 python3 train.py --logtostderr --train_dir=training/ --pipeline_config_path=training/faster_rcnn_inception_v2_naruto.config
+
+# Run tensorboard to see results.
+cd ~/tensorflow/models/research/object_detection
+tensorboard --logdir=training
