@@ -34,3 +34,7 @@ python3 train.py --logtostderr --train_dir=training/ --pipeline_config_path=trai
 # Run tensorboard to see results.
 cd ~/tensorflow/models/research/object_detection
 tensorboard --logdir=training
+
+# Export Frozen Inference graph.
+cd ~/tensorflow/models/research/object_detection
+python3 export_inference_graph.py --input_type image_tensor --pipeline_config_path training/faster_rcnn_inception_v2_naruto.config --trained_checkpoint_prefix training/model.ckpt-12770 --output_directory inference_graph

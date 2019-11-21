@@ -1,4 +1,6 @@
 **/data/
+dataset/images
 google_images.txt
 .vscode
 *.cfg
+*.record
