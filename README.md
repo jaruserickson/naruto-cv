@@ -63,14 +63,12 @@ Some options:
  - I need to figure out how to input the data into these networks however, since we're using a hand-built dataset.
    -  I'd assume our best bet will be to mimick the PASCAL VOC dataset's format and use it as such.
  - I'm toying with the idea of simply following a tutorial or using a framework since the networks are quite complex (compared to U-Net, for example) when it comes down to not only the data input but their exact implementation (their layers can get quite complex) and decoding their output. I'm going to need a little more help on it.
-
 There's a number of implementations of both YOLO and SSD on github:
  - YOLO
    - [eriklindernoren/PyTorch-YOLOv3](https://github.com/eriklindernoren/PyTorch-YOLOv3) (3k :star:)
    - [ayooshkathuria/pytorch-yolo-v3](https://github.com/ayooshkathuria/pytorch-yolo-v3) (2.3k :star:)
    - [allanzelener/YAD2K](https://github.com/allanzelener/YAD2K) (2.1k :star:)
    - [ayooshkathuria/YOLO_v3_tutorial_from_scratch](https://github.com/ayooshkathuria/YOLO_v3_tutorial_from_scratch) (1.5k :star:)
-   
  - SSD
    - [NVIDIA Implementation of SSD](https://pytorch.org/hub/nvidia_deeplearningexamples_ssd/)
    - [balancap/SSD-Tensorflow](https://github.com/balancap/SSD-Tensorflow) (3.5k :star:)
