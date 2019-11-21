@@ -19,10 +19,10 @@ Some options:
 
 
 ### Tasks
-- [ ] Create a dataset of character faces with tags, pulling character images from [Jikan](https://jikan.moe/), and cropping faces using the detector [lbpcascade_animeface](https://github.com/nagadomi/lbpcascade_animeface) (Note: this detector will only be used during the generation of the dataset, and only to crop faces).
+- [x] Create a dataset of character faces with tags, pulling character images from [Jikan](https://jikan.moe/), and cropping faces using the detector [lbpcascade_animeface](https://github.com/nagadomi/lbpcascade_animeface) (Note: this detector will only be used during the generation of the dataset, and only to crop faces).
    - If more character pictures are needed, we’ll manually pick them to be added from Google Images.
-- [ ] Train a network with the created dataset to detect and classify character faces.
-  - [ ] Draw a bounding box around the character faces, with their name as the tag.
+- [x] Train a network with the created dataset to detect and classify character faces.
+  - [x] Draw a bounding box around the character faces, with their name as the tag.
 - [ ] Locate and identify village symbols within each scene.
   - [ ] Determine the orientation of the found symbols and draw the corresponding box around them.
    - (Optional) If the headband symbol lays within a character bounding box, we can determine which village they are from.
@@ -45,6 +45,11 @@ Some options:
  - I found that there was some duplication and a large amount of unusable images past around 30 images on google images - so I set the limit as such. If I really need more I can try another resource.
  - There was a couple URLs the validator could see but requests couldn't download, and as such, these were blacklisted in the download shell script.
  - There's currently 765 different pictures of characters in the dataset after this.
+ - After successfully running the below Faster R-CNN network on the dataset created, I've come to the conclusion that we're going to need more pictures.
+ - Some options for expanding the dataset:
+   - Use the google-images + validator to expand code (downside: won't yield the greatest results)
+   - Ideally I'll use something mainly with shots of Naruto, potentially even an episode or two which are dense with characters.
+     - Might be worth designing a quick app that scrubs through a video and lets me choose frames that will be included.
 #### CNN Face Detection
  - Initially planned on using a YOLO CNN to detect and track characters.
  - I've done quite a bit of reading into the details of YOLO. The papers and articles of which are listed below.
@@ -86,12 +91,14 @@ There's a number of implementations of both YOLO and SSD on github:
  - Some commands from the first youtube link were really helpful in getting tensorflow/models set up.
  - I had to revert tensorflow to v1.15 for some of this stuff to cooperate fully - tensorflow v2.0 is pretty new and has more limited help online than v1.x.
  - I'm going to try running a few different networks (starting with `faster_rcnn_inception_v2`) for as long as I can - it looks like we might need more than ~30 images per character however. I'm thinking we could try and aim for 100, but that's quite the time commitment for the time we have.
- - After a couple hours of training (around 10k epochs) I ran the model on the first video provided under "Source Clips" ([Naruto Shippuden Opening 18](https://www.youtube.com/watch?v=HdgD7E6JEE4))
+ - After 3 hours of training (around 12k epochs) I ran the model on the first video provided under "Source Clips" ([Naruto Shippuden Opening 18](https://www.youtube.com/watch?v=HdgD7E6JEE4))
+   - ![](/readme-images/Loss_800images_3hrs_12000epoch.png)
    - Some pretty decent facial recognition was present, spare a few faces that showed up too often, which I would assume means there isn't enough training data for the network to appropriately determine their appearance.
    - Some characters which showed proper recognition were `naruto_uzumaki`, `kakashi_hatake`, `shikamaru_nara`, `killer_bee`, `gaara`, and `neji_hyuuga`.
      - Each of these characters had some false positives, for example, naruto would get recognized as `minato_namikaze` on occasion, and kakashi would be recognized as the body of some ninjas.
    - Characters which showed up in some ambiguous cases were: `might_guy`:: generic face, `yamato`:: generic face, `shino_aburame`:: hidden face, `konan`:: generic girl face.
- - I believe the next step should be expanding the dataset.
+ - I believe the next step should be expanding the dataset, then trying other networks.
+ - I'm going to also write a different script to run the object detector, and rather than simply output frame by frame, process the video and output that (with sound! (hopefully))
 #### Village Symbol Recognition
  - Not started.
 #### Main Application
