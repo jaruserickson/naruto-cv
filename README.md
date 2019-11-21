@@ -86,6 +86,12 @@ There's a number of implementations of both YOLO and SSD on github:
  - Some commands from the first youtube link were really helpful in getting tensorflow/models set up.
  - I had to revert tensorflow to v1.15 for some of this stuff to cooperate fully - tensorflow v2.0 is pretty new and has more limited help online than v1.x.
  - I'm going to try running a few different networks (starting with `faster_rcnn_inception_v2`) for as long as I can - it looks like we might need more than ~30 images per character however. I'm thinking we could try and aim for 100, but that's quite the time commitment for the time we have.
+ - After a couple hours of training (around 10k epochs) I ran the model on the first video provided under "Source Clips" ([Naruto Shippuden Opening 18](https://www.youtube.com/watch?v=HdgD7E6JEE4))
+   - Some pretty decent facial recognition was present, spare a few faces that showed up too often, which I would assume means there isn't enough training data for the network to appropriately determine their appearance.
+   - Some characters which showed proper recognition were `naruto_uzumaki`, `kakashi_hatake`, `shikamaru_nara`, `killer_bee`, `gaara`, and `neji_hyuuga`.
+     - Each of these characters had some false positives, for example, naruto would get recognized as `minato_namikaze` on occasion, and kakashi would be recognized as the body of some ninjas.
+   - Characters which showed up in some ambiguous cases were: `might_guy`:: generic face, `yamato`:: generic face, `shino_aburame`:: hidden face, `konan`:: generic girl face.
+ - I believe the next step should be expanding the dataset.
 #### Village Symbol Recognition
  - Not started.
 #### Main Application
