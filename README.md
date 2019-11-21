@@ -78,8 +78,11 @@ There's a number of implementations of both YOLO and SSD on github:
    - [sgrvinod/a-PyTorch-Tutorial-to-Object-Detection](https://github.com/sgrvinod/a-PyTorch-Tutorial-to-Object-Detection) (700 :star:)
  - Others
    - [PyTorch Implementation of Faster R-CNN](https://pytorch.org/docs/stable/torchvision/models.html#object-detection-instance-segmentation-and-person-keypoint-detection)
-   
-   
+ - I ended up using the following resources to move forward with the development of our face detector:
+   - [How to Train an Object Detection Classifier Using TensorFlow (GPU) on Windows 10](https://www.youtube.com/watch?v=Rgpfk6eYxJA)
+   - [datitran/raccoon_dataset](https://github.com/datitran/raccoon_dataset)
+   - [tensorflow/models](https://github.com/tensorflow/models)
+   - [Tensorflow detection model zoo](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)
 #### Village Symbol Recognition
  - Not started.
 #### Main Application
