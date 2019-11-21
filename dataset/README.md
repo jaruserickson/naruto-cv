@@ -3,11 +3,11 @@
 ## Notes
 There's a bunch of files here, so I'm going to list their utility as such:
 1. Image validation
-    - `get-image-links.sh` - Generate a file `google_images.txt` (not pre-generated in repo) using `characters.txt` as search terms.
+    - `get-image-links.sh` - Generate a file `google_images.txt` (not pre-generated in repo) using `search_characters.txt` as search terms.
     - `image_validator.py` will open a GUI to manually validate images from google images.  It will output `validated_images.json`.
 2. Image downloading
-    - `download_mal.py` - Downloads images from the characters listed in `characters.json`
-    - `download_validated.py` - Downloads prevalidated images from the step above.
+    - `download_mal.py` - Downloads images from MyAnimeList.
+    - `download_validated.py` - Downloads prevalidated images from the step 1.
 3. Annotations
     - `annotations/` - manually created from [labelImg](https://github.com/tzutalin/labelImg) given the above images.
 4. Dataset Creation
