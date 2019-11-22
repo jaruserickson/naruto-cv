@@ -62,7 +62,7 @@ migrate:
 train: train-frcnn
 
 train-frcnn:
-	@echo "Training FR-CNNmodel on dataset..."
+	@echo "Training FR-CNN model on dataset..."
 	# PATH setup
 	export PYTHONPATH="$$PWD/$(TF_FOLDER)/models:$$PWD/$(TF_FOLDER)/models/research:$$PWD/$(TF_FOLDER)/models/research/slim" && \
 		export PATH="$$PATH:$$PYTHONPATH" && \
