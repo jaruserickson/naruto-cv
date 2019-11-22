@@ -103,6 +103,7 @@ There's a number of implementations of both YOLO and SSD on github:
    - [datitran/raccoon_dataset](https://github.com/datitran/raccoon_dataset)
    - [tensorflow/models](https://github.com/tensorflow/models)
    - [Tensorflow detection model zoo](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)
+ - I chose to implement it this way since frameworks like Detectron don't allow for as much customization (i.e. trying out different networks easily).
  - I wrote a quick script to format the dataset for use with `tensorflow/models` (folder re-organization, CSV generation), and used the `generate_tfrecord` script from `datitran/raccoon_dataset` to generate tfrecords.
  - Some commands from the first youtube link were really helpful in getting tensorflow/models set up.
  - I had to revert tensorflow to v1.15 for some of this stuff to cooperate fully - tensorflow v2.0 is pretty new and has more limited help online than v1.x.
