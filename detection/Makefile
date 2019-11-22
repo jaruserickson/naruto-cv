@@ -1,11 +1,13 @@
 .DEFAULT_GOAL := all
 
 all: install tensorflow  # In case you don't have the packages installed
-tensorflow: download migrate setup
+tensorflow: download faster-rcnn migrate setup
 
 # Can change this to your liking.
 TF_FOLDER=tensorflow
 PROTOC_ZIP=protoc-3.7.1-linux-x86_64.zip
+FRCNN=faster_rcnn_inception_v2_coco_2018_01_28.tar.gz
+SSD=ssd_inception_v2_coco_2018_01_28.tar.gz
 
 install:
 	@echo "Installing packages..."
@@ -28,16 +30,27 @@ setup:
 		python3 setup.py install
 
 download:
-	@ echo "Installing required modules..."
+	@ echo "Installing tensorflow models..."
 	# Download tensorflow/models and model of choice
 	mkdir $(TF_FOLDER)
 	cd $(TF_FOLDER) && \
-		git clone https://github.com/tensorflow/models.git && \
-		wget http://download.tensorflow.org/models/object_detection/faster_rcnn_inception_v2_coco_2018_01_28.tar.gz && \
-		mv faster_rcnn_inception_v2_coco_2018_01_28.tar.gz models/research/object_detection/
+		git clone https://github.com/tensorflow/models.git
+
+faster_rcnn:
+	cd $(TF_FOLDER) && \
+		wget http://download.tensorflow.org/models/object_detection/$(FRCNN) && \
+		mv $(FRCNN) models/research/object_detection/
 	cd $(TF_FOLDER)/models/research/object_detection/ && \
-		tar xf faster_rcnn_inception_v2_coco_2018_01_28.tar.gz && \
-		rm faster_rcnn_inception_v2_coco_2018_01_28.tar.gz
+		tar xf $(FRCNN) && \
+		rm $(FRCNN)
+
+ssd:
+	cd $(TF_FOLDER) && \
+		wget http://download.tensorflow.org/models/object_detection/$(SSD) && \
+		mv $(SSD) models/research/object_detection/
+	cd $(TF_FOLDER)/models/research/object_detection/ && \
+		tar xf $(SSD) && \
+		rm $(SSD)
 
 migrate:
 	@echo "Copying dataset"
@@ -46,14 +59,25 @@ migrate:
 	cp ../dataset/train.record $(TF_FOLDER)/models/research/object_detection
 	cp ../dataset/test.record $(TF_FOLDER)/models/research/object_detection
 
-train:
-	@echo "Training model on dataset..."
+train: train-frcnn
+
+train-frcnn:
+	@echo "Training FR-CNNmodel on dataset..."
 	# PATH setup
 	export PYTHONPATH="$$PWD/$(TF_FOLDER)/models:$$PWD/$(TF_FOLDER)/models/research:$$PWD/$(TF_FOLDER)/models/research/slim" && \
 		export PATH="$$PATH:$$PYTHONPATH" && \
 		cd $(TF_FOLDER)/models/research/object_detection && \
 			cp legacy/train.py . && \
 			python3 train.py --logtostderr --train_dir=training/ --pipeline_config_path=training/faster_rcnn_inception_v2_naruto.config
+
+train-ssd:
+	@echo "Training SSD model on dataset..."
+	# PATH setup
+	export PYTHONPATH="$$PWD/$(TF_FOLDER)/models:$$PWD/$(TF_FOLDER)/models/research:$$PWD/$(TF_FOLDER)/models/research/slim" && \
+		export PATH="$$PATH:$$PYTHONPATH" && \
+		cd $(TF_FOLDER)/models/research/object_detection && \
+			cp legacy/train.py . && \
+			python3 train.py --logtostderr --train_dir=training/ --pipeline_config_path=training/ssd_inception_v2_naruto.config
 
 tensorboard:
 	@echo "Spinning up tensorboard..."

@@ -47,6 +47,9 @@ Some options:
  - Some characters look really similar (e.g. Minato Namikaze, Naruto Uzumaki, Boruto Uzumaki)
  - Some characters wear their headbands in odd ways (e.g. Sakura Haruno)
  - Some characters largely change in appearance throughout the show
+ - Some characters have un-unique faces (e.g. Yamato, Shino Aburame), this can increase the chance of mis-identification.
+ - Modern CNNs for multiple object detection are really complex
+ - Data input/output is a challenge given the custom dataset
 
 ### Notes
 #### Dataset
@@ -115,7 +118,21 @@ There's a number of implementations of both YOLO and SSD on github:
      - Each of these characters had some false positives, for example, naruto would get recognized as `minato_namikaze` on occasion, and kakashi would be recognized as the body of some ninjas.
    - Characters which showed up in some ambiguous cases were: `might_guy`:: generic face, `yamato`:: generic face, `shino_aburame`:: hidden face, `konan`:: generic girl face.
  - I believe the next step should be expanding the dataset, then trying other networks.
- - I'm going to also write a different script to run the object detector, and rather than simply output frame by frame, process the video and output that (with sound! (hopefully))
+ - I'm going to also write a different script to run the object detector, and rather than simply output frame by frame, process the video and output that (with sound!)
+   - To properly get sound processing working, i'm using [FFmpeg](https://github.com/FFmpeg/FFmpeg) to detatch the audio from the YouTube video and attach it to the processed video.
+
+**Improvements**
+ - Now this works - but it's not perfect. I'd like to implement OpenCV's tracking alongside the detection, and that's where a new problem arises
+   - I'm going to run the detector every X frames, experimenting with what works best. I'll update the OpenCV tracker with new boxes when the detector is run. So the process for generating a video will be:
+    1. Detect every X frames, replace tracking boxes
+    2. Track for the next frames until detector is run
+ - After adding tracking we get much better results!! A large number of the faces are correct, with about 70% label acurracy.
+   - Detecting every 5 frames yields some decent results, although the detector will remove the boxes incorrectly on occasion.
+   - For production purposes, I'm going to detect every 2 frames. This doubles the FPS while still retaining some detection strength
+
+ - The other options now are a) try another more modern neural net, and b) try modifying the data (which I'm going to go with first)
+   - There's a couple characters previously noted that have large fail rates, that being: `shino_aburame`, `pain`, and `neji_hyuuga`. I'm going to retain `neji_hyuuga` since I think there's enough data of him such that I can improve his detection, but I'm going to remove the other two.
+  
 #### Village Symbol Recognition
  - Not started.
 #### Main Application

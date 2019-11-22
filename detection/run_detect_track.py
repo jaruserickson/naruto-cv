@@ -91,16 +91,36 @@ class Detector():
         """ Getter for class index """
         return self.class_index
 
+class BBox():
+    """ Bounding box object """
+    def __init__(self, box, name, color):
+        self.box = box
+        self.name = name
+        self.color = color
+    
+    def __str__(self):
+        return f'Bounding Box:\n\tName: {self.name}\n\tColor: {self.color}\n\tBounds: {self.box}'
 
 def download_video(tag='ns_op18'):
     """ Download a chosen video for use. """
     videos = {
-        'ns_op18': 'https://www.youtube.com/watch?v=HdgD7E6JEE4',
-        'n_op2': 'https://www.youtube.com/watch?v=SRn99oN1p_c',
-        'naruto_hinata_wedding': 'https://www.youtube.com/watch?v=BoMBsDIGkKI',
-        'naruto_v_sasuke': 'https://www.youtube.com/watch?v=u_1onhckHuw'}
+        'ns_op18': {
+            'name': 'Naruto Shippuden Opening 18 | LINE (HD).mp4',
+            'uri': 'https://www.youtube.com/watch?v=HdgD7E6JEE4'},
+        'n_op2': {
+            'name': 'Naruto Opening 2  Haruka Kanata (HD).mp4',
+            'uri': 'https://www.youtube.com/watch?v=SRn99oN1p_c'},
+        'naruto_hinata_wedding': {
+            'name': 'Naruto and Hinata Wedding.mp4',
+            'uri': 'https://www.youtube.com/watch?v=BoMBsDIGkKI'},
+        'naruto_v_sasuke': {
+            'name': '【MAD】 Naruto VS Sasuke / ナルト VS サスケ 『アウトサイダー』.mp4',
+            'uri': 'https://www.youtube.com/watch?v=u_1onhckHuw'}}
 
-    return YouTube(videos[tag]).streams.first().download()
+    if videos[tag]['name'] not in os.listdir(os.getcwd()):
+        return YouTube(videos[tag]['uri']).streams.first().download()
+    else:
+        return os.path.join(os.getcwd(), videos[tag]['name'])
 
 def filter_boxes(boxes, classes, scores, class_index, min_score_thresh):
     """ Modified version of tensorflow's visualize_boxes_and_labels_on_image_array """
@@ -130,59 +150,80 @@ def filter_boxes(boxes, classes, scores, class_index, min_score_thresh):
 
     return box_to_color_map, box_to_display_str_map
 
-def main(vid_choice, save=False):
+def create_tracker(frame, boxes):
+    """ Create a tracker with the boxes and the frame provided. """
+    h, w = frame.shape[:2]
+    tracker = cv2.MultiTracker_create()
+    for box in boxes:
+        ymin, xmin, ymax, xmax = box.box
+        bbox = (round(ymin * h), round(xmin * w), round(ymax * h), round(xmax * w))
+        tracker.add(cv2.TrackerMedianFlow_create(), frame, bbox)
+
+    return tracker
+
+def main(vid_choice, detect_rate=5, thresh=0.6, display=True):
     """ main function. """
     # Download video
     vid_path = download_video(vid_choice)
     cap = cv2.VideoCapture(vid_path)
-    # multi_tracker = cv2.MultiTracker_create()
+    multi_tracker = cv2.MultiTracker_create()
     det = Detector()
     out = cv2.VideoWriter(f'{vid_choice}.mp4', \
         cv2.VideoWriter_fourcc(*'mp4v'), cap.get(cv2.CAP_PROP_FPS), \
             (int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))))
     progress = tqdm(total=cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    count = 0
+    tracking_boxes = []
     while cap.isOpened():
         progress.update(1)
         success, frame = cap.read()
         if not success:
             print('Video read failed...')
             break
-        boxes, scores, classes, num = det.detect_image(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-        # Get boxes
-        box2color, box2name = filter_boxes(
-            np.squeeze(boxes),
-            np.squeeze(classes).astype(np.int32),
-            np.squeeze(scores),
-            det.get_class_index(),
-            min_score_thresh=0.60)
+        # Run a new detection:
+        if count % detect_rate == 0:
+            boxes, scores, classes, num = det.detect_image(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+            # Get boxes
+            # indicies = cv2.dnn.NMSBoxes(boxes, scores, score_threshold=thresh, nms_threshold=0.3)
+            box2color, box2name = filter_boxes(
+                np.squeeze(boxes),
+                np.squeeze(classes).astype(np.int32),
+                np.squeeze(scores),
+                det.get_class_index(),
+                min_score_thresh=thresh)
 
-        # Draw box
-        for box in box2color.keys():
-            ymin, xmin, ymax, xmax = box
+            # Get boxes, replace tracking boxes
+            tracking_boxes = []
+            for box in box2color.keys():
+                tracking_boxes.append(BBox(box, box2name[box], box2color[box]))
+            # Set the tracker.
+            multi_tracker = create_tracker(frame, tracking_boxes)
+        else: # Use a tracker for the in-between frames
+            # Get boxes from the tracker.
+            success, boxes = multi_tracker.update(frame)
+            meta = [(b.name, b.color) for b in tracking_boxes]
+            tracking_boxes = []
+            for i, newbox in enumerate(boxes):
+                h, w = frame.shape[:2]
+                ymin, xmin, ymax, xmax = newbox
+                newbox = (ymin / h, xmin / w, ymax / h, xmax / w)
+                tracking_boxes.append(BBox(newbox, meta[i][0], meta[i][1]))
+
+        # Draw boxes
+        for box in tracking_boxes:
+            ymin, xmin, ymax, xmax = box.box
             vis_util.draw_bounding_box_on_image_array(
                 frame,
                 ymin, xmin, ymax, xmax,
-                color=box2color[box],
-                display_str_list=box2name[box],
+                color=box.color,
+                display_str_list=box.name,
                 use_normalized_coordinates=True)
 
-        # TODO: Tracker logic
-        # if len(box2color) > 0:
-        #     for bbox in box2color.keys():
-        #         h, w = frame.shape[:2]
-        #         bbox = (round(ymin * h), round(xmin * w), round(ymax * h), round(xmax * w))
-        #         multi_tracker.add(cv2.TrackerCSRT_create(), frame, bbox)
-
-        # success, boxes = multi_tracker.update(frame)
-        # for i, newbox in enumerate(boxes):
-        #     vis_util.draw_bounding_box_on_image_array(frame, **newbox, color=COLORS[i % len(COLORS)] use_normalized_coordinates=False)
-
-        # Either save the file or display the frames.        
-        if save:
-            out.write(frame)
-        else:
+        out.write(frame)
+        if display:
             cv2.imshow('detector', frame)
             cv2.waitKey(1)
+        count += 1
 
     cap.release()
     out.release()
@@ -195,9 +236,9 @@ def main(vid_choice, save=False):
     os.remove(vid_path)
     os.remove(f'{vid_choice}_audio.wav')
 
-# TODO: Fix tracking - maybe detect every X frames? Look into it.
+# TODO: IOU Box filtering (too much overlap means just pick the larger.)
 # TODO: Try another (faster) or (newer) network.
 # TODO: Try adding more frames from other videos.
 
 if __name__ == '__main__':
-    main('naruto_v_sasuke', save=True)
+    main('n_op2', detect_rate=2, thresh=0.6, display=True)
