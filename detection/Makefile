@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := all
 
-all: install setup tf-migrate  # Requires sudo to run since it uses PIP.
+all: install tf-migrate setup  # Requires sudo to run since it uses PIP.
 tf-migrate: download migrate
 
 # Need to set this to your $HOME.

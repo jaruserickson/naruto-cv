@@ -20,17 +20,13 @@ Some options:
 
 ### Usage
 #### Dataset
-While in the `dataset/` folder, to retrieve the dataset images:
-```
-make
-```
-To clean up the dataset, run `make clean`
+ - While in the `dataset/` folder, to retrieve the dataset images and setup the dataset for usage in training, run `make`
+ - To clean up the dataset, run `make clean`
 #### Object Detection
-While in the `detection/` folder, after creating the dataset:
-```
-sudo make
-```
-To clean up the detection setup, run `sudo make clean`
+ - While in the `detection/` folder, after creating the dataset, to setup the models using tensorflow, run `sudo make`
+ - If you have the required modules installed (under the Makefile's install step), you can opt to run `make tf-migrate setup`
+ - To clean up only the migrated datafiles from the dataset, run `sudo make clean-data`
+ - To entirely clean up the detection setup, run `sudo make clean`
 
 
 ### Tasks
