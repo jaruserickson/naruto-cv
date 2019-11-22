@@ -7,3 +7,4 @@ google_images.txt
 dataset/vid_data/frames
 dataset/vid_data/videos
 tensorflow
+*.mp4
