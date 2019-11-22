@@ -4,4 +4,5 @@ google_images.txt
 .vscode
 *.cfg
 *.record
-dataset/vid_data/
+dataset/vid_data/frames
+dataset/vid_data/videos

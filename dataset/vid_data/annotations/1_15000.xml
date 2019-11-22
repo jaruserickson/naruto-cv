@@ -1,0 +1,26 @@
+<annotation>
+	<folder>frames</folder>
+	<filename>1_15000.jpg</filename>
+	<path>/home/jacob/Desktop/code/csc420/naruto-cv/dataset/vid_data/frames/1_15000.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>640</width>
+		<height>360</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>sasuke_uchiha</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>409</xmin>
+			<ymin>97</ymin>
+			<xmax>458</xmax>
+			<ymax>158</ymax>
+		</bndbox>
+	</object>
+</annotation>
