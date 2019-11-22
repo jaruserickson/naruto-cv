@@ -6,3 +6,4 @@ google_images.txt
 *.record
 dataset/vid_data/frames
 dataset/vid_data/videos
+tensorflow
