@@ -1,6 +1,7 @@
 """ Run our detection/tracking software on the video specified. """
 import sys
 import os
+import subprocess
 from collections import defaultdict
 CWD = os.getcwd()
 sys.path.extend([
@@ -9,6 +10,7 @@ sys.path.extend([
     os.path.join(CWD, 'tensorflow/models/research'),
     os.path.join(CWD, 'tensorflow/models')])
 import cv2
+from tqdm import tqdm
 from pytube import YouTube
 import tensorflow as tf
 import numpy as np
@@ -95,7 +97,8 @@ def download_video(tag='ns_op18'):
     videos = {
         'ns_op18': 'https://www.youtube.com/watch?v=HdgD7E6JEE4',
         'n_op2': 'https://www.youtube.com/watch?v=SRn99oN1p_c',
-        'naruto_hinata_wedding': 'https://www.youtube.com/watch?v=BoMBsDIGkKI'}
+        'naruto_hinata_wedding': 'https://www.youtube.com/watch?v=BoMBsDIGkKI',
+        'naruto_v_sasuke': 'https://www.youtube.com/watch?v=u_1onhckHuw'}
 
     return YouTube(videos[tag]).streams.first().download()
 
@@ -127,14 +130,18 @@ def filter_boxes(boxes, classes, scores, class_index, min_score_thresh):
 
     return box_to_color_map, box_to_display_str_map
 
-
-if __name__ == '__main__':
+def main(vid_choice):
+    """ main function. """
     # Download video
-    vid_path = download_video()
+    vid_path = download_video(vid_choice)
     cap = cv2.VideoCapture(vid_path)
-    multi_tracker = cv2.MultiTracker_create()
+    # multi_tracker = cv2.MultiTracker_create()
     det = Detector()
+
+    out = cv2.VideoWriter(f'{vid_choice}.mp4', cv2.VideoWriter_fourcc(*'mp4v'), cap.get(cv2.CAP_PROP_FPS), (640, 360))
+    progress = tqdm(total=cap.get(cv2.CAP_PROP_FRAME_COUNT))
     while cap.isOpened():
+        progress.update(1)
         success, frame = cap.read()
         boxes, scores, classes, num = det.detect_image(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
         # Get boxes
@@ -144,6 +151,7 @@ if __name__ == '__main__':
             np.squeeze(scores),
             det.get_class_index(),
             min_score_thresh=0.60)
+
         # Draw box
         for box in box2color.keys():
             ymin, xmin, ymax, xmax = box
@@ -154,20 +162,30 @@ if __name__ == '__main__':
                 display_str_list=box2name[box],
                 use_normalized_coordinates=True)
 
-        # Tracker logic
+        # TODO: Tracker logic
         # if len(box2color) > 0:
         #     for bbox in box2color.keys():
         #         h, w = frame.shape[:2]
-        #         
         #         bbox = (round(ymin * h), round(xmin * w), round(ymax * h), round(xmax * w))
         #         multi_tracker.add(cv2.TrackerCSRT_create(), frame, bbox)
 
         # success, boxes = multi_tracker.update(frame)
         # for i, newbox in enumerate(boxes):
         #     vis_util.draw_bounding_box_on_image_array(frame, **newbox, color=COLORS[i % len(COLORS)] use_normalized_coordinates=False)
-        
-        cv2.imshow('detector', frame)
-        cv2.waitKey(1)
-        
+        out.write(frame)
 
+    cap.release()
+    out.release()
+
+    # Attach audio.
+    extract_audio = lambda fname: f'ffmpeg -i {fname} -ab 160k -ac 2 -ar 44100 -vn audio.wav'
+    subprocess.call(extract_audio(vid_path), shell=True)
+    replace_audio = lambda inp, aud, outp: f'ffmpeg -i {inp} -i {aud} -c:v copy -c:a aac -strict experimental -map 0:v:0 -map 1:a:0 {outp}'
+    subprocess.call(replace_audio(vid_path, 'audio.wav', 'vid_audio.mp4'), shell=True)
+
+    # Clean out temporary files.
     os.remove(vid_path)
+    os.remove('audio.wav')
+
+if __name__ == '__main__':
+    main('naruto_v_sasuke')
