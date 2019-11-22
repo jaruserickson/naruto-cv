@@ -25,7 +25,7 @@ def extract_validated():
         count = 0
         while success:
             if count in frames[vid_path]:
-                cv2.imwrite(f'vid_data/frames/{i}_{count}.jpg', image)
+                cv2.imwrite(f'vid_data/frames/{i}_{count}.png', image)
             success, image = vid_cap.read()
             count += 1
         vid_cap.release()

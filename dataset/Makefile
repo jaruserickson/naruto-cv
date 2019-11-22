@@ -21,8 +21,17 @@ dataset:
 	python3 generate_tfrecord.py --csv_input=images/train_labels.csv --image_dir=images/train --output_path=train.record
 	python3 generate_tfrecord.py --csv_input=images/test_labels.csv --image_dir=images/test --output_path=test.record
 
-clean:
-	@echo "Cleaning dataset..."
+clean-data:
+	@echo "Cleaning images"
+	rm -rf data
+
+clean-youtube:
+	@echo "Clean YouTube frames and videos..."
+	rm -rf vid_data/frames vid_data/videos
+
+clean-dataset:
+	@echo "Clean images/..."
+	rm -rf images
 	rm *.record
-	rm google_images.txt
-	rm -rf vid_data/frames vid_data/videos data images
+
+clean: clean-data clean-youtube clean-dataset

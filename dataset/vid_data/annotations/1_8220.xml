@@ -84,7 +84,7 @@
 		</bndbox>
 	</object>
 	<object>
-		<name>sakura</name>
+		<name>sakura_haruno</name>
 		<pose>Unspecified</pose>
 		<truncated>0</truncated>
 		<difficult>0</difficult>

@@ -2,8 +2,8 @@
 import os
 import shutil
 import csv
-from PIL import Image
 from xml.dom import minidom
+from PIL import Image
 
 def create_folders():
     """ Create folders to split data into """
@@ -23,12 +23,14 @@ def propogate_data(split=0.9):
         raise Exception('create_folders must be run prior to this function.')
     if not os.path.isdir('data'):
         raise Exception('data folder must exist to create a split.')
-    if not os.path.isdir('annotations'):
+    if not os.path.isdir('annotations') or not os.path.isdir('vid_data/annotations'):
         raise Exception('annotations must exist for a proper data split.')
+    if not os.path.isdir('vid_data/frames'):
+        raise Exception('video frames must exist for a proper data split.')
 
     train_paths, test_paths = [], []
 
-    # Get imagepaths
+    # Get imagepaths from data/
     for char_folder in os.listdir('data'):
         char_path = os.path.join('data', char_folder)
         ann_path = os.path.join('annotations', char_folder)
@@ -47,6 +49,23 @@ def propogate_data(split=0.9):
         shutil.copy2(img_path, os.path.join('images/train', '_'.join(img_path.split('/')[-2:])))
     for img_path in test_paths:
         shutil.copy2(img_path, os.path.join('images/test', '_'.join(img_path.split('/')[-2:])))
+
+    # Get imagepaths from vid_data/
+    filenames = [x.split('.png')[0] for x in os.listdir('vid_data/frames')]
+    split_index = int(round(len(filenames) * split))
+    train_paths, test_paths = [], []
+    for fname in filenames[:split_index]:
+        train_paths.append(os.path.join('vid_data/frames', f'{fname}.png'))
+        train_paths.append(os.path.join('vid_data/annotations', f'{fname}.xml'))
+    for fname in filenames[split_index:]:
+        test_paths.append(os.path.join('vid_data/frames', f'{fname}.png'))
+        test_paths.append(os.path.join('vid_data/annotations', f'{fname}.xml'))
+
+    for img_path in train_paths:
+        shutil.copy2(img_path, os.path.join('images/train', img_path.split('/')[-1]))
+    for img_path in test_paths:
+        shutil.copy2(img_path, os.path.join('images/test', img_path.split('/')[-1]))
+
 
 def get_csv_labels(folder):
     """ Get CSV labels from annotation files"""
