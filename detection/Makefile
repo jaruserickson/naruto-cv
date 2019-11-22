@@ -5,7 +5,7 @@ tf-migrate: download migrate
 
 # Need to set this to your $HOME.
 HOME=/home/jacob
-TF_FOLDER=$(HOME)/tensorflow1
+TF_FOLDER=$(HOME)/tensorflow
 
 install:
 	@echo "Installing packages..."
