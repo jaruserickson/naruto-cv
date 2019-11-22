@@ -1,4 +1,4 @@
-.DEFAULT_GOAL := tensorflow
+.DEFAULT_GOAL := all
 
 all: install setup tf-migrate  # Requires sudo to run since it uses PIP.
 tf-migrate: download migrate

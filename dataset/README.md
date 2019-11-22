@@ -23,6 +23,10 @@ Therefore, the included pre-generated output files are:
  - `validated_frames.csv`
 
 ## Usage
+To create the dataset, simply use the makefile by typing `make`.
+
+Otherwise, you may do the following, which is just what the makefile contains.
+
 To download the full dataset for usage locally, run the following:
 ```
 python3 download_mal.py

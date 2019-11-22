@@ -18,6 +18,20 @@ Some options:
  - [RetinaNet](https://arxiv.org/pdf/1708.02002.pdf)
  - [YOLO](https://arxiv.org/pdf/1506.02640v5.pdf)
 
+### Usage
+#### Dataset
+While in the `dataset/` folder, to retrieve the dataset images:
+```
+make
+```
+To clean up the dataset, run `make clean`
+#### Object Detection
+While in the `detection/` folder, after creating the dataset:
+```
+sudo make
+```
+To clean up the detection setup, run `sudo make clean`
+
 
 ### Tasks
 - [x] Create a dataset of character faces with tags, pulling character images from [Jikan](https://jikan.moe/), and cropping faces using the detector [lbpcascade_animeface](https://github.com/nagadomi/lbpcascade_animeface) (Note: this detector will only be used during the generation of the dataset, and only to crop faces).
