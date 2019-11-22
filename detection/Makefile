@@ -63,11 +63,6 @@ tensorboard:
 	cd $(TF_FOLDER)/models/research/object_detection; \
 		tensorboard --logdir=training
 
-export:
-	@echo "Exporting frozen inference graph..."
-	cd $(TF_FOLDER)/models/research/object_detection; \
-		python3 export_inference_graph.py --input_type image_tensor --pipeline_config_path training/faster_rcnn_inception_v2_naruto.config --trained_checkpoint_prefix training/model.ckpt-12770 --output_directory inference_graph
-
 clean-data:
 	@echo "Cleaning ~tensorflow/models/research/object_detection"
 	rm -rf $(TF_FOLDER)/models/research/object_detection/images

@@ -23,7 +23,13 @@ Some options:
  - While in the `dataset/` folder, to retrieve the dataset images and setup the dataset for usage in training, run `make`
  - To clean up the dataset, run `make clean`
 #### Object Detection
+ - First, modify the `detection/Makefile` `HOME` and `TF_FOLDER` to your liking. (e.g. `HOME=/home/jacob`, `TF_FOLDER=$(HOME)/tensorflow`)
  - While in the `detection/` folder, after creating the dataset, to setup the models using tensorflow, run `sudo make`
+   - To train the model with the data created above, run `sudo make train`
+   - To bring up tensorboard while you train, open another teminal and run `sudo make tensorboard`
+   - When training is complete, run `./export-graph.sh TF_FOLDER 1234` where:
+     - `TF_FOLDER` is your set `TF_FOLDER` above in the makefile (e.g. /home/jacob/tensorflow)
+     - `1234` is the latest checkpoint number in `HOME/TF_FOLDER/models/research/object_detection/training`
  - If you have the required modules installed (under the Makefile's install step), you can opt to run `make tf-migrate setup`
  - To clean up only the migrated datafiles from the dataset, run `sudo make clean-data`
  - To entirely clean up the detection setup, run `sudo make clean`
