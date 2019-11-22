@@ -130,19 +130,23 @@ def filter_boxes(boxes, classes, scores, class_index, min_score_thresh):
 
     return box_to_color_map, box_to_display_str_map
 
-def main(vid_choice):
+def main(vid_choice, save=False):
     """ main function. """
     # Download video
     vid_path = download_video(vid_choice)
     cap = cv2.VideoCapture(vid_path)
     # multi_tracker = cv2.MultiTracker_create()
     det = Detector()
-
-    out = cv2.VideoWriter(f'{vid_choice}.mp4', cv2.VideoWriter_fourcc(*'mp4v'), cap.get(cv2.CAP_PROP_FPS), (640, 360))
+    out = cv2.VideoWriter(f'{vid_choice}.mp4', \
+        cv2.VideoWriter_fourcc(*'mp4v'), cap.get(cv2.CAP_PROP_FPS), \
+            (int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))))
     progress = tqdm(total=cap.get(cv2.CAP_PROP_FRAME_COUNT))
     while cap.isOpened():
         progress.update(1)
         success, frame = cap.read()
+        if not success:
+            print('Video read failed...')
+            break
         boxes, scores, classes, num = det.detect_image(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
         # Get boxes
         box2color, box2name = filter_boxes(
@@ -172,20 +176,28 @@ def main(vid_choice):
         # success, boxes = multi_tracker.update(frame)
         # for i, newbox in enumerate(boxes):
         #     vis_util.draw_bounding_box_on_image_array(frame, **newbox, color=COLORS[i % len(COLORS)] use_normalized_coordinates=False)
-        out.write(frame)
+
+        # Either save the file or display the frames.        
+        if save:
+            out.write(frame)
+        else:
+            cv2.imshow('detector', frame)
+            cv2.waitKey(1)
 
     cap.release()
     out.release()
 
     # Attach audio.
-    extract_audio = lambda fname: f'ffmpeg -i {fname} -ab 160k -ac 2 -ar 44100 -vn audio.wav'
-    subprocess.call(extract_audio(vid_path), shell=True)
-    replace_audio = lambda inp, aud, outp: f'ffmpeg -i {inp} -i {aud} -c:v copy -c:a aac -strict experimental -map 0:v:0 -map 1:a:0 {outp}'
-    subprocess.call(replace_audio(vid_path, 'audio.wav', 'vid_audio.mp4'), shell=True)
+    subprocess.call(f'ffmpeg -i "{vid_path}" -ab 160k -ac 2 -ar 44100 -vn {vid_choice}_audio.wav', shell=True)
+    subprocess.call(f'ffmpeg -i "{vid_choice}.mp4" -i {vid_choice}_audio.wav -c:v copy -c:a aac -strict experimental -map 0:v:0 -map 1:a:0 {vid_choice}_audio.mp4', shell=True)
 
     # Clean out temporary files.
     os.remove(vid_path)
-    os.remove('audio.wav')
+    os.remove(f'{vid_choice}_audio.wav')
+
+# TODO: Fix tracking - maybe detect every X frames? Look into it.
+# TODO: Try another (faster) or (newer) network.
+# TODO: Try adding more frames from other videos.
 
 if __name__ == '__main__':
-    main('naruto_v_sasuke')
+    main('naruto_v_sasuke', save=True)
