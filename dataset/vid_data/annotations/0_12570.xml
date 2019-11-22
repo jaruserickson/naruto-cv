@@ -1,0 +1,26 @@
+<annotation>
+	<folder>frames</folder>
+	<filename>0_12570.jpg</filename>
+	<path>/home/jacob/Desktop/code/csc420/naruto-cv/dataset/vid_data/frames/0_12570.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>640</width>
+		<height>360</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>shino_aburame</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>369</xmin>
+			<ymin>81</ymin>
+			<xmax>480</xmax>
+			<ymax>195</ymax>
+		</bndbox>
+	</object>
+</annotation>

@@ -1,4 +1,8 @@
 **/data/
+dataset/images
 google_images.txt
 .vscode
 *.cfg
+*.record
+dataset/vid_data/frames
+dataset/vid_data/videos
