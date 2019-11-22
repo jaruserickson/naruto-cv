@@ -32,40 +32,18 @@ To download the full dataset for usage locally, run the following:
 python3 download_mal.py
 python3 download_validated.py
 ```
-```
-data/
-    character folders.../
-```
 To then download the videos required for frame extraction, run:
 ```
 python3 youtube_frame_validator.py 0
-```
-```
-vid_data/
-    videos/
 ```
 To extract the frames from the downloaded videos, run:
 ```
 python3 youtube_frame_extractor.py
 ```
-```
-vid_data/
-    videos/
-    frames/
-```
 To then create the usable dataset split and TFRecords, run:
 ```
 python3 generate_split.py
 python3 generate_tfrecord.py
-```
-```
-images/
-    test/
-    train/
-    test_labels.csv
-    train_labels.csv
-train.record
-test.record
 ```
 
 
