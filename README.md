@@ -67,7 +67,8 @@ Some options:
    - When putting the playlist together, fan-made "AMVs" (Anime Music Videos) came in handy since there was a large amount of color correction, warps and other augmentations already embedded into the videos. They also allowed easier splitting of training and eval data.
    - The Validator ended up looking as follows. Choose frame will add the frame and filename to a CSV file `validated_frames.csv`. ![](/docs/video_frame_picker.png)
    - I went with Tkinter here since Matplotlib is actually super slow at rendering images. If I have time I'll "modernize" the google-image validator to use Tkinter UI and CSV output.
- - At this point there's a lot of stuff to set up and do to get the dataset running, so I'm going to create either a Makefile or a shell file that runs everything in order. This needs to be done for the face detector as well, since its setup was pretty beefy.
+ - At this point there's a lot of stuff to set up and do to get the dataset running, so I'm going to create some Makefiles to get everything going easier.
+ - The dataset now has another 488 images, to total up to **1253** images so far. It should be fairly easy to expand on this number especially with the improved framework for YouTube videos. Some characters may need more images in particular.
 #### CNN Face Detection
  - Initially planned on using a YOLO CNN to detect and track characters.
  - I've done quite a bit of reading into the details of YOLO. The papers and articles of which are listed below.
