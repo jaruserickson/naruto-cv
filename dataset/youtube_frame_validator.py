@@ -131,6 +131,7 @@ if __name__ == '__main__':
 
     if not os.path.isdir('vid_data'):
         os.mkdir('vid_data')
+    if not os.path.isdir('vid_data/videos'):
         os.mkdir('vid_data/videos')
 
     vid_links = [
