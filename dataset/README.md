@@ -85,7 +85,7 @@ To create annotations:
  4. Change the save dir to `vid_data/annotations` for youtube, and each `annotations/` folder for google-images.
 
 #### Image Validator GUI
-![](../readme-images/image_validator.png)
+![](../docs/image_validator.png)
 
 #### YouTube Validator GUI
-![](../readme-images/video_frame_picker.png)
+![](../docs/video_frame_picker.png)

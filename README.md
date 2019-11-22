@@ -42,14 +42,14 @@ Some options:
  - While creating the dataset, when I found characters with rather "normal" faces I would include their hair as a way to add more keypoints to their classification.
  - There was around 290 pictures after using only MyAnimeList.
  - As the images from MyAnimeList probably aren't enough, I'm going to use [google_image_download](https://github.com/hardikvasa/google-images-download) to download using keywords, and validate the links manually.
- - The image validator is necessary since google images has some fail cases: ![](readme-images/image_validator_fail.png)
+ - The image validator is necessary since google images has some fail cases: ![](docs/image_validator_fail.png)
  - I found that there was some duplication and a large amount of unusable images past around 30 images on google images - so I set the limit as such. If I really need more I can try another resource.
  - There was a couple URLs the validator could see but requests couldn't download, and as such, these were blacklisted in the download shell script.
  - There's currently 765 different pictures of characters in the dataset after this.
  - After successfully running the below Faster R-CNN network on the dataset created, I've come to the conclusion that we're going to need more pictures.
  - I'll be using [pytube](https://github.com/nficano/pytube) to download a playlist I've put together (excluding the sample videos above, since those are our test set and we ideally don't want to overlap - although some overlap is inevitable) of clips of each character, then use a slightly modified validator to pick out frames I like and output them to a csv file `validated_frames.csv`. This file will be able to be fed into the youtube video downloader to extract only the frames we've validated.
    - When putting the playlist together, fan-made "AMVs" (Anime Music Videos) came in handy since there was a large amount of color correction, warps and other augmentations already embedded into the videos. They also allowed easier splitting of training and eval data.
-   - The Validator ended up looking as follows. Choose frame will add the frame and filename to a CSV file `validated_frames.csv`. ![](/readme-images/video_frame_picker.png)
+   - The Validator ended up looking as follows. Choose frame will add the frame and filename to a CSV file `validated_frames.csv`. ![](/docs/video_frame_picker.png)
    - I went with Tkinter here since Matplotlib is actually super slow at rendering images. If I have time I'll "modernize" the google-image validator to use Tkinter UI and CSV output.
  - At this point there's a lot of stuff to set up and do to get the dataset running, so I'm going to create either a Makefile or a shell file that runs everything in order. This needs to be done for the face detector as well, since its setup was pretty beefy.
 #### CNN Face Detection
@@ -94,7 +94,7 @@ There's a number of implementations of both YOLO and SSD on github:
  - I had to revert tensorflow to v1.15 for some of this stuff to cooperate fully - tensorflow v2.0 is pretty new and has more limited help online than v1.x.
  - I'm going to try running a few different networks (starting with `faster_rcnn_inception_v2`) for as long as I can - it looks like we might need more than ~30 images per character however. I'm thinking we could try and aim for 100, but that's quite the time commitment for the time we have.
  - After 3 hours of training (around 12k epochs) I ran the model on the first video provided under "Source Clips" ([Naruto Shippuden Opening 18](https://www.youtube.com/watch?v=HdgD7E6JEE4))
-   - ![](/readme-images/Loss_800images_3hrs_12000epoch.png)
+   - ![](/docs/Loss_800images_3hrs_12000epoch.png)
    - Some pretty decent facial recognition was present, spare a few faces that showed up too often, which I would assume means there isn't enough training data for the network to appropriately determine their appearance.
    - Some characters which showed proper recognition were `naruto_uzumaki`, `kakashi_hatake`, `shikamaru_nara`, `killer_bee`, `gaara`, and `neji_hyuuga`.
      - Each of these characters had some false positives, for example, naruto would get recognized as `minato_namikaze` on occasion, and kakashi would be recognized as the body of some ninjas.
