@@ -81,7 +81,7 @@ class Validator():
         self.vid_cap.release()
 
 
-def validate_videos(vid_links, to_validate):
+def validate_videos(vid_links, to_validate, resolution='360p'):
     """ Download YouTube vid_links, and validate with GUI. """
     csv_header = ['vid_location', 'frame_number']
     validated = [csv_header]
@@ -91,7 +91,7 @@ def validate_videos(vid_links, to_validate):
         if name not in os.listdir('vid_data/videos'):
             print(f'Downloading {name} from YouTube.')
             yt_path = YouTube(vid).streams.filter(
-                res='360p', mime_type='video/mp4').first().download()
+                res=resolution, mime_type='video/mp4').first().download()
             vid_path = shutil.move(yt_path, 'vid_data/videos')
         else:
             print(f'{name} already downloaded.')
@@ -139,4 +139,4 @@ if __name__ == '__main__':
         ('https://www.youtube.com/watch?v=IER6REy5qtw', 'NARUTO SHIPPUDEN IN 15 MINUTES「REVAMPED VERSION」.mp4')
     ]
 
-    validate_videos(vid_links, VALIDATE_VIDEOS)
+    validate_videos(vid_links, VALIDATE_VIDEOS, resolution='720p')
