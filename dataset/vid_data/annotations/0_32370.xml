@@ -1,13 +1,13 @@
 <annotation>
 	<folder>frames</folder>
-	<filename>0_32370.jpg</filename>
-	<path>/home/jacob/Desktop/code/csc420/naruto-cv/dataset/vid_data/frames/0_32370.jpg</path>
+	<filename>0_32370.png</filename>
+	<path>/home/jacob/Desktop/code/csc420/naruto-cv/dataset/vid_data/frames/0_32370.png</path>
 	<source>
 		<database>Unknown</database>
 	</source>
 	<size>
-		<width>640</width>
-		<height>360</height>
+		<width>1280</width>
+		<height>720</height>
 		<depth>3</depth>
 	</size>
 	<segmented>0</segmented>
@@ -17,10 +17,10 @@
 		<truncated>0</truncated>
 		<difficult>0</difficult>
 		<bndbox>
-			<xmin>190</xmin>
-			<ymin>63</ymin>
-			<xmax>417</xmax>
-			<ymax>301</ymax>
+			<xmin>305</xmin>
+			<ymin>106</ymin>
+			<xmax>759</xmax>
+			<ymax>582</ymax>
 		</bndbox>
 	</object>
 </annotation>

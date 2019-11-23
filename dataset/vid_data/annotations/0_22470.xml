@@ -1,13 +1,13 @@
 <annotation>
 	<folder>frames</folder>
-	<filename>0_22470.jpg</filename>
-	<path>/home/jacob/Desktop/code/csc420/naruto-cv/dataset/vid_data/frames/0_22470.jpg</path>
+	<filename>0_22470.png</filename>
+	<path>/home/jacob/Desktop/code/csc420/naruto-cv/dataset/vid_data/frames/0_22470.png</path>
 	<source>
 		<database>Unknown</database>
 	</source>
 	<size>
-		<width>640</width>
-		<height>360</height>
+		<width>1280</width>
+		<height>720</height>
 		<depth>3</depth>
 	</size>
 	<segmented>0</segmented>
@@ -17,10 +17,22 @@
 		<truncated>0</truncated>
 		<difficult>0</difficult>
 		<bndbox>
-			<xmin>242</xmin>
-			<ymin>83</ymin>
-			<xmax>287</xmax>
-			<ymax>157</ymax>
+			<xmin>484</xmin>
+			<ymin>166</ymin>
+			<xmax>574</xmax>
+			<ymax>314</ymax>
+		</bndbox>
+	</object>
+	<object>
+		<name>naruto_uzumaki</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>752</xmin>
+			<ymin>455</ymin>
+			<xmax>864</xmax>
+			<ymax>591</ymax>
 		</bndbox>
 	</object>
 </annotation>

@@ -52,6 +52,7 @@ Some options:
  - Some characters have un-unique faces (e.g. Yamato, Shino Aburame), this can increase the chance of mis-identification.
  - Modern CNNs for multiple object detection are really complex
  - Data input/output is a challenge given the custom dataset
+ - Anime itself presents an interesting challenge with fight scenes with lots of movements. Both tracking and detection in "middle frames" is hard since the characters' faces are often distorted for effect.
 
 ### Notes
 #### Dataset
@@ -71,6 +72,9 @@ Some options:
    - I went with Tkinter here since Matplotlib is actually super slow at rendering images. If I have time I'll "modernize" the google-image validator to use Tkinter UI and CSV output.
  - At this point there's a lot of stuff to set up and do to get the dataset running, so I'm going to create some Makefiles to get everything going easier.
  - The dataset now has another 488 images, to total up to **1253** images so far. It should be fairly easy to expand on this number especially with the improved framework for YouTube videos. Some characters may need more images in particular.
+ - Some of the bounding boxes I made are too small for tensorflow/models, so I'm going to filter out those with an area less than `16 * 16`.
+   - This didn't work, so I'm going to download larger videos instead (720p instead of 360p). Need to write a quick script to convert annotations.
+ - Note*: Downloading the dataset can result in corrupt data on occasion, I need to look into a better way of keeping track of the validated google images
 #### CNN Face Detection
  - Initially planned on using a YOLO CNN to detect and track characters.
  - I've done quite a bit of reading into the details of YOLO. The papers and articles of which are listed below.
@@ -121,6 +125,7 @@ There's a number of implementations of both YOLO and SSD on github:
    - Characters which showed up in some ambiguous cases were: `might_guy`:: generic face, `yamato`:: generic face, `shino_aburame`:: hidden face, `konan`:: generic girl face.
  - I believe the next step should be expanding the dataset, then trying other networks.
  - I'm going to also write a different script to run the object detector, and rather than simply output frame by frame, process the video and output that (with sound!)
+   - To intake some of these (the bounding boxes can get pretty small/large), i needed to change one of the parameters of `to_absolute_coordinates` `to check_range=False`.
    - To properly get sound processing working, i'm using [FFmpeg](https://github.com/FFmpeg/FFmpeg) to detatch the audio from the YouTube video and attach it to the processed video.
 
 **Improvements**
@@ -134,6 +139,8 @@ There's a number of implementations of both YOLO and SSD on github:
 
  - The other options now are a) try another more modern neural net, and b) try modifying the data (which I'm going to go with first)
    - There's a couple characters previously noted that have large fail rates, that being: `shino_aburame`, `pain`, and `neji_hyuuga`. I'm going to retain `neji_hyuuga` since I think there's enough data of him such that I can improve his detection, but I'm going to remove the other two.
+ - The results are pretty good at this point: ![](/docs/detector.png)
+ - Two things can still be done to improve results - trimming the character count and non-maximum supression.
   
 #### Village Symbol Recognition
  - Not started.

@@ -115,7 +115,11 @@ def download_video(tag='ns_op18'):
             'uri': 'https://www.youtube.com/watch?v=BoMBsDIGkKI'},
         'naruto_v_sasuke': {
             'name': '【MAD】 Naruto VS Sasuke / ナルト VS サスケ 『アウトサイダー』.mp4',
-            'uri': 'https://www.youtube.com/watch?v=u_1onhckHuw'}}
+            'uri': 'https://www.youtube.com/watch?v=u_1onhckHuw'},
+        'naruto_chill': {
+            'name': "Kakashi's mask",
+            'uri': 'https://www.youtube.com/watch?v=UGn-Tg1j8w0'
+        }}
 
     if videos[tag]['name'] not in os.listdir(os.getcwd()):
         return YouTube(videos[tag]['uri']).streams.first().download()
@@ -237,8 +241,7 @@ def main(vid_choice, detect_rate=5, thresh=0.6, display=True):
     os.remove(f'{vid_choice}_audio.wav')
 
 # TODO: IOU Box filtering (too much overlap means just pick the larger.)
-# TODO: Try another (faster) or (newer) network.
-# TODO: Try adding more frames from other videos.
+    # Need to get NMS working.
 
 if __name__ == '__main__':
-    main('n_op2', detect_rate=2, thresh=0.6, display=True)
+    main('naruto_chill', detect_rate=5, thresh=0.6, display=False)

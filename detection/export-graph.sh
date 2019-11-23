@@ -4,6 +4,7 @@ export PYTHONPATH="${PWD}/tensorflow/models:${PWD}/tensorflow/models/research:${
 export PATH="$PATH:$PYTHONPATH"
 OBJ=./tensorflow/models/research/object_detection
 cd ${OBJ} && \
+	rm -rf inference_graph/; \
 	python3 export_inference_graph.py \
 		--input_type image_tensor \
 		--pipeline_config_path training/faster_rcnn_inception_v2_naruto.config \

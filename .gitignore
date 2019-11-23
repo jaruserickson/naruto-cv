@@ -5,6 +5,5 @@ google_images.txt
 *.cfg
 *.record
 dataset/vid_data/frames
-dataset/vid_data/videos
 tensorflow
 *.mp4

@@ -78,23 +78,32 @@ def get_csv_labels(folder):
             info = minidom.parse(os.path.join(folder, f_name))
             sizeobj = info.getElementsByTagName('size')[0]
             _filename = f"{f_name.split('.')[0]}.png"
-            _width = get_xml_val(sizeobj, 'width')
-            _height = get_xml_val(sizeobj, 'height')
+            _width = int(get_xml_val(sizeobj, 'width'))
+            _height = int(get_xml_val(sizeobj, 'height'))
 
             # If the width/height wasn't read by labelImg, we have to do it.
-            if _width == '0' or _height == '0':
+            if _width == 0 or _height == 0:
                 _width, _height = Image.open(os.path.join(folder, _filename)).size
+                _width, _height = int(_width), int(_height)
 
             char_obj = info.getElementsByTagName('object')  # multiple bndboxes
             for char_o in char_obj:
                 bndbox = char_o.getElementsByTagName('bndbox')[0]
                 _class = get_xml_val(char_o, 'name')
-                _xmin = get_xml_val(bndbox, 'xmin')
-                _ymin = get_xml_val(bndbox, 'ymin')
-                _xmax = get_xml_val(bndbox, 'xmax')
-                _ymax = get_xml_val(bndbox, 'ymax')
-                # Add bndbox to row
-                labels.append([_filename, _width, _height, _class, _xmin, _ymin, _xmax, _ymax])
+                _xmin = int(get_xml_val(bndbox, 'xmin'))
+                _ymin = int(get_xml_val(bndbox, 'ymin'))
+                _xmax = int(get_xml_val(bndbox, 'xmax'))
+                _ymax = int(get_xml_val(bndbox, 'ymax'))
+                # Filter out bounding boxes which are too small.
+                # Small bounding boxes cause issues with Tensorflow.
+                w = (_xmax - _xmin) 
+                h = (_ymax - _ymin)
+                if w < 33 or h < 33:
+                    print(f'BBox of {_filename} too small!')
+                # Potentially filter out by class here for shino etc.
+                else:
+                    # Add bndbox to row
+                    labels.append([_filename, _width, _height, _class, _xmin, _ymin, _xmax, _ymax])
     return labels
 
 def generate_csv_label_files():

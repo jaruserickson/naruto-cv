@@ -1,6 +1,7 @@
 .DEFAULT_GOAL := all
 
-all: mal google-images youtube dataset
+all: download youtube dataset
+download: mal google-images
 
 mal:
 	@echo "Downloading images from MyAnimeList..."
@@ -21,7 +22,12 @@ dataset:
 	python3 generate_tfrecord.py --csv_input=images/train_labels.csv --image_dir=images/train --output_path=train.record
 	python3 generate_tfrecord.py --csv_input=images/test_labels.csv --image_dir=images/test --output_path=test.record
 
-clean-data:
+fix_png:
+	@echo "Fixing pngs in images/"
+	mogrify images/train/*.png
+	mogrify images/test/*.png
+
+clean-downloaded:
 	@echo "Cleaning images"
 	rm -rf data
 
@@ -34,4 +40,4 @@ clean-dataset:
 	rm -rf images
 	rm *.record
 
-clean: clean-data clean-youtube clean-dataset
+clean: clean-downloaded clean-youtube clean-dataset
