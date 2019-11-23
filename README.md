@@ -140,7 +140,7 @@ There's a number of implementations of both YOLO and SSD on github:
  - The other options now are a) try another more modern neural net, and b) try modifying the data (which I'm going to go with first)
    - There's a couple characters previously noted that have large fail rates, that being: `shino_aburame`, `pain`, and `neji_hyuuga`. I'm going to retain `neji_hyuuga` since I think there's enough data of him such that I can improve his detection, but I'm going to remove the other two.
  - The results are pretty good at this point: ![](/docs/detector.png)
- - Two things can still be done to improve results - trimming the character count and non-maximum supression.
+ - Two things can still be done to improve results - trimming the character count and non-maximum supression. (And potentially data augmentation, since normal characters in light situations get recognized as other more pale characters)
   
 #### Village Symbol Recognition
  - Not started.
