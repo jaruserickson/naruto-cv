@@ -66,12 +66,23 @@ def propogate_data(split=0.9):
     for img_path in test_paths:
         shutil.copy2(img_path, os.path.join('images/test', img_path.split('/')[-1]))
 
+def not_included_chars():
+    """ Get include=False charactersfrom the csv. """
+    characters = []
+    with open('characters.csv', 'r') as infile:
+        reader = csv.reader(infile)
+        for i, line in enumerate(reader):
+            if i > 0 and line[2] == 'False':
+                print(f'{line[0]} was omitted in characters.csv.')
+                characters.append(line[0])
+    return characters
 
 def get_csv_labels(folder):
     """ Get CSV labels from annotation files"""
     get_xml_val = lambda x, y: x.getElementsByTagName(y)[0].firstChild.data
     header = ['filename', 'width', 'height', 'class', 'xmin', 'ymin', 'xmax', 'ymax']
     labels = [header]
+    omit_chars = not_included_chars()
     for f_name in os.listdir(folder):
         # Only create entries with XML files.
         if f_name.split('.')[-1] == 'xml':
@@ -96,11 +107,13 @@ def get_csv_labels(folder):
                 _ymax = int(get_xml_val(bndbox, 'ymax'))
                 # Filter out bounding boxes which are too small.
                 # Small bounding boxes cause issues with Tensorflow.
-                w = (_xmax - _xmin) 
+                w = (_xmax - _xmin)
                 h = (_ymax - _ymin)
+                # Perform the filter.
                 if w < 33 or h < 33:
                     print(f'BBox of {_filename} too small!')
-                # Potentially filter out by class here for shino etc.
+                elif _class in omit_chars:
+                    continue
                 else:
                     # Add bndbox to row
                     labels.append([_filename, _width, _height, _class, _xmin, _ymin, _xmax, _ymax])

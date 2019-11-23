@@ -141,7 +141,13 @@ There's a number of implementations of both YOLO and SSD on github:
    - There's a couple characters previously noted that have large fail rates, that being: `shino_aburame`, `pain`, and `neji_hyuuga`. I'm going to retain `neji_hyuuga` since I think there's enough data of him such that I can improve his detection, but I'm going to remove the other two.
  - The results are pretty good at this point: ![](/docs/detector.png)
  - Two things can still be done to improve results - trimming the character count and non-maximum supression. (And potentially data augmentation, since normal characters in light situations get recognized as other more pale characters)
-  
+ - Might have to clean out sasuke's curse mark recognition.
+
+After omitting the problem characters, everything is looking quite a bit better.
+
+Now that we know the dataset is valid, we can work on writing a network from the ground up. Based on the notes before, I'm probably going to implement an SSD network.
+
+
 #### Village Symbol Recognition
  - Not started.
 #### Main Application
