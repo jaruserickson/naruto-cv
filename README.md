@@ -145,6 +145,7 @@ There's a number of implementations of both YOLO and SSD on github:
 
 After omitting the problem characters, everything is looking quite a bit better.
 
+(We never said in the proposal that we would be implementing the network, just training one LOL. I'm going to try anyway, but as mentioned before, there's a LOT of points of failure and it can get super complex.)
 Now that we know the dataset is valid, we can work on writing a network from the ground up. Based on the notes before, I'm probably going to implement an SSD network.
 
 
