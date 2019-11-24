@@ -156,3 +156,5 @@ Now that we know the dataset is valid, we can work on writing a network from the
  - Tried to implement the gui using Qt, but this ended up requiring more work to install and learn their video player widgets than it did to create my own OpenCV based version
  - Also tried a MatPlotLib version, but live plotting is not well supported in MatPlotLib, and the solution was too slow to be feasible.
  - Currently there is a working OpenCV based gui and backend which sends video frames to the algo as needed and provides some simple commands via keyboard shortcuts to play/pause the video, etc. The gui can also easily be extended.
+ - Noticed a flaw in the synchronization of the gui so I restructured it somewhat - i.e. there are now separate threads for reading and displaying the video. 
+ - As is, we should be able to add any algo to the application and it will recieve frames as needed, while the frame reading and gui operate in a separate thread. The algo, reading, and displaying should now all be completely in sync.
