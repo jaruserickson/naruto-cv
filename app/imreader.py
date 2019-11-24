@@ -21,6 +21,8 @@ class ImReader(threading.Thread):
         self._supported_exts = ['.bmp', '.dib', '.jpeg', '.jpg', '.jpe', '.jp2', '.png', '.webp', '.pbm', '.pgm', '.ppm', '.pxm', '.pnm', '.sr', '.ras', '.tiff', '.tif', '.exr', '.hdr', '.pic']
         self._q = q
         self._exit_event = exit_event
+        
+        self.verbose = False
 
         # retrieve all image paths, recursing through directories (depth-first)
         temp_list = []
@@ -54,11 +56,6 @@ class ImReader(threading.Thread):
 
     def __len__(self):
         return len(self._image_list)
-        
-    def get_vid_info():
-        return {
-            'frame_range': (0, len(self._image_list))
-        }
 
     def run(self):
         """ Run """
@@ -71,20 +68,20 @@ class ImReader(threading.Thread):
                 requested_index = self._vidctrl.get_next_frame_num()
 
                 if requested_index < 0:
-                    print('ImReader: Reached beginning of image set')
+                    self.verbose and print('ImReader: Reached beginning of image set')
                     img = None
                 elif requested_index >= len(self._image_list):
-                    print('ImReader: Reached end of image set')
+                    self.verbose and print('ImReader: Reached end of image set')
                     img = None
                 else:
                     # read requested image
-                    print(f'ImReader: Reading frame {requested_index}')
+                    self.verbose and print(f'ImReader: Reading frame {requested_index}')
                     img = cv2.imread(self._image_list[requested_index])
 
                 self._q.put({'frame_id': requested_index, 'frame': img})
             else:
-                print('ImReader: Waiting')
+                self.verbose and print('ImReader: Waiting')
                 time.sleep(0.1)
         
-        print('ImReader: Quitting')
+        self.verbose and print('ImReader: Quitting')
         return 0

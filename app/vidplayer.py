@@ -12,7 +12,6 @@ class VidPlayer(threading.Thread):
         threading.Thread.__init__(self)
 
         self._vidctrl = vidctrl
-        #self._vid_info = vid_info
         self._q = q
         self._exit_event = exit_event
         
@@ -22,6 +21,8 @@ class VidPlayer(threading.Thread):
         self._last_requested_frame_num = -1
         self._mode = mode
         self._fps = fps
+
+        self.verbose = False
 
         if self._mode == 'images':
             self._fps = 0
@@ -62,12 +63,12 @@ class VidPlayer(threading.Thread):
                 if output['frame_id'] == self._next_frame_num:
                     if output['frame'] is None:
                         # invalid frame
-                        print(f"VidPlayer: Invalid frame {output['frame_id']} - Retrying")
+                        self.verbose and print(f"VidPlayer: Invalid frame {output['frame_id']} - Retrying")
                         self._vidctrl.request_frame_num(self._next_frame_num)
                         wait_time = 1
                     else:
                         # display the current frame
-                        print(f'VidPlayer: Displaying frame {self._next_frame_num}')
+                        self.verbose and print(f'VidPlayer: Displaying frame {self._next_frame_num}')
                         cv2.imshow(self._window_name, output['frame'])
 
                         self._cur_frame_num = self._next_frame_num
@@ -78,10 +79,10 @@ class VidPlayer(threading.Thread):
                         else:
                             wait_time = max(1, int((1. / self._fps - (time.clock() - timer)) * 1000))
                 else:
-                    print(f"VidPlayer: Discarding frame {output['frame_id']}")
+                    self.verbose and print(f"VidPlayer: Discarding frame {output['frame_id']}")
                     wait_time = 1
             else:
-                print('VidPlayer: Waiting')
+                self.verbose and print('VidPlayer: Waiting')
                 wait_time = 10
 
             # wait and process key events
@@ -90,13 +91,13 @@ class VidPlayer(threading.Thread):
             ret = self.process_key_event(key)
             
             if ret != 0:
-                print('VidPlayer: Quit requested')
+                self.verbose and print('VidPlayer: Quit requested')
                 break
 
             if self._last_requested_frame_num != self._next_frame_num:
                 self._vidctrl.request_frame_num(self._next_frame_num)
                 self._last_requested_frame_num = self._next_frame_num
         
-        print('VidPlayer: Quitting')
+        self.verbose and print('VidPlayer: Quitting')
         cv2.destroyWindow(self._window_name)
         return 0

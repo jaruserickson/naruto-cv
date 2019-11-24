@@ -18,6 +18,8 @@ class AlgoCtrl(threading.Thread):
         self._in_frames = in_frames
         self._output = output
         self._exit_event = exit_event
+
+        self.verbose = False
         
     def set_enable_character_recognition(self, flag):
         self._enable_character_recognition = flag
@@ -36,15 +38,15 @@ class AlgoCtrl(threading.Thread):
                 frame = in_frame['frame']
 
                 if frame is not None:
-                    print(f'Algo: Processing frame {frame_num}')
+                    self.verbose and print(f'Algo: Processing frame {frame_num}')
 
                 # send frame output to application
                 output = {'frame_id': frame_num, 'frame': frame}
                 self._output.put(output)
             else:
                 # wait for new frame
-                print('Algo: Waiting')
+                self.verbose and print('Algo: Waiting')
                 time.sleep(0.01)
 
-        print('AlgoCtrl: Quitting')
+        self.verbose and print('AlgoCtrl: Quitting')
         return 0

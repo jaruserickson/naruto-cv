@@ -19,10 +19,7 @@ class VidReader(threading.Thread):
         self._q = q
         self._exit_event = exit_event
 
-    def get_vid_info():
-        return {
-            'frame_range': (0, -1)
-        }
+        self.verbose = False
 
     def run(self):
         """ Run """
@@ -44,15 +41,15 @@ class VidReader(threading.Thread):
                     self._cur_frame_num += 1
 
                 if not ret:
-                    print('VidReader: End of Video')
+                    self.verbose and print('VidReader: End of Video')
                     break
 
-                print(f'VidReader: Reading frame {requested_frame_num}')
+                self.verbose and print(f'VidReader: Reading frame {requested_frame_num}')
                 self._q.put({'frame_id': requested_frame_num, 'frame': self._cur_frame})
             else:
-                print('VidReader: Waiting')
+                self.verbose and print('VidReader: Waiting')
                 time.sleep(0.01)
         
-        print('VidReader: Quitting')
+        self.verbose and print('VidReader: Quitting')
         self._capture.release()
         return 0

@@ -33,6 +33,8 @@ class VidCtrl(threading.Thread):
         self._unrequested_frame_nums = queue.Queue()
         self._last_read_frame_num = -1
 
+        self.verbose = False
+
     def set_mode(self, mode):
         self._mode = mode
 
@@ -93,5 +95,5 @@ class VidCtrl(threading.Thread):
         vid_reader.join()
         vid_player.join()
 
-        print('VidCtrl: Quitting')
+        self.verbose and print('VidCtrl: Quitting')
         return 0
