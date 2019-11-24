@@ -1,17 +1,26 @@
 """ Generate a dataset of naruto characters. """
 import shutil
-import json
 import time
-import requests
+import csv
+from collections import defaultdict
 from os import path, mkdir
+import requests
 
 # Top 30 characters from the latest character poll.
-with open('characters.json', 'r') as characters:
-    CHARACTER_ID = json.load(characters)
+def get_MAL_ids():
+    """ Get character ids from the csv. """
+    characters = defaultdict()
+    with open('characters.csv', 'r') as infile:
+        reader = csv.reader(infile)
+        for i, line in enumerate(reader):
+            if i > 0:
+                characters[line[0]] = line[1]
+    return characters
 
-def get_MAL_characters():
+def get_MAL_images():
     """ Retrieve character images from MAL. """
-    for i, char in enumerate(CHARACTER_ID.keys()):
+    mal_char_ids = get_MAL_ids()
+    for i, char in enumerate(mal_char_ids.keys()):
         if i % 10 == 0 and i > 0:  # We don't want to get a timeout from MAL.
             print('Waiting for API refresh...')
             time.sleep(5)
@@ -21,7 +30,7 @@ def get_MAL_characters():
             print(f'Getting data for {char} from Jikan...')
             mkdir(datapath)
             # Get images for the character
-            resp = requests.get(f'https://api.jikan.moe/v3/character/{CHARACTER_ID[char]}/pictures')
+            resp = requests.get(f'https://api.jikan.moe/v3/character/{mal_char_ids[char]}/pictures')
 
             # Save the images of the character
             if resp.status_code == 200:
@@ -43,5 +52,5 @@ if __name__ == '__main__':
     if not path.isdir('./data'):
         mkdir('./data')
     # Download character images.
-    get_MAL_characters()
+    get_MAL_images()
 

@@ -1,7 +1,12 @@
 **/data/
+dataset/images
 google_images.txt
 .vscode
 __pycache__
-*.cfg
 *.pyc
 *.webm
+*.cfg
+*.record
+dataset/vid_data/frames
+tensorflow
+*.mp4

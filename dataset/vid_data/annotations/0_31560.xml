@@ -1,0 +1,26 @@
+<annotation>
+	<folder>frames</folder>
+	<filename>0_31560.jpg</filename>
+	<path>/home/jacob/Desktop/code/csc420/naruto-cv/dataset/vid_data/frames/0_31560.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>1280</width>
+		<height>720</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>naruto_uzumaki</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>846</xmin>
+			<ymin>150</ymin>
+			<xmax>1002</xmax>
+			<ymax>336</ymax>
+		</bndbox>
+	</object>
+</annotation>

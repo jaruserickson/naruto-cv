@@ -1,0 +1,26 @@
+<annotation>
+	<folder>frames</folder>
+	<filename>1_1830.jpg</filename>
+	<path>/home/jacob/Desktop/code/csc420/naruto-cv/dataset/vid_data/frames/1_1830.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>1280</width>
+		<height>720</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>kakashi_hatake</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>506</xmin>
+			<ymin>144</ymin>
+			<xmax>708</xmax>
+			<ymax>426</ymax>
+		</bndbox>
+	</object>
+</annotation>

@@ -1,0 +1,26 @@
+<annotation>
+	<folder>frames</folder>
+	<filename>1_16500.jpg</filename>
+	<path>/home/jacob/Desktop/code/csc420/naruto-cv/dataset/vid_data/frames/1_16500.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>1280</width>
+		<height>720</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>kisame_hoshigaki</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>270</xmin>
+			<ymin>62</ymin>
+			<xmax>462</xmax>
+			<ymax>298</ymax>
+		</bndbox>
+	</object>
+</annotation>

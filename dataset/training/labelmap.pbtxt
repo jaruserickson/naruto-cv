@@ -1,0 +1,134 @@
+item {
+  id: 1
+  name: 'naruto_uzumaki'
+}
+
+item {
+  id: 2
+  name: 'sasuke_uchiha'
+}
+
+item {
+  id: 3
+  name: 'kakashi_hatake'
+}
+
+item {
+  id: 4
+  name: 'gaara'
+}
+
+item {
+  id: 5
+  name: 'itachi_uchiha'
+}
+
+item {
+  id: 6
+  name: 'deidara'
+}
+
+item {
+  id: 7
+  name: 'minato_namikaze'
+}
+
+item {
+  id: 8
+  name: 'sasori'
+}
+
+item {
+  id: 9
+  name: 'shikamaru_nara'
+}
+
+item {
+  id: 10
+  name: 'hinata_hyuuga'
+}
+
+item {
+  id: 11
+  name: 'iruka_umino'
+}
+
+item {
+  id: 12
+  name: 'sakura_haruno'
+}
+
+item {
+  id: 13
+  name: 'sai'
+}
+
+item {
+  id: 14
+  name: 'yamato'
+}
+
+item {
+  id: 15
+  name: 'neji_hyuuga'
+}
+
+item {
+  id: 16
+  name: 'jiraya'
+}
+
+item {
+  id: 17
+  name: 'temari'
+}
+
+item {
+  id: 18
+  name: 'rock_lee'
+}
+
+item {
+  id: 19
+  name: 'kushina_uzumaki'
+}
+
+item {
+  id: 20
+  name: 'kisame_hoshigaki'
+}
+
+item {
+  id: 21
+  name: 'pain'
+}
+
+item {
+  id: 22
+  name: 'konan'
+}
+
+item {
+  id: 23
+  name: 'killer_bee'
+}
+
+item {
+  id: 24
+  name: 'might_guy'
+}
+
+item {
+  id: 25
+  name: 'kiba_inuzuka'
+}
+
+item {
+  id: 26
+  name: 'ino_yamanaka'
+}
+
+item {
+  id: 27
+  name: 'shino_aburame'
+}

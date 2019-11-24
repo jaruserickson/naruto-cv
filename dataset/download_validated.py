@@ -3,6 +3,7 @@ import json
 import os
 import shutil
 import requests
+import time
 
 def download_images():
     """ Download prevalidated images, noted in dataset_images.json """
@@ -21,6 +22,7 @@ def download_images():
                     startpoint += 1
             else:
                 print(f"Couldn't get image from {img}.")
+        time.sleep(2)
 
 if __name__ == '__main__':
     download_images()

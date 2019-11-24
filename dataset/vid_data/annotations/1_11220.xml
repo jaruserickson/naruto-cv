@@ -1,0 +1,26 @@
+<annotation>
+	<folder>frames</folder>
+	<filename>1_11220.jpg</filename>
+	<path>/home/jacob/Desktop/code/csc420/naruto-cv/dataset/vid_data/frames/1_11220.jpg</path>
+	<source>
+		<database>Unknown</database>
+	</source>
+	<size>
+		<width>1280</width>
+		<height>720</height>
+		<depth>3</depth>
+	</size>
+	<segmented>0</segmented>
+	<object>
+		<name>killer_bee</name>
+		<pose>Unspecified</pose>
+		<truncated>0</truncated>
+		<difficult>0</difficult>
+		<bndbox>
+			<xmin>496</xmin>
+			<ymin>290</ymin>
+			<xmax>804</xmax>
+			<ymax>630</ymax>
+		</bndbox>
+	</object>
+</annotation>
