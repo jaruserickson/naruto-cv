@@ -1,4 +1,6 @@
 **/data/
 google_images.txt
 .vscode
+__pycache__
 *.cfg
+*.pyc
