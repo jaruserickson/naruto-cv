@@ -3,41 +3,56 @@ VidReader
 """
 
 import cv2
+import threading
+import time
 
 
-class VidReader():
-    def __init__(self, vidfile):
+class VidReader(threading.Thread):
+    def __init__(self, vidctrl, vidfile, q, exit_event):
+        threading.Thread.__init__(self)
+
+        self._vidctrl = vidctrl
         self._vidfile = vidfile
         self._capture = cv2.VideoCapture(vidfile)
         self._cur_frame_num = -1
         self._cur_frame = None
+        self._q = q
+        self._exit_event = exit_event
 
-    def start(self):
-        if self._capture.isOpened():
-            return 0
-        else:
+    def get_vid_info():
+        return {
+            'frame_range': (0, -1)
+        }
+
+    def run(self):
+        """ Run """
+        if not self._capture.isOpened():
+            print('VidReader: Could not open video')
             return 1
 
-    def stop(self):
-        self._capture.release()
-        return
+        while not self._exit_event.is_set():
+            if not self._q.full():
+                requested_frame_num = self._vidctrl.get_next_frame_num()
+                ret = True
 
-    def get_frame(self, offset=1):
-        """ 
-        Load the next frame of the video, or the one at the offset if given.
+                if requested_frame_num < self._cur_frame_num:
+                    self._q.put({'frame_id': requested_frame_num, 'frame': None})
+
+                # this reader can only read forward!
+                while ret and self._cur_frame_num < requested_frame_num:
+                    ret, self._cur_frame = self._capture.read()
+                    self._cur_frame_num += 1
+
+                if not ret:
+                    print('VidReader: End of Video')
+                    break
+
+                print(f'VidReader: Reading frame {requested_frame_num}')
+                self._q.put({'frame_id': requested_frame_num, 'frame': self._cur_frame})
+            else:
+                print('VidReader: Waiting')
+                time.sleep(0.01)
         
-        If offset is less than zero, will simply return the last frame.
-        """
-        ret = True
-        i = 0
-
-        while ret and i < offset:
-            ret, self._cur_frame = self._capture.read()
-            i += 1
-
-        self._cur_frame_num += offset
-
-        if ret:
-            return self._cur_frame
-        else:
-            return None
+        print('VidReader: Quitting')
+        self._capture.release()
+        return 0

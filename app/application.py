@@ -3,6 +3,7 @@ application
 """
 
 import cv2
+import queue
 import time
 import threading
 
@@ -15,13 +16,7 @@ class Application():
     def __init__(self):
         """ Initialize application """
         self._args = None
-
-        self._output = None
-        self._frame = None
-        self._frame_lock = threading.Lock()
-        self._output_lock = threading.Lock()
-        self._new_frame_event = threading.Event()
-        self._end_frame_event = threading.Event()
+        self._buf_size = 10
 
     """ Attribute setters """
     def set_args(self, args):
@@ -29,62 +24,30 @@ class Application():
 
     def run(self):
         """ Run the application """
-        algo = AlgoCtrl(self, self._new_frame_event, self._end_frame_event)
+        in_frames = queue.Queue(self._buf_size)
+        output = queue.Queue(self._buf_size)
+
+        exit_event = threading.Event()
+
+        # create algo and video control objects
+        algo = AlgoCtrl(self, in_frames, output, exit_event)
         algo.set_enable_character_recognition(self._args.enable_character_recognition)
         algo.set_enable_village_symbol_detection(self._args.enable_village_symbol_detection)
 
-        video = VidCtrl(self, self._new_frame_event, self._end_frame_event, self._args.vid_file)
+        video = VidCtrl(self, in_frames, output, self._args.vid_file, exit_event)
         video.set_mode(self._args.mode)
         video.set_fps(self._args.fps)
 
+        # run
         video.start()
         algo.start()
 
+        # wait for termination
+        while video.is_alive() and algo.is_alive():
+            time.sleep(0.1)
+
+        exit_event.set()
         video.join()
         algo.join()
-
+        
         return 0
-
-    def set_frame(self, frame):
-        """ Set the next frame for processing """
-        self._frame_lock.acquire()
-        self._frame = frame
-        self._frame_lock.release()
-
-        # trigger new frame event
-        self._new_frame_event.set()
-
-    def get_frame(self):
-        """ Retrieve the current frame """
-        self._frame_lock.acquire()
-
-        if self._frame is not None:
-            frame = self._frame.copy()
-        else:
-            frame = None
-
-        self._frame_lock.release()
-        self._new_frame_event.clear()
-        return frame
-
-    def set_output(self, output):
-        """ Set the output of the most recent frame """
-        self._output_lock.acquire()
-        self._output = output
-        self._output_lock.release()
-
-        # trigger end of frame
-        self._end_frame_event.set()
-
-    def get_output(self):
-        """ Get the most recent frame's output """
-        self._output_lock.acquire()
-
-        if self._output is not None:
-            output = self._output.copy()
-        else:
-            output = None
-
-        self._output_lock.release()
-        self._end_frame_event.clear()
-        return output

@@ -6,29 +6,32 @@ import cv2
 import matplotlib.pyplot as plt
 import threading
 import time
+import queue
 
 from vidreader import VidReader
 from imreader import ImReader
+from vidplayer import VidPlayer
 
 
 class VidCtrl(threading.Thread):
-    """ Video control object """
-    def __init__(self, app, new_frame_event, end_frame_event, vidfile):
+    """ 
+    Video control object 
+    
+    Rather than simply playing a video (as would a video player), VidCtrl also 
+    controls the sending of frames to the main application.
+    """
+    def __init__(self, app, in_frames, output, vidfile, exit_event):
         threading.Thread.__init__(self)
 
-        self._vidfile = vidfile
-        self._frame_num = 0
-        self._frame_offset = 1
-        self._mode = None
-        self._fps = None
-
         self._app = app
-        self._new_frame_event = new_frame_event
-        self._end_frame_event = end_frame_event
+        self._in_frames = in_frames
+        self._output = output
+        self._vidfile = vidfile
+        self._exit_event = exit_event
 
-        self._vid_reader = None
-        self._window_name = 'Naruto CV'
-        self._cur_frame = None
+        self._requested_frame_nums = queue.Queue()
+        self._unrequested_frame_nums = queue.Queue()
+        self._last_read_frame_num = -1
 
     def set_mode(self, mode):
         self._mode = mode
@@ -36,98 +39,59 @@ class VidCtrl(threading.Thread):
     def set_fps(self, fps):
         self._fps = fps
 
-    def key_event(self, key):
-        """ Process a key event """
-        # Note: In 'video' mode, '_next_frame_num' is incremented by 1 every frame in the main loop
-        if key & 0xFF == ord('q'):
-            return 1
+    def get_next_frame_num(self):
+        if self._requested_frame_nums.empty():
+            # if the video player has not requested a frame, get the frame after the last one
+            self._last_read_frame_num += 1
+            self._unrequested_frame_nums.put(self._last_read_frame_num)
+            return self._last_read_frame_num
         else:
-            # video mode
-            if self._mode == 'video':
-                if key & 0xFF == ord(' '):
-                    while cv2.waitKey(0) & 0xFF != ord(' '):
-                        pass
-                elif key & 0xFF == ord('n'):
-                    self._frame_offset = self._fps * 10
-            # image mode
-            elif self._mode == 'images':
-                if key & 0xFF == ord('p'):
-                    self._frame_offset = -1
-                else:
-                    self._frame_offset = 1
+            requested_frame_num = self._requested_frame_nums.get()
+            is_read = False
+
+            # check to see if this number has been pre-read
+            while not self._unrequested_frame_nums.empty():
+                if requested_frame_num == self._unrequested_frame_nums.get():
+                    is_read = True
+                    break
             
-        return 0
+            if is_read:
+                return self.get_next_frame_num()
+            else:
+                self._last_read_frame_num = requested_frame_num
+                return requested_frame_num
+
+    def request_frame_num(self, n):
+        self._requested_frame_nums.put(n)
 
     def run(self):
         """ Run """
-        # safety checks
-        if self._mode is None or self._fps is None:
-            print('VidCtrl not initialized')
-            return 1
+
+        child_exit_event = threading.Event()
 
         # create video provider
         if self._mode == 'video':
-            self._vid_reader = VidReader(self._vidfile)
+            vid_reader = VidReader(self, self._vidfile, self._in_frames, child_exit_event)
         elif self._mode == 'images':
-            self._vid_reader = ImReader(self._vidfile)
-            self._fps = 0
+            vid_reader = ImReader(self, self._vidfile, self._in_frames, child_exit_event)
         else:
             print('Unknown mode: quitting VidCtrl')
             return 1
-            
-        # more safety checks
-        if self._vid_reader.start() != 0:
-            print('Error opening video file')
-            return 1
 
-        # get the first frame
-        self._cur_frame = self._vid_reader.get_frame(self._frame_offset)
-        self._app.set_frame(self._cur_frame)
-        self._frame_num = self._frame_offset
-        
-        # initialize window
-        cv2.namedWindow(self._window_name, cv2.WINDOW_NORMAL | cv2.WINDOW_GUI_EXPANDED)
-        timer = time.clock()
+        # create video player
+        vid_player = VidPlayer(self, 'Naruto-CV', self._output, child_exit_event, self._mode, self._fps)
 
-        # main loop
-        while self._cur_frame is not None:
-            # wait for processing to finish
-            self._end_frame_event.wait()
-            output = self._app.get_output()
-            
-            if output is None:
-                break
+        # run
+        vid_reader.start()
+        vid_player.start()
 
-            # display the current frame
-            print('Displaying frame')
-            cv2.imshow(self._window_name, self._cur_frame)
-            
-            # wait and process key events
-            if self._fps == 0:
-                wait_time = 0
-            else:
-                wait_time = max(1, int((1. / self._fps - (time.clock() - timer)) * 1000))
+        # wait for termination
+        while vid_reader.is_alive() and vid_player.is_alive() and not self._exit_event.is_set():
+            time.sleep(0.1)
 
-            key = cv2.waitKey(wait_time)
+        child_exit_event.set()
+        vid_reader.join()
+        vid_player.join()
 
-            if self.key_event(key) != 0:
-                break
-            else:
-                timer = time.clock()
-
-            # load the next frame and send it to the application
-            self._cur_frame = self._vid_reader.get_frame(self._frame_offset)
-            self._app.set_frame(self._cur_frame)
-
-            if self._mode == 'video':
-                self._frame_num += self._frame_offset
-                self._frame_offset = 1
-
-        # release 
-        self._vid_reader.stop()
-        cv2.destroyAllWindows()
-        
-        # signal end of video
-        self._app.set_frame(None)
-
+        print('VidCtrl: Quitting')
         return 0
