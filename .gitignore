@@ -10,3 +10,11 @@ __pycache__
 dataset/vid_data/frames
 tensorflow
 *.mp4
+build/
+*.so
+*.c
+detection/retinanet/saved
+detection/retinanet/logs
+detection/retinanet/snapshots
+dataset/retimages
+*.h5

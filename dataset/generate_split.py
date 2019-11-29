@@ -1,25 +1,26 @@
 """ Create usable split for TFRecord generation """
 import os
+import sys
 import shutil
 import csv
 from xml.dom import minidom
 from PIL import Image
 
-def create_folders():
+def create_folders(folder='images'):
     """ Create folders to split data into """
-    if not os.path.isdir('images'):
+    if not os.path.isdir(folder):
         # Create folders if they don't exist
-        os.mkdir('images')
+        os.mkdir(folder)
 
-        if not os.path.isdir('images/train'):
-            os.mkdir('images/train')
-        if not os.path.isdir('images/test'):
-            os.mkdir('images/test')
+        if not os.path.isdir(f'{folder}/train'):
+            os.mkdir(f'{folder}/train')
+        if not os.path.isdir(f'{folder}/test'):
+            os.mkdir(f'{folder}/test')
 
-def propogate_data(split=0.9):
+def propogate_data(folder='images', split=0.9):
     """ Propogate data from data and annotations into the folders. """
     # Validate folder existence
-    if not os.path.isdir('images'):
+    if not os.path.isdir(folder):
         raise Exception('create_folders must be run prior to this function.')
     if not os.path.isdir('data'):
         raise Exception('data folder must exist to create a split.')
@@ -46,9 +47,9 @@ def propogate_data(split=0.9):
             test_paths.append(ann_file)
 
     for img_path in train_paths:
-        shutil.copy2(img_path, os.path.join('images/train', '_'.join(img_path.split('/')[-2:])))
+        shutil.copy2(img_path, os.path.join(f'{folder}/train', '_'.join(img_path.split('/')[-2:])))
     for img_path in test_paths:
-        shutil.copy2(img_path, os.path.join('images/test', '_'.join(img_path.split('/')[-2:])))
+        shutil.copy2(img_path, os.path.join(f'{folder}/test', '_'.join(img_path.split('/')[-2:])))
 
     # Get imagepaths from vid_data/
     filenames = [x.split('.png')[0] for x in os.listdir('vid_data/frames')]
@@ -62,27 +63,26 @@ def propogate_data(split=0.9):
         test_paths.append(os.path.join('vid_data/annotations', f'{fname}.xml'))
 
     for img_path in train_paths:
-        shutil.copy2(img_path, os.path.join('images/train', img_path.split('/')[-1]))
+        shutil.copy2(img_path, os.path.join(f'{folder}/train', img_path.split('/')[-1]))
     for img_path in test_paths:
-        shutil.copy2(img_path, os.path.join('images/test', img_path.split('/')[-1]))
+        shutil.copy2(img_path, os.path.join(f'{folder}/test', img_path.split('/')[-1]))
 
-def not_included_chars():
-    """ Get include=False charactersfrom the csv. """
+def include_chars(include=False):
+    """ Get include={include} characters from the csv. """
     characters = []
     with open('characters.csv', 'r') as infile:
         reader = csv.reader(infile)
         for i, line in enumerate(reader):
-            if i > 0 and line[2] == 'False':
-                print(f'{line[0]} was omitted in characters.csv.')
+            if i > 0 and line[2] == str(include):
                 characters.append(line[0])
     return characters
 
-def get_csv_labels(folder):
-    """ Get CSV labels from annotation files"""
+def get_csv_labels(folder, order):
+    """ Get CSV labels from annotation files. order = FRCNN | Retina """
     get_xml_val = lambda x, y: x.getElementsByTagName(y)[0].firstChild.data
     header = ['filename', 'width', 'height', 'class', 'xmin', 'ymin', 'xmax', 'ymax']
-    labels = [header]
-    omit_chars = not_included_chars()
+    labels = [header] if order == 'FRCNN' else []
+    omit_chars = include_chars(False)
     for f_name in os.listdir(folder):
         # Only create entries with XML files.
         if f_name.split('.')[-1] == 'xml':
@@ -116,27 +116,46 @@ def get_csv_labels(folder):
                     continue
                 else:
                     # Add bndbox to row
-                    labels.append([_filename, _width, _height, _class, _xmin, _ymin, _xmax, _ymax])
+                    if order == 'FRCNN':
+                        labels.append([_filename, _width, _height, _class, _xmin, _ymin, _xmax, _ymax])
+                    elif order == 'Retina':
+                        labels.append([os.path.abspath(os.path.join('../dataset', folder, _filename)), _xmin, _ymin, _xmax, _ymax, _class])
+                    else:
+                        assert ValueError('order must be one of Retina or FRCNN')
     return labels
 
-def generate_csv_label_files():
+def generate_csv_label_files(folder='images', order='FRCNN'):
     """ Generate CSV files for TFRecord consumption """
-    train_labels = get_csv_labels('images/train')
-    test_labels = get_csv_labels('images/test')
+    train_labels = get_csv_labels(f'{folder}/train', order)
+    test_labels = get_csv_labels(f'{folder}/test', order)
 
-    with open('images/train_labels.csv', 'w') as outfile:
+    with open(f'{folder}/train_labels.csv', 'w') as outfile:
         writer = csv.writer(outfile)
         writer.writerows(train_labels)
-    with open('images/test_labels.csv', 'w') as outfile:
+    with open(f'{folder}/test_labels.csv', 'w') as outfile:
         writer = csv.writer(outfile)
         writer.writerows(test_labels)
 
+def retina_characters(folder='images'):
+    """ Get characters for use in RetinaNet """
+    characters = []
+    with open('characters.csv', 'r') as infile:
+        reader = csv.reader(infile)
+        for i, line in enumerate(reader):
+            characters.append([line[0], i-1])
+    characters = characters[1:]
+    with open(f'{folder}/characters.csv', 'w') as outfile:
+        writer = csv.writer(outfile)
+        writer.writerows(characters)
 
 if __name__ == '__main__':
+    FOLDER = 'images' if len(sys.argv) < 2 else sys.argv[1] # retimages
+    ORDER = 'FRCNN' if len(sys.argv) < 3 else sys.argv[2]   # Retina
     print('Creating folders')
-    create_folders()
+    create_folders(FOLDER)
     print('Propogating data')
-    propogate_data()
+    propogate_data(FOLDER)
     print('Generating CSV files')
-    generate_csv_label_files()
-    
+    generate_csv_label_files(FOLDER, order=ORDER)
+    if ORDER == 'Retina':
+        retina_characters(FOLDER)

@@ -1,2 +1,6 @@
 opencv-contrib-python
 tqdm
+tensorflow-gpu
+keras-resnet
+progressbar2
+cython

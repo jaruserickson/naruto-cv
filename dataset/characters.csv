@@ -8,7 +8,6 @@ deidara,1902,True
 minato_namikaze,2535,True
 shikamaru_nara,2007,True
 hinata_hyuuga,1555,True
-iruka_umino,2011,True
 sakura_haruno,145,True
 sai,1901,True
 yamato,2006,True
@@ -21,8 +20,9 @@ kisame_hoshigaki,2672,True
 killer_bee,18473,True
 might_guy,307,True
 kiba_inuzuka,3495,True
-ino_yamanaka,2009,True
+ino_yamanaka,2009,False
 sasori,1900,False
 pain,3180,False
 konan,3179,False
+iruka_umino,2011,False
 shino_aburame,3428,False

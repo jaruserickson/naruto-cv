@@ -17,6 +17,7 @@ Some options:
  - [R-CNN](https://arxiv.org/pdf/1311.2524.pdf)
  - [RetinaNet](https://arxiv.org/pdf/1708.02002.pdf)
  - [YOLO](https://arxiv.org/pdf/1506.02640v5.pdf)
+ - [SSD](https://arxiv.org/pdf/1512.02325.pdf)
 
 ### Usage
 #### Dataset
@@ -148,6 +149,54 @@ After omitting the problem characters, everything is looking quite a bit better.
 (We never said in the proposal that we would be implementing the network, just training one LOL. I'm going to try anyway, but as mentioned before, there's a LOT of points of failure and it can get super complex.)
 Now that we know the dataset is valid, we can work on writing a network from the ground up. Based on the notes before, I'm probably going to implement an SSD network.
 
+ - [Understanding SSD MultiBox — Real-Time Object Detection In Deep Learning](https://towardsdatascience.com/understanding-ssd-multibox-real-time-object-detection-in-deep-learning-495ef744fab)
+ - Region based CNNs
+   - R-CNN, Fast-R-CNN, Faster-R-CNN
+   - Uses an RPN (Region proposal network) to determine potential regions, then performs classification.
+    - This is highly accurate but:
+      - Training takes quite long (since there's multiple phases (RPN and Classifier)).
+      - Network is slow when detecting after it's trained.
+        - It took roughly 15 minutes to run detection on half the frames of a 2 minute 24fps video.
+   - Prefferably, we'd use one network: YOLO / SSD introduce this
+     - Unfortunately, using one network means we'll be looking at a substantially large number of "failure" proposals since the proposals are consistent, rather than trained (as with an RPN.)
+     - SSD has higher accuracy but is a bit slower than YOLO.
+       - I find that accuracy will be more important in my case, since there's quite a bit of "expression" characters can make
+   - SSD (Single Shot MultiBox Detector)
+     - based on the VGG-16 architecture, which is normally used for classification.
+     - where fully connected layers would exist, SSD adds *auxiliary* convolutional layers, to enable extraction of features of multiple scales.
+     - uses a modified "MultiBox" which is a bounding box regressino technique based on [Inception net](https://arxiv.org/abs/1409.4842).
+       - has a loss function `multibox loss = confidence loss + alpha * location loss` (objectness + location)
+       - starts with priors (aka "anchors") (and 1420 of them per image) which are bounding boxes that are pre-computed (so they have an IOU of over 0.5) so as to regress closer than with random boxes.
+         - It retains only the top predictions with minimized location and confidence loss.
+     - SSD modifies MultiBox as such:
+       - for a feature map, there are manually chosen priors, with so many (the paper chose to have 6, but more will increase accuracy (while decreasing speed)) for each cell..
+         - ![](https://miro.medium.com/max/1266/1*JuhjYUWXgfxMMoa4SIKLkA.png)
+     - SSD uses a smooth L1-Norm for Location loss.
+     - employs "Hard Negative Mining": a strategy where it keeps negative predictions at a ratio of 3:1 to the positive predictions so the network knows what isn't to be detected.
+     - Random horizontal flipping and cropping (while including the target) is performed to augment the dataset.
+     - In the end, Non maximum supression is performed to prune the boxes with a confidence less than some value and an IOU less than anotother (say 0.01 and 0.5 respectively) so the most likely predictions are kept. 
+     - Apparently SSD struggles with objects that have a similar category - such as animals.
+   - That said, SSD may not actually be the best choice. 
+     - I'm going to look at something I've not yet looked at: [RetinaNet](https://towardsdatascience.com/review-retinanet-focal-loss-object-detection-38fba6afabe4) | [Paper](https://arxiv.org/pdf/1708.02002.pdf)
+       - RetinaNet proposes around 100k boxes as opposed to SSD's roughly 15k and YOLO's roughly 1k.
+       - RetinaNet, while maintaining a relatively simple architecture compared to its comparatives, uses a novel loss function: Focal Loss. 
+       - A ResNet is used for deep feature extraaction, with an FPN on top of ResNet for varying scales.
+     - So at it's base, RetinaNet has two improvements to SSD and YOLO: the FPN and Focal Loss. 
+
+  **Implementation**
+   - I'm going to be basing my implementation largely off the well documented [keras-retinanet](https://github.com/fizyr/keras-retinanet)
+   - It's got a lot of extra modularity that ends up helping a lot when training models, but we won't need any of that modularity. The documentation really helps when dissecting the repo.
+     - I'm going to try and reformat the repo to a simpler format:
+       - `model.py`
+       - `train.py`
+       - `predict.py`
+     - with this, the major scope of the network should be easier to realize. (ResNet -> FPN -> Regression + Classification)
+     - I'm going to use pretrained ImageNet weights for the ResNet backbone. Unfortunately since I'm going to be using tensorflow's ResNet50 implementation over the keras-resnet repo, the model will end up being slightly different. This means I can't use the original repo's (keras-retinanet) pretrained weights. This probably has a big impact on the next point.
+   - After completing this, the first thing that sticks out is the slow training time.
+     - *tensorflow/FRCNN* @ **0.3s/step** vs. *keras/RetinaNet* @ **2.5s/step**
+     - This isn't horrible, but it will impact how long we have to train RetinaNet to recieve similar results.
+     - Since our results from FRCNN were from 30,000 training steps, ideally i'd like to reach the same amount of training for RetinaNet. As such, I'll be training it for around ~15 hours.
+  - [Speed Comparison](https://medium.com/@jonathan_hui/object-detection-speed-and-accuracy-comparison-faster-r-cnn-r-fcn-ssd-and-yolo-5425656ae359)
 
 #### Village Symbol Recognition
  - Not started.
