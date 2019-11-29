@@ -197,6 +197,8 @@ Now that we know the dataset is valid, we can work on writing a network from the
      - This isn't horrible, but it will impact how long we have to train RetinaNet to recieve similar results.
      - Since our results from FRCNN were from 30,000 training steps, ideally i'd like to reach the same amount of training for RetinaNet. As such, I'll be training it for around ~15 hours.
   - [Speed Comparison](https://medium.com/@jonathan_hui/object-detection-speed-and-accuracy-comparison-faster-r-cnn-r-fcn-ssd-and-yolo-5425656ae359)
+  - It actually seems after a couple of hours of training RetinaNet it's heavily overfitting. As regression converges, classification spikes super hard - this kind of makes sense since the characters look pretty similar. Will have to look into that. For now, the best implementation is that which exists in our usage of tensorflow's Faster R-CNN implementation. I might look into implementing that if this is still acting weird after another few hours.
+    - If I do implement Faster R-CNN, I'm likely going to use pytorch, since it tends to run faster.
 
 #### Village Symbol Recognition
  - Not started.
