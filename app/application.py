@@ -7,8 +7,8 @@ import queue
 import time
 import threading
 
-from algoctrl import AlgoCtrl
-from vidctrl import VidCtrl
+from .algoctrl import AlgoCtrl
+from .vidctrl import VidCtrl
 
 
 class Application():

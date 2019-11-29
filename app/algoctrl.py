@@ -4,6 +4,7 @@ AlgoCtrl
 
 import threading
 import time
+from detect_symbols.symbol_detector import SymbolDetector
 
 
 class AlgoCtrl(threading.Thread):
@@ -29,6 +30,8 @@ class AlgoCtrl(threading.Thread):
 
     def run(self):
         """ Run """
+        symbol_detector = SymbolDetector()
+
         # main loop
         while not self._exit_event.is_set():
             if not self._in_frames.empty() and not self._output.full():
@@ -39,6 +42,8 @@ class AlgoCtrl(threading.Thread):
 
                 if frame is not None:
                     self.verbose and print(f'Algo: Processing frame {frame_num}')
+
+                    frame = symbol_detector.process(frame)
 
                 # send frame output to application
                 output = {'frame_id': frame_num, 'frame': frame}

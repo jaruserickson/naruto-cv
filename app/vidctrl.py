@@ -8,9 +8,9 @@ import threading
 import time
 import queue
 
-from vidreader import VidReader
-from imreader import ImReader
-from vidplayer import VidPlayer
+from .vidreader import VidReader
+from .imreader import ImReader
+from .vidplayer import VidPlayer
 
 
 class VidCtrl(threading.Thread):
