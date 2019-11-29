@@ -46,9 +46,13 @@ def propogate_data(split=0.9):
             test_paths.append(ann_file)
 
     for img_path in train_paths:
-        shutil.copy2(img_path, os.path.join('images/train', '_'.join(img_path.split('/')[-2:])))
+        dir_path, fname = os.path.split(img_path)
+        char_name = os.path.split(dir_path)[0]
+        #shutil.copy2(img_path, os.path.join('images/train', char_name + '_' + fname))
     for img_path in test_paths:
-        shutil.copy2(img_path, os.path.join('images/test', '_'.join(img_path.split('/')[-2:])))
+        dir_path, fname = os.path.split(img_path)
+        char_name = os.path.split(dir_path)[0]
+        #shutil.copy2(img_path, os.path.join('images/test', char_name + '_' + fname))
 
     # Get imagepaths from vid_data/
     filenames = [x.split('.png')[0] for x in os.listdir('vid_data/frames')]
@@ -62,9 +66,9 @@ def propogate_data(split=0.9):
         test_paths.append(os.path.join('vid_data/annotations', f'{fname}.xml'))
 
     for img_path in train_paths:
-        shutil.copy2(img_path, os.path.join('images/train', img_path.split('/')[-1]))
+        shutil.copy2(img_path, os.path.join('images/train', os.path.split(img_path)[1]))
     for img_path in test_paths:
-        shutil.copy2(img_path, os.path.join('images/test', img_path.split('/')[-1]))
+        shutil.copy2(img_path, os.path.join('images/test', os.path.split(img_path)[1]))
 
 def not_included_chars():
     """ Get include=False charactersfrom the csv. """
