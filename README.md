@@ -200,8 +200,9 @@ Now that we know the dataset is valid, we can work on writing a network from the
   - It actually seems after a couple of hours of training RetinaNet it's heavily overfitting. As regression converges, classification spikes super hard - this kind of makes sense since the characters look pretty similar. Will have to look into that. For now, the best implementation is that which exists in our usage of tensorflow's Faster R-CNN implementation. I might look into implementing that if this is still acting weird after another few hours.
     - If I do implement Faster R-CNN, I'm likely going to use pytorch, since it tends to run faster.
 
-#### Village Symbol Recognition
- - Not started.
+#### Village Symbol Recognition (Using Interest Points)
+ - Initially, I plan on using a Generalized Hough Transform with voting based on SIFT feature points and descriptors. Voting will be used to determine the position, scale and rotation of the symbols, along with detecting the symbol itself. Once the locations, sizes, and rotations of the symbols are known, we can re-gather the points that were used for each symbol during voting and calculate any homographies or bounding boxes using these points.
+ - I have created an initial dataset of symbols using https://www.deviantart.com/makibo031226/art/NARUTO-village-symbols-521654313.
 #### Main Application
  - Goal was to create a simple gui which would display a video as we processed it, as well as help the debugging process once we get to testing using videos.
  - Tried to implement the gui using Qt, but this ended up requiring more work to install and learn their video player widgets than it did to create my own OpenCV based version
