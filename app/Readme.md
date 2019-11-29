@@ -13,7 +13,11 @@ The structure is layed out as follows:
 4. `vidctrl.py`
     - This is where the video is loaded and displayed. The video control object will handle any visualizations that we may wish to feature on top of the original video.
         
-The application is multithreaded, that is, the `AlgoCtrl` object and the `VidCtrl` object are run in separate threads and are synchronized such that each waits for the other when necessary. `AlgoCtrl` waits for "new frame events" which take place when `VidCtrl` loads a new frame from file. `VidCtrl` waits for 'end frame events' which are signaled when `AlgoCtrl` finishes processing a given frame (this leaves us with the ability to skip frames for processing if later we decide that our algorithm is too slow to run every frame).
+The application is multithreaded, that is, the `AlgoCtrl` object and the `VidCtrl` object are run in separate threads and are synchronized such that each waits for the other when necessary. Frames are read inside `VidCtrl` and sent to `AlgoCtrl` where processing takes place. Once the algo is done with the frame, `AlgoCtrl` sends it back to `VidCtrl` for display. 
+
+`VidCtrl` itself is split into two parts - a `VidReader` and a `VidPlayer`. The `VidReader`'s job is to read frames from file and send them to the algo. The `VidPlayer`'s job is to receive processed frames from algo and then display them. These were also made multithreaded so that the reader could provide frames to the algo "on the fly" while the vidplayer is still "playing" the previous frame. Communication between the `VidReader` and the `VidPlayer` is established through the `VidCtrl` object itself, and is needed so the the vidplayer can control the order in which frames are displayed.
+
+Support has also been added for image sets. An image folder can be passed in as argument to the application (and `mode` set to `images`) which will trigger a separate `ImReader` object to take the place of the `VidReader`.
 
 ## Usage
 To run the application, simply execute
@@ -21,10 +25,20 @@ To run the application, simply execute
 python app/main.py --vid-file <path-to-video>
 ```
 
+Available optional arguments:
+- `-h`, `--help`            show help message
+- `--vid-file`              video file
+- `mode`                    video mode - can be either `video` to read from a video or `images` to read from a folder of images
+- `fps`                     video frames per second
+
 These are the current keyboard shortcuts:
-- `q` quits the application
-- `<spacebar>` pauses/plays the video (including processing)
-- `n` skips forward in the video by 10 seconds
+- `<q>` quits the application
+- `video` mode
+    - `<spacebar>` pauses/plays the video (including processing)
+    - `<n>` skips forward in the video by 10 seconds
+- `images` mode
+    - `<p>` go back one frame (only available in `images` mode)
+    - `<any key>` go to next frame
 
 ## Extras
 

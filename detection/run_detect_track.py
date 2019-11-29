@@ -244,4 +244,4 @@ def main(vid_choice, detect_rate=5, thresh=0.6, display=True):
     # Need to get NMS working.
 
 if __name__ == '__main__':
-    main('naruto_chill', detect_rate=5, thresh=0.6, display=False)
+    main('naruto_v_sasuke', detect_rate=2, thresh=0.6, display=False)
