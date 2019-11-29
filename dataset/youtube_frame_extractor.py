@@ -20,11 +20,12 @@ def extract_validated():
     # Extract frames.
     for i, video in enumerate(os.listdir('vid_data/videos')):
         vid_path = os.path.join('vid_data/videos', video)
+        vid_name = os.path.split(vid_path)[1]
         vid_cap = cv2.VideoCapture(vid_path)
         success, image = vid_cap.read()
         count = 0
         while success:
-            if count in frames[vid_path]:
+            if count in frames[vid_name]:
                 cv2.imwrite(f'vid_data/frames/{i}_{count}.png', image)
             success, image = vid_cap.read()
             count += 1

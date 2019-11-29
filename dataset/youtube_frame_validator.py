@@ -136,7 +136,7 @@ if __name__ == '__main__':
 
     vid_links = [
         ('https://www.youtube.com/watch?v=hWp61OEy4R4', 'NARUTO IN 18 MINUTES.mp4'),
-        ('https://www.youtube.com/watch?v=IER6REy5qtw', 'NARUTO SHIPPUDEN IN 15 MINUTES「REVAMPED VERSION」.mp4')
+        ('https://www.youtube.com/watch?v=IER6REy5qtw', 'NARUTO SHIPPUDEN IN 15 MINUTES REVAMPED VERSION.mp4')
     ]
 
     validate_videos(vid_links, VALIDATE_VIDEOS, resolution='720p')
