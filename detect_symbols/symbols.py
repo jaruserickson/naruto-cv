@@ -47,22 +47,27 @@ def save_symbols(symbols, file=SYMBOLS_FILE):
 
 
 class Symbol():
-    """ The symbol class which holds the keypoints and descriptors for a single symbol. 
-    
-    Keypoints for the symbol are formatted differently than how they are output by SIFT,
-    i.e. kp[i] = (r, s, phi, alpha) where,
-        r - distance from keypoint to symbol mean
-        s - scale of keypoint
-        phi - orientation of keypoint
-        alpha - angle of line going from keypoint to symbol mean
+    """ The symbol class which holds the R-table for a single symbol. 
+
+    R(phi) is a 2-dimensional array whose rows are the (r, alpha)-values
+    which indicate the possible locations of the symbol relative to an edge
+    with gradient phi. The underlying R itself is thus a list of 2D arrays
+    that holds these values for each phi.
+
+    The format of R is such that any phi in [-pi, pi) is mapped to the values
+    of both phi and phi + pi (or phi - pi if phi > 0). This is the purpose of
+    the create_symbol function defined in init_symbols.py.
     """
-    def __init__(self, id, kp=np.empty((0, 0)), desc=np.empty((0, 0))):
+    def __init__(self, id, dphi=None, R=None):
         self.id = id
-        self.kp = kp
-        self.desc = desc
+        self._dphi = dphi
+        self._R = R
+
+    def R(self, phi):
+        return self._R[int(phi / self._dphi)]
 
 
 if __name__ == '__main__':
     symbols = load_symbols()
     print(symbols[0].kp)
-    save_symbols(symbols)
+    # save_symbols(symbols)

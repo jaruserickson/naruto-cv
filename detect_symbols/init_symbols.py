@@ -11,16 +11,20 @@ import symbols
 from plot_utils import plot_sift_keypoints
 
 
-def create_symbol(id, kp, desc):
-    """ Create a symbol from a set of keypoints and descriptors. """
-    y, x, s, th = kp[:, 0], kp[:, 1], kp[:, 2], kp[:, 3]
-    cx = np.mean(x)
-    cy = np.mean(y)
-    r = np.sqrt((cx - x)**2 + (cy - y)**2)
-    phi = th
-    alpha = np.arctan2(y - cy, cx - x)
-    kp = np.stack((r, s, phi, alpha), axis=1)
-    return symbols.Symbol(id, kp, desc)
+def create_symbol(id, dphi, R):
+    """ Create a symbol from a list of lists of phi mappings (R). """
+    n = len(R)
+    assert(n % 2 == 0)
+    # make numpy array
+    for i in range(n):
+        R[i] = np.array(R[i])
+    # concatenate phi with phi + pi (% 2pi)
+    for i in range(n):
+        R[i] = np.concatenate((R[i], R[int(i + n/2) % n]))
+    # normalize radii to mean 4 pixels (this will be the minimum scale)
+    for i in range(n):
+        R[i][:, 0] = R[i][:, 0] * 4 / np.mean(R[i][:, 0])
+    return symbols.Symbol(id, dphi, R)
 
 
 class KPChooserGUI():
@@ -28,12 +32,10 @@ class KPChooserGUI():
     def __init__(self, root_dir):
         self.ax_im = None
         self.ax = None
-        self.img = None
         self.id = -1
-        self.ind = 0
-        self.kp = None
-        self.desc = None
-        self.chosen = None
+        self.n = 18
+        self.R = [[] for _ in range(self.n)]
+        self.dphi = np.pi * 2 / self.n
         self.symbols = [symbols.Symbol(i) for i in range(len(symbols.SYMBOL_IDS))]
 
         self.files = [None for i in range(len(self.symbols))]
@@ -50,81 +52,78 @@ class KPChooserGUI():
         plt.axis('off')
         self.load_next_id()
 
-        bdone = Button(plt.axes([0.82, 0.05, 0.1, 0.075]), 'Done')
-        bdone.on_clicked(self.done)
+        bsave = Button(plt.axes([0.82, 0.05, 0.1, 0.075]), 'Save')
+        bsave.on_clicked(self.save)
         bnext = Button(plt.axes([0.71, 0.05, 0.1, 0.075]), 'Next')
         bnext.on_clicked(self.next)
-        bval = Button(plt.axes([0.6, 0.05, 0.1, 0.075]), 'Choose')
-        bval.on_clicked(self.choose)
-        bprev = Button(plt.axes([0.49, 0.05, 0.1, 0.075]), 'Previous')
+        bprev = Button(plt.axes([0.6, 0.05, 0.1, 0.075]), 'Previous')
         bprev.on_clicked(self.prev)
 
         plt.show()
             
-    def load_next_id(self):
-        self.id += 1
+    def load_next_id(self, reverse=False):
+        if reverse:
+            offset = -1
+            end = -1
+        else:
+            offset = 1
+            end = len(self.symbols)
 
-        while self.id < len(self.symbols):
-            if self.files[self.id] is not None:
-                self.img = io.imread(self.files[self.id], as_gray=True)
-                self.kp, self.desc = cyvlfeat.sift.sift(self.img, compute_descriptor=True)
-                self.chosen = np.zeros(len(self.kp), dtype=np.int)
-                self.ind = 0
+        while self.id + offset != end:
+            self.id += offset
+
+            if self.files[self.id] is None:
+                print(f'Couldnt find image for symbol index {self.id}. Skipping.')
+            else:
+                img = io.imread(self.files[self.id], as_gray=True).astype(np.float32)
+
+                n, m = img.shape
+                cy, cx = int(n / 2), int(m / 2)
+                gx = cv2.Sobel(img, cv2.CV_64F, 1, 0, ksize=3)
+                gy = cv2.Sobel(img, cv2.CV_64F, 0, 1, ksize=3)
+                phi = np.arctan2(gy, gx)
+                img = (img * 255).astype(np.uint8)
+                edges = cv2.Canny(img, 10, 20)
+                display = np.zeros((n, m, 3))
+                dist_thresh = 3 * cx / 4
+
+                self.R = [[] for _ in range(self.n)]
+
+                for i in range(n):
+                    for j in range(m):
+                        if edges[i, j] > 0:
+                            r = np.sqrt((cx-j)**2 + (cy-i)**2)
+
+                            if r < dist_thresh:
+                                a = np.arctan2((cy-i), (cx-j))
+                                self.R[int(np.pi + phi[i, j] / self.dphi)].append([r, a])
+
+                                if phi[i, j] < 0:
+                                    phi[i, j] += np.pi
+                                display[i, j] = (.5 + np.cos(phi[i, j]) * .5, 
+                                                0, 
+                                                .5 + np.sin(phi[i, j]) * .5)
                 
-                self.img = cv2.cvtColor(self.img.astype(np.float32), cv2.COLOR_GRAY2RGB)
-                self.img = (self.img * 255.).astype(np.uint8)
-                display = self.img.copy()
-                plot_sift_keypoints(display, self.kp[self.ind], color=(255, 0, 0))
+                cv2.circle(display, (cx, cy), 2, (0., 1., 0.))
                 self.ax_im.set_data(display)
                 self.ax.set_title('Symbol ' + str(self.id))
                 plt.draw()
 
                 return True
-            
-            print(f'Couldnt find image for symbol index {self.id}. Skipping.')
-            self.id += 1
 
-        plt.close()
+        # plt.close()
+        print('Reached end of symbols')
         return False
 
     def next(self, _):
-        if self.ind + 1 < len(self.kp):
-            self.ind += 1
-            print(f'{self.ind}/{len(self.kp)}')
-            
-            display = self.img.copy()
-            plot_sift_keypoints(display, self.kp[self.chosen == 1], color=(100,100,255))
-            plot_sift_keypoints(display, self.kp[self.ind], color=(255, 0, 0))
-            self.ax_im.set_data(display)
-            plt.draw()
-        else:
-            print('Reached end of feature points.')
-
-    def choose(self, _):
-        if (self.chosen[self.ind] == 0):    
-            self.chosen[self.ind] = 1
-            print(f'Chose keypoint {self.ind}')
-        else:
-            self.chosen[self.ind] = 0
-            print(f'Removed keypoint {self.ind}')
+        self.load_next_id()
 
     def prev(self, _):
-        if self.ind - 1 > 0:
-            self.ind -= 1
-            print(f'{self.ind}/{len(self.kp)}')
-            
-            display = self.img.copy()
-            plot_sift_keypoints(display, self.kp[self.chosen == 1], color=(100,100,255))
-            plot_sift_keypoints(display, self.kp[self.ind], color=(255, 0, 0))
-            self.ax_im.set_data(display)
-            plt.draw()
-        else:
-            print('Reached beginning of feature points.')
+        self.load_next_id(reverse=True)
 
-    def done(self, _):
-        self.symbols[self.id] = create_symbol(self.id, self.kp[self.chosen == 1], self.desc[self.chosen == 1])
-        print(f'Saved {len(self.symbols[self.id].kp)} keypoints for symbol {self.id}.')
-        self.load_next_id()
+    def save(self, _):
+        self.symbols[self.id] = create_symbol(self.id, self.dphi, self.R)
+        print(f'Saved symbol {self.id}.')
 
     def write(self):
         symbols.save_symbols(self.symbols)
