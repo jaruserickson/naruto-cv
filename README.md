@@ -200,9 +200,19 @@ Now that we know the dataset is valid, we can work on writing a network from the
   - It actually seems after a couple of hours of training RetinaNet it's heavily overfitting. As regression converges, classification spikes super hard - this kind of makes sense since the characters look pretty similar. Will have to look into that. For now, the best implementation is that which exists in our usage of tensorflow's Faster R-CNN implementation. I might look into implementing that if this is still acting weird after another few hours.
     - If I do implement Faster R-CNN, I'm likely going to use pytorch, since it tends to run faster.
 
-#### Village Symbol Recognition (Using Interest Points)
+#### Village Symbol Recognition (Feature Based Matching)
  - Initially, I plan on using a Generalized Hough Transform with voting based on SIFT feature points and descriptors. Voting will be used to determine the position, scale and rotation of the symbols, along with detecting the symbol itself. Once the locations, sizes, and rotations of the symbols are known, we can re-gather the points that were used for each symbol during voting and calculate any homographies or bounding boxes using these points.
  - I have created an initial dataset of symbols using https://www.deviantart.com/makibo031226/art/NARUTO-village-symbols-521654313.
+ 
+ **Approach 1 - SIFT Intererst Points**
+ - I have now implemented a rough version of detection using interest points, however, I have come to realize some of the issues in the approach I have taken thus far:
+   - The symbols I am trying to detect are too simple to gather enough feature point to do detection solely on these points, unless the symbols are quite large.
+   - Using SIFT as a base for detection and matching feature descriptors is extremely slow and I will not likely be able to make it run at 24 fps even if I implement a "codebook of words" to speed up matching as SIFT itself does not run at 24 fps.
+ - The results I was getting, however, were promising on images with large symbols and not too many features (i.e. a symbol on a simple background). A certain amount of visual proofs and geometric calculations were required to get the interest points to act as predictors for the Hough transform and the results were all sound. Following is a visual representation of how new interest points were matched to the stored interest points of a symbol and the corresponding prediction for each point: 
+   - <img src="/docs/leaf_detect1.PNG" alt="drawing" width="350"/> 
+ - Here each of the red circles are detected interest points and each of the corresponding blue circles are the predicted symbols, where the prediction includes location, relative scale, and rotation.
+ - As you can see, there are very few interest points, even on such a large symbol, therefore when this is done on a smaller scale image, not enough interest points are detected. 
+ - For these reasons, I will be moving to a more standard approach, I will first try using edges as the predictors (as in the usual general Hough transform), then if this doesn't work (e.g. there may not be enough edges when the symbols are small), I will try using an approach simiar to the implicit shape model by Bastian Leibe, Ales Leonardis, and Bernt Schiele - [Paper](https://link.springer.com/chapter/10.1007/11957959_26).
 #### Main Application
  - Goal was to create a simple gui which would display a video as we processed it, as well as help the debugging process once we get to testing using videos.
  - Tried to implement the gui using Qt, but this ended up requiring more work to install and learn their video player widgets than it did to create my own OpenCV based version
