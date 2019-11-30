@@ -3,10 +3,24 @@
 import os
 from skimage import io
 import cyvlfeat.sift
+import numpy as np
+import cv2
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Button
 import symbols
-from plot_utils import *
+from plot_utils import plot_sift_keypoints
+
+
+def create_symbol(id, kp, desc):
+    """ Create a symbol from a set of keypoints and descriptors. """
+    y, x, s, th = kp[:, 0], kp[:, 1], kp[:, 2], kp[:, 3]
+    cx = np.mean(x)
+    cy = np.mean(y)
+    r = np.sqrt((cx - x)**2 + (cy - y)**2)
+    phi = th
+    alpha = np.arctan2(y - cy, cx - x)
+    kp = np.stack((r, s, phi, alpha), axis=1)
+    return symbols.Symbol(id, kp, desc)
 
 
 class KPChooserGUI():
@@ -108,8 +122,7 @@ class KPChooserGUI():
             print('Reached beginning of feature points.')
 
     def done(self, _):
-        self.symbols[self.id].kp = self.kp[self.chosen == 1]
-        self.symbols[self.id].desc = self.desc[self.chosen == 1]
+        self.symbols[self.id] = create_symbol(self.id, self.kp[self.chosen == 1], self.desc[self.chosen == 1])
         print(f'Saved {len(self.symbols[self.id].kp)} keypoints for symbol {self.id}.')
         self.load_next_id()
 

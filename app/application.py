@@ -16,7 +16,7 @@ class Application():
     def __init__(self):
         """ Initialize application """
         self._args = None
-        self._buf_size = 10
+        self._buf_size = 2
 
     """ Attribute setters """
     def set_args(self, args):

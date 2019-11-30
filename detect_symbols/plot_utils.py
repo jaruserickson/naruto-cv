@@ -14,5 +14,7 @@ def plot_sift_keypoints(img, kp, color):
         y, x, s, th = kp[i]
         x = int(x)
         y = int(y)
+        r = int(round(2 * s))
 
-        cv2.circle(img, (x, y), int(round(2 * s)), color, 2)
+        cv2.circle(img, (x, y), r, color, 2)
+        cv2.line(img, (x, y), (int(x + r * np.cos(th)), int(y + r * np.sin(th))), color)
