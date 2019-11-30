@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 
 
-def plot_sift_keypoints(img, kp, color):
+def plot_sift_keypoints(img, kp, color, thickness=1):
     h, w, _ = img.shape
 
     if len(kp.shape) < 2:
@@ -16,5 +16,5 @@ def plot_sift_keypoints(img, kp, color):
         y = int(y)
         r = int(round(2 * s))
 
-        cv2.circle(img, (x, y), r, color, 2)
-        cv2.line(img, (x, y), (int(x + r * np.cos(th)), int(y + r * np.sin(th))), color)
+        cv2.circle(img, (x, y), r, color, thickness)
+        cv2.line(img, (x, y), (int(x + r * np.cos(th)), int(y + r * np.sin(th))), color, thickness)
