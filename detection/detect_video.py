@@ -163,11 +163,11 @@ class TensorFlowDetector():
 def detect_yolo(vid_choice):
     """ Detect a video using weights from YOLO model. """
     vid_path = download_video(vid_choice)
-    subprocess.call(f'python3 yolov3/detect.py --weights frozen_weights/last.pt --source "{vid_path}" --output . --data yolo.data --cfg {os.path.abspath("../dataset/yolov3.cfg")}', shell=True)
-    # Attatch audio
-    name = VIDEOS[vid_choice]['name']
-    subprocess.call(f'ffmpeg -i "{name}" -ab 160k -ac 2 -ar 44100 -vn {vid_choice}_audio.wav', shell=True)
-    subprocess.call(f'ffmpeg -i "{name}" -i {vid_choice}_audio.wav -c:v copy -c:a aac -strict experimental -map 0:v:0 -map 1:a:0 {vid_choice}_audio.mp4', shell=True)
+    # subprocess.call(f'python3 yolov3/detect.py --weights frozen_weights/last.pt --source "{vid_path}" --output . --data yolo.data --cfg {os.path.abspath("../dataset/yolov3.cfg")}', shell=True)
+    # # Attatch audio
+    # name = VIDEOS[vid_choice]['name']
+    # subprocess.call(f'ffmpeg -i "{name}" -ab 160k -ac 2 -ar 44100 -vn {vid_choice}_audio.wav', shell=True)
+    # subprocess.call(f'ffmpeg -i "{name}" -i {vid_choice}_audio.wav -c:v copy -c:a aac -strict experimental -map 0:v:0 -map 1:a:0 {vid_choice}_audio.mp4', shell=True)
 
     # Clean out temporary files.
     # os.remove(vid_path)
