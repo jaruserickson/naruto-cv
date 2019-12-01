@@ -63,10 +63,11 @@ def save_symbols(symbols, file=SYMBOLS_FILE):
 class Symbol():
     """ The symbol class which holds the R-table for a single symbol. 
     """
-    def __init__(self, id, R=None):
+    def __init__(self, id, R=None, num_edges=None):
         self.id = id
         self._d_phi = GRAD_STEP
         self._R = R
+        self.num_edges = num_edges
 
     def R(self, phi):
         return self._R[phi]

@@ -11,7 +11,7 @@ import symbols
 from plot_utils import plot_sift_keypoints
 
     
-def create_symbol(id, R, w=100):
+def create_symbol(id, R, num_edges, w=100):
     """ Create a symbol from a list of lists of phi mappings (R). """
     phi_steps = int((symbols.MAX_GRAD - symbols.MIN_GRAD) / symbols.GRAD_STEP / 2)
     scale_steps = int((symbols.MAX_SCALE - symbols.MIN_SCALE) / symbols.SCALE_STEP) + 1
@@ -39,12 +39,12 @@ def create_symbol(id, R, w=100):
     new_R = [[] for _ in range(phi_steps)]
 
     # calculate indeces
-    phi = phi_min 
+    phi = phi_min + d_phi / 2
     for i in range(phi_steps):
-        s = scale_min
+        s = scale_min + d_scale / 2
         for j in range(scale_steps):
 
-            th = theta_min
+            th = theta_min + d_theta / 2
             for k in range(theta_steps):
                 phi_prime = phi - th
                 i_prime = int((phi_prime - phi_min) / d_phi)
@@ -66,7 +66,7 @@ def create_symbol(id, R, w=100):
         new_R[i] = np.array(new_R[i])
         phi += d_phi
     
-    return symbols.Symbol(id, new_R)
+    return symbols.Symbol(id, new_R, num_edges)
 
 
 class InitSymbolGUI():
@@ -81,6 +81,7 @@ class InitSymbolGUI():
         self.min_phi = symbols.MIN_GRAD * np.pi / 180
         self.d_phi = symbols.GRAD_STEP * np.pi / 180
         self.R = [[] for _ in range(self.phi_steps)]
+        self.num_edges = 0
 
         self.files = [None for i in range(len(self.symbols))]
         for fname in os.listdir(root_dir):
@@ -130,23 +131,23 @@ class InitSymbolGUI():
                 edges = cv2.Canny(img, 10, 20)
                 display = np.zeros((n, m, 3))
                 dist_thresh = 3 * cx / 4
+                inds = np.argwhere(edges > 0)
 
                 self.R = [[] for _ in range(self.phi_steps)]
+                self.num_edges = len(inds)
 
-                for i in range(n):
-                    for j in range(m):
-                        if edges[i, j] > 0:
-                            r = np.sqrt((cx-j)**2 + (cy-i)**2)
+                for i, j in inds:
+                    r = np.sqrt((cx-j)**2 + (cy-i)**2)
 
-                            if r < dist_thresh:
-                                a = np.arctan2((cy-i), (cx-j))
-                                self.R[int((phi[i, j] - self.min_phi) / self.d_phi)].append([r, a])
+                    if r < dist_thresh:
+                        a = np.arctan2((cy-i), (cx-j))
+                        self.R[int((phi[i, j] - self.min_phi) / self.d_phi)].append([r, a])
 
-                                if phi[i, j] < 0:
-                                    phi[i, j] += np.pi
-                                display[i, j] = (.5 + np.cos(phi[i, j]) * .5, 
-                                                0, 
-                                                .5 + np.sin(phi[i, j]) * .5)
+                        if phi[i, j] < 0:
+                            phi[i, j] += np.pi
+                        display[i, j] = (.5 + np.cos(phi[i, j]) * .5, 
+                                        0, 
+                                        .5 + np.sin(phi[i, j]) * .5)
                 
                 cv2.circle(display, (cx, cy), 2, (0., 1., 0.))
                 self.ax_im.set_data(display)
@@ -166,7 +167,7 @@ class InitSymbolGUI():
         self.load_next_id(reverse=True)
 
     def save(self, _):
-        self.symbols[self.id] = create_symbol(self.id, self.R)
+        self.symbols[self.id] = create_symbol(self.id, self.R, self.num_edges)
         print(f'Saved symbol {self.id}.')
 
     def write(self):

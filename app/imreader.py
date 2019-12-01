@@ -70,15 +70,18 @@ class ImReader(threading.Thread):
                 if requested_index < 0:
                     self.verbose and print('ImReader: Reached beginning of image set')
                     img = None
+                    img_name = None
                 elif requested_index >= len(self._image_list):
                     self.verbose and print('ImReader: Reached end of image set')
                     img = None
+                    img_name = None
                 else:
                     # read requested image
                     self.verbose and print(f'ImReader: Reading frame {requested_index}')
                     img = cv2.imread(self._image_list[requested_index])
+                    img_name = os.path.split(self._image_list[requested_index])[1]
 
-                self._q.put({'frame_id': requested_index, 'frame': img})
+                self._q.put({'frame_id': requested_index, 'frame': img, 'img_name': img_name})
             else:
                 self.verbose and print('ImReader: Waiting')
                 time.sleep(0.1)
