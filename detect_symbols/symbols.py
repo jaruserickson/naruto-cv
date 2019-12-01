@@ -24,6 +24,20 @@ SYMBOL_IDS = {
 SYMBOLS_DIR = os.path.dirname(os.path.realpath(__file__))
 SYMBOLS_FILE = os.path.join(SYMBOLS_DIR, 'symbols.pkl')
 
+# Constants defining range of symbol detection
+# (if modified, must re-initialize symbols)
+MIN_ROTATION = -45
+MAX_ROTATION = 45
+ROTATION_STEP = 5
+
+MIN_SCALE = 10
+MAX_SCALE = 200
+SCALE_STEP = 10
+
+MIN_GRAD = -180
+MAX_GRAD = 180
+GRAD_STEP = 10
+
 
 def load_symbols(file=SYMBOLS_FILE):
     sys.path.insert(0, SYMBOLS_DIR)
@@ -48,26 +62,17 @@ def save_symbols(symbols, file=SYMBOLS_FILE):
 
 class Symbol():
     """ The symbol class which holds the R-table for a single symbol. 
-
-    R(phi) is a 2-dimensional array whose rows are the (r, alpha)-values
-    which indicate the possible locations of the symbol relative to an edge
-    with gradient phi. The underlying R itself is thus a list of 2D arrays
-    that holds these values for each phi.
-
-    The format of R is such that any phi in [-pi, pi] is mapped to the values
-    of both phi and phi + pi (or phi - pi if phi > 0). This is the purpose of
-    the create_symbol function defined in init_symbols.py.
     """
-    def __init__(self, id, dphi=None, R=None):
+    def __init__(self, id, R=None):
         self.id = id
-        self._dphi = dphi
+        self._d_phi = GRAD_STEP
         self._R = R
 
     def R(self, phi):
-        return self._R[int((np.pi + phi) / self._dphi)]
+        return self._R[phi]
 
 
 if __name__ == '__main__':
     symbols = load_symbols()
-    print(symbols[0].kp)
+    print(symbols[0]._R)
     # save_symbols(symbols)

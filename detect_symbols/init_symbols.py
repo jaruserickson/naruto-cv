@@ -10,39 +10,77 @@ from matplotlib.widgets import Button
 import symbols
 from plot_utils import plot_sift_keypoints
 
-
-def create_symbol(id, dphi, R):
+    
+def create_symbol(id, R, w=100):
     """ Create a symbol from a list of lists of phi mappings (R). """
-    n = len(R) - 1
-    assert(n % 2 == 0)
+    phi_steps = int((symbols.MAX_GRAD - symbols.MIN_GRAD) / symbols.GRAD_STEP / 2)
+    scale_steps = int((symbols.MAX_SCALE - symbols.MIN_SCALE) / symbols.SCALE_STEP) + 1
+    theta_steps = int((symbols.MAX_ROTATION - symbols.MIN_ROTATION) / symbols.ROTATION_STEP) + 1
+
+    phi_min = symbols.MIN_GRAD * np.pi / 180
+    d_phi = symbols.GRAD_STEP * np.pi / 180
+    scale_min = symbols.MIN_SCALE
+    d_scale = symbols.SCALE_STEP
+    theta_min = symbols.MIN_ROTATION * np.pi / 180
+    d_theta = symbols.ROTATION_STEP * np.pi / 180
+
+    # place all mappings in first half of table 
+    for i in range(phi_steps):
+        R[i] = R[i] + R[int(i + phi_steps)]
+    R[0] = R[0] + R[phi_steps - 1]
+
     # make numpy array
-    for i in range(n + 1):
+    for i in range(phi_steps):
         if len(R[i]) == 0:
             R[i] = np.empty((0,2))
         else:
             R[i] = np.array(R[i])
-    # concatenate phi with phi + pi (% 2pi)
-    for i in range(n):
-        R[i] = np.concatenate((R[i], R[int(i + n/2) % n]))
-    # because np.arctan2 returns values in the range [-pi, pi], we must have a third value for input pi
-    R[n] = np.concatenate((R[0], R[n]))
-    R[0] = R[int(n/2)] = R[n]
-    # normalize radii to mean 4 pixels (this will be the minimum scale)
-    #for i in range(n):
-    #    R[i][:, 0] = R[i][:, 0] * 4 / np.mean(R[i][:, 0])
-    return symbols.Symbol(id, dphi, R)
+
+    new_R = [[] for _ in range(phi_steps)]
+
+    # calculate indeces
+    phi = phi_min 
+    for i in range(phi_steps):
+        s = scale_min
+        for j in range(scale_steps):
+
+            th = theta_min
+            for k in range(theta_steps):
+                phi_prime = phi - th
+                i_prime = int((phi_prime - phi_min) / d_phi)
+                i_prime %= phi_steps
+
+                r = R[i_prime][:, 0]
+                a = R[i_prime][:, 1]
+                cx = r * s / w * np.cos(th + a)
+                cy = r * s / w * np.sin(th + a)
+                cx = cx.astype(np.int)
+                cy = cy.astype(np.int)
+
+                for ii in range(len(cy)):
+                    new_R[i].append([cy[ii], cx[ii], j, k])
+
+                th += d_theta
+            s += d_scale
+        
+        new_R[i] = np.array(new_R[i])
+        phi += d_phi
+    
+    return symbols.Symbol(id, new_R)
 
 
-class KPChooserGUI():
-    """ Keypoint chooser GUI for initializing symbols. """
+class InitSymbolGUI():
+    """ GUI for initializing symbols. """
     def __init__(self, root_dir):
         self.ax_im = None
         self.ax = None
         self.id = -1
-        self.n = 18
-        self.R = [[] for _ in range(self.n + 1)]
-        self.dphi = np.pi * 2 / self.n
         self.symbols = [symbols.Symbol(i) for i in range(len(symbols.SYMBOL_IDS))]
+
+        self.phi_steps = int((symbols.MAX_GRAD - symbols.MIN_GRAD) / symbols.GRAD_STEP) + 1
+        self.min_phi = symbols.MIN_GRAD * np.pi / 180
+        self.d_phi = symbols.GRAD_STEP * np.pi / 180
+        self.R = [[] for _ in range(self.phi_steps)]
 
         self.files = [None for i in range(len(self.symbols))]
         for fname in os.listdir(root_dir):
@@ -93,7 +131,7 @@ class KPChooserGUI():
                 display = np.zeros((n, m, 3))
                 dist_thresh = 3 * cx / 4
 
-                self.R = [[] for _ in range(self.n + 1)]
+                self.R = [[] for _ in range(self.phi_steps)]
 
                 for i in range(n):
                     for j in range(m):
@@ -102,7 +140,7 @@ class KPChooserGUI():
 
                             if r < dist_thresh:
                                 a = np.arctan2((cy-i), (cx-j))
-                                self.R[int((np.pi + phi[i, j]) / self.dphi)].append([r, a])
+                                self.R[int((phi[i, j] - self.min_phi) / self.d_phi)].append([r, a])
 
                                 if phi[i, j] < 0:
                                     phi[i, j] += np.pi
@@ -128,7 +166,7 @@ class KPChooserGUI():
         self.load_next_id(reverse=True)
 
     def save(self, _):
-        self.symbols[self.id] = create_symbol(self.id, self.dphi, self.R)
+        self.symbols[self.id] = create_symbol(self.id, self.R)
         print(f'Saved symbol {self.id}.')
 
     def write(self):
@@ -140,7 +178,7 @@ def initialize_symbols(folder='symbols'):
     """ Go through the symbol images in the given folder, extract their feature 
     points, and save them to file. 
     """
-    callback = KPChooserGUI('./symbols')
+    callback = InitSymbolGUI('./symbols')
     
     callback.run()
     callback.write()
