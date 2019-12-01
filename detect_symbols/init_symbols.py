@@ -128,7 +128,7 @@ class InitSymbolGUI():
                 gy = cv2.Sobel(img, cv2.CV_64F, 0, 1, ksize=3)
                 phi = np.arctan2(gy, gx)
                 img = (img * 255).astype(np.uint8)
-                edges = cv2.Canny(img, 120, 140)
+                edges = cv2.Canny(img, 100, 120)
                 display = np.zeros((n, m, 3))
                 dist_thresh = 3 * cx / 4
                 inds = np.argwhere(edges > 0)
