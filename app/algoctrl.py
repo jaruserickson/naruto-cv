@@ -56,7 +56,6 @@ class AlgoCtrl(threading.Thread):
                     if p is not None:
                         bnd_boxes[symbols.SYMBOL_IDS[sym_id]] = p
 
-
                 # send frame output to application
                 output = {'frame_id': frame_num, 'frame': frame, 'bounding_boxes': bnd_boxes}
                 self._output.put(output)

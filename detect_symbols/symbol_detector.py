@@ -35,10 +35,21 @@ class SymbolDetector():
 
         time_start = time.clock()
         n, m, _ = frame.shape
+        fsize = 1.
+
+        # check size
+        max_size = 200
 
         if n > 200 or m > 200:
-            print('Resolution too high!')
-            return p, score
+            if n > m:
+                fsize = 200 / n
+                m = int(m * fsize)
+                n = 200
+            else:
+                fsize = 200 / m
+                n = int(n * fsize)
+                m = 200
+            frame = cv2.resize(frame, (m, n), interpolation=cv2.INTER_LINEAR)
 
         # Canny 
         frame_grey = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -80,6 +91,9 @@ class SymbolDetector():
         if score > thresh:
             w = symbols.MIN_SCALE + s * symbols.SCALE_STEP / 2
             th = (symbols.MIN_ROTATION + th * symbols.ROTATION_STEP) * np.pi / 180
+            cx /= fsize
+            cy /= fsize
+            w /= fsize
 
             r = np.array([
                 [math.cos(th), -math.sin(th)],
