@@ -19,6 +19,9 @@ install:
 	sudo unzip -o $(PROTOC_ZIP) -d /usr/local 'include/*'
 	rm -f $(PROTOC_ZIP)
 
+install-yolo:
+	git clone https://github.com/ultralytics/yolov3
+
 setup:
 	@echo "Setting up tensorflow/models..."
 	# Protoc usage, create PB2 files
@@ -78,6 +81,14 @@ train-ssd:
 		cd $(TF_FOLDER)/models/research/object_detection && \
 			cp legacy/train.py . && \
 			python3 train.py --logtostderr --train_dir=training/ --pipeline_config_path=training/ssd_inception_v2_naruto.config
+
+train-yolo:
+	@echo "Training YOLO model on dataset..."
+	cd yolov3 && \
+		python3 train.py --epochs 1500 --batch-size 8 --cfg ../../dataset/yolov3.cfg --data ../../dataset/coco/naruto.data --weights darknet53.conv.74 --device 0 
+
+tensorboard-yolo:
+	tensorboard --logdir=yolov3/runs
 
 tensorboard:
 	@echo "Spinning up tensorboard..."

@@ -1,0 +1,6 @@
+classes=27
+train=../dataset/coco/naruto_train.txt
+valid=../dataset/coco/naruto_test.txt
+names=../dataset/coco/naruto.names
+backup=backup/
+eval=coco
