@@ -54,7 +54,7 @@ class Symbol():
     with gradient phi. The underlying R itself is thus a list of 2D arrays
     that holds these values for each phi.
 
-    The format of R is such that any phi in [-pi, pi) is mapped to the values
+    The format of R is such that any phi in [-pi, pi] is mapped to the values
     of both phi and phi + pi (or phi - pi if phi > 0). This is the purpose of
     the create_symbol function defined in init_symbols.py.
     """
@@ -64,7 +64,7 @@ class Symbol():
         self._R = R
 
     def R(self, phi):
-        return self._R[int(phi / self._dphi)]
+        return self._R[int((np.pi + phi) / self._dphi)]
 
 
 if __name__ == '__main__':
