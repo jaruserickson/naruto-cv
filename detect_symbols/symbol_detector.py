@@ -6,78 +6,119 @@ import cyvlfeat.sift
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
+import math
 from . import symbols
-from .plot_utils import plot_sift_keypoints
-
-
-def match_features_to_predictions(img, kp, desc, symbol, thresh=5000):
-    for i in range(len(kp)):
-        dists = np.sum((desc[i] - symbol.desc)**2, axis=1)
-
-        if np.min(dists) < thresh:
-            j = np.argmin(dists)
-            th = kp[i, 3] - symbol.kp[j, 2]
-            s = kp[i, 2] / symbol.kp[j, 1]
-            x = kp[i, 1] + symbol.kp[j, 0] * s * np.cos(th - symbol.kp[j, 3])
-            y = kp[i, 0] + symbol.kp[j, 0] * s * np.sin(th - symbol.kp[j, 3])
-
-            x, y = int(x), int(y)
-
-            plot_sift_keypoints(img, np.array([y, x, s * 10, th]), (255, 0, 0))
-            plot_sift_keypoints(img, kp[i], (0, 0, 255))
-            cv2.line(img, (x, y), (kp[i,1], kp[i,0]), (255, 0, 255))
+import time
 
 
 class SymbolDetector():
     def __init__(self):
         self._symbols = symbols.load_symbols()
+        
+        # to speed up process, remove need to check range of gradient
+        for i in range(len(self._symbols)):
+            if self._symbols[i]._R is not None:
+                self._symbols[i]._R = self._symbols[i]._R + self._symbols[i]._R
+                self._symbols[i]._R.append(self._symbols[i]._R[0])
 
-    def process(self, frame):
+
+    def process(self, frame, sym_id):
+        p, score = None, 0
+
         if frame is None:
-            return None
+            print('Invalid frame')
+            return p, score
 
+        if sym_id < 0 or sym_id >= len(symbols.SYMBOL_IDS):
+            print('Invalid symbol')
+            return p, score
+
+        time_start = time.clock()
+        n, m, _ = frame.shape
+        fsize = 1.
+
+        # check size
+        max_size = 200
+
+        if n > 200 or m > 200:
+            if n > m:
+                fsize = 200 / n
+                m = int(m * fsize)
+                n = 200
+            else:
+                fsize = 200 / m
+                n = int(n * fsize)
+                m = 200
+            frame = cv2.resize(frame, (m, n), interpolation=cv2.INTER_LINEAR)
+
+        # Canny 
         frame_grey = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-        # detect keypoints and match descriptors
-        kp, desc = cyvlfeat.sift.sift(
-            frame_grey, 
-            compute_descriptor=True,
-            peak_thresh=10)
+        gx = cv2.Sobel(frame_grey, cv2.CV_64F, 1, 0, ksize=3)
+        gy = cv2.Sobel(frame_grey, cv2.CV_64F, 0, 1, ksize=3)
+        phi = np.arctan2(gy, gx)
 
-        n, m = frame_grey.shape
-        acc = np.zeros((n, m, 10, 36), dtype=np.int16)
+        min_phi = symbols.MIN_GRAD * np.pi / 180
+        d_phi = symbols.GRAD_STEP * np.pi / 180
+        phi = ((phi - min_phi) / d_phi).astype(np.int)
 
-        leaf = self._symbols[0]
+        frame_grey = (frame_grey * 255).astype(np.uint8)
+        edges = cv2.Canny(frame_grey, 20, 40)
+        inds = np.argwhere(edges > 0)
 
-        #match_features_to_predictions(frame, kp, desc, leaf, thresh=10000)
+        # Hough
+        scale_steps = int((symbols.MAX_SCALE - symbols.MIN_SCALE) / symbols.SCALE_STEP) + 1
+        theta_steps = int((symbols.MAX_ROTATION - symbols.MIN_ROTATION) / symbols.ROTATION_STEP) + 1
+        acc = np.zeros((n, m, scale_steps, theta_steps), dtype=np.int32)
+        sym = self._symbols[sym_id]
 
-        dists = np.empty((len(kp), len(leaf.kp)))
-        inds = np.empty((len(kp), len(leaf.kp), 4))
+        for y, x in inds:
+            cx = x + sym.R(phi[y, x])[:, 1]
+            cy = y + sym.R(phi[y, x])[:, 0]
+            s = sym.R(phi[y, x])[:, 2]
+            th = sym.R(phi[y, x])[:, 3]
 
-        for i in range(len(leaf.kp)):
-            dists[:, i] = np.sum((desc - leaf.desc[i])**2, axis=1)
-            inds[:, i, 3] = kp[:, 3] - leaf.kp[i, 2]
-            inds[:, i, 2] = kp[:, 2] / leaf.kp[i, 1]
-            inds[:, i, 1] = kp[:, 1] + leaf.kp[i, 0] * inds[:, i, 2] * np.cos(inds[:, i, 3] - leaf.kp[i, 3])
-            inds[:, i, 0] = kp[:, 0] + leaf.kp[i, 0] * inds[:, i, 2] * np.sin(inds[:, i, 3] - leaf.kp[i, 3])
-        
-        thresh = 5000
-        inds = inds[dists < thresh].astype(np.int)
-        inds = np.clip(inds, a_min=0, a_max=[n-1, m-1, 9, 35])
-        
-        for i in range(len(inds)):
-            acc[inds[i,0], inds[i,1], inds[i,2], inds[i,3]] += 1
+            cx = np.clip(cx, a_min=0, a_max=m-1).astype(np.int)
+            cy = np.clip(cy, a_min=0, a_max=n-1).astype(np.int)
+            acc[cy, cx, s, th] += 1
 
-        thresh = 0
-        inds = np.argwhere(acc > thresh)
-        max_a = len(leaf.kp)
+        acc[:,0,:,:] = acc[:,m-1,:,:] = acc[0,:,:,:] = acc[n-1,:,:,:] = 0
+        cy, cx, s, th = np.unravel_index(np.argmax(acc), acc.shape)
+        score = acc[cy, cx, s, th] / sym.num_edges
+        thresh = 0.0
 
-        for y, x, s, th in inds:
-            conf = acc[y, x, s, th] / max_a
-            plot_sift_keypoints(frame, np.array([y, x, s * 10, th]), (255, 255, 255 - int(conf * 255)))
+        # get bounding box
+        if score > thresh:
+            w = symbols.MIN_SCALE + s * symbols.SCALE_STEP / 2
+            th = (symbols.MIN_ROTATION + th * symbols.ROTATION_STEP) * np.pi / 180
+            cx /= fsize
+            cy /= fsize
+            w /= fsize
 
-        #plot_sift_keypoints(frame, kp, (0, 0, 255))
+            r = np.array([
+                [math.cos(th), -math.sin(th)],
+                [math.sin(th), math.cos(th)]
+            ])
+            p = np.array([
+                [-w, -w],
+                [-w, w],
+                [w, w],
+                [w, -w]
+            ])
+            p = np.matmul(r, p.T).T + [cx, cy]
+            p = p.astype(np.int)
 
-        return frame
+            print(f'Found {symbols.SYMBOL_IDS[sym_id]} with score {score}')
+        else:
+            print('No symbol found')
 
-        
+        # ### uncomment to visualize accumulator
+        # display = np.max(acc, axis=(2,3))
+        # display = display * 255.0 / np.max(display) 
+        # display = np.dstack((display,)*3).astype(np.uint8)
+        # cv2.imshow('Accumulator', display)
+        # cv2.waitKey(0)
+
+        time_passed = time.clock() - time_start
+        print(f'Time elapsed: {time_passed}')
+        return p, score

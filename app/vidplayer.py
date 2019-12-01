@@ -5,6 +5,7 @@ VidPlayer
 import cv2
 import threading
 import time
+from app.plot_utils import draw_bounding_box
 
 
 class VidPlayer(threading.Thread):
@@ -26,6 +27,11 @@ class VidPlayer(threading.Thread):
 
         if self._mode == 'images':
             self._fps = 0
+
+    def draw_output(self, frame, output):
+        if 'bounding_boxes' in output:
+            for title, box in output['bounding_boxes'].items():
+                draw_bounding_box(frame, tuple(box[0]), tuple(box[1]), tuple(box[2]), tuple(box[3]), (255, 0, 0), title)
         
     def process_key_event(self, key):
         """ Process a key event """
@@ -69,6 +75,7 @@ class VidPlayer(threading.Thread):
                     else:
                         # display the current frame
                         self.verbose and print(f'VidPlayer: Displaying frame {self._next_frame_num}')
+                        self.draw_output(output['frame'], output)
                         cv2.imshow(self._window_name, output['frame'])
 
                         self._cur_frame_num = self._next_frame_num

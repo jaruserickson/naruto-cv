@@ -24,6 +24,20 @@ SYMBOL_IDS = {
 SYMBOLS_DIR = os.path.dirname(os.path.realpath(__file__))
 SYMBOLS_FILE = os.path.join(SYMBOLS_DIR, 'symbols.pkl')
 
+# Constants defining range of symbol detection
+# (if modified, must re-initialize symbols)
+MIN_ROTATION = -45
+MAX_ROTATION = 45
+ROTATION_STEP = 5
+
+MIN_SCALE = 10
+MAX_SCALE = 200
+SCALE_STEP = 10
+
+MIN_GRAD = -180
+MAX_GRAD = 180
+GRAD_STEP = 10
+
 
 def load_symbols(file=SYMBOLS_FILE):
     sys.path.insert(0, SYMBOLS_DIR)
@@ -47,22 +61,19 @@ def save_symbols(symbols, file=SYMBOLS_FILE):
 
 
 class Symbol():
-    """ The symbol class which holds the keypoints and descriptors for a single symbol. 
-    
-    Keypoints for the symbol are formatted differently than how they are output by SIFT,
-    i.e. kp[i] = (r, s, phi, alpha) where,
-        r - distance from keypoint to symbol mean
-        s - scale of keypoint
-        phi - orientation of keypoint
-        alpha - angle of line going from keypoint to symbol mean
+    """ The symbol class which holds the R-table for a single symbol. 
     """
-    def __init__(self, id, kp=np.empty((0, 0)), desc=np.empty((0, 0))):
+    def __init__(self, id, R=None, num_edges=None):
         self.id = id
-        self.kp = kp
-        self.desc = desc
+        self._d_phi = GRAD_STEP
+        self._R = R
+        self.num_edges = num_edges
+
+    def R(self, phi):
+        return self._R[phi]
 
 
 if __name__ == '__main__':
     symbols = load_symbols()
-    print(symbols[0].kp)
-    save_symbols(symbols)
+    print(symbols[0]._R)
+    # save_symbols(symbols)
