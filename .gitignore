@@ -18,3 +18,6 @@ detection/retinanet/logs
 detection/retinanet/snapshots
 dataset/retimages
 *.h5
+dataset/coco
+detection/yolov3
+detection/runs

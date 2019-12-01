@@ -77,6 +77,7 @@ Some options:
    - This didn't work, so I'm going to download larger videos instead (720p instead of 360p). Need to write a quick script to convert annotations.
  - Note*: Downloading the dataset can result in corrupt data on occasion, I need to look into a better way of keeping track of the validated google images
 #### CNN Face Detection
+*Note:* All training done in this section was performed on a GTX 1070 Ti.
  - Initially planned on using a YOLO CNN to detect and track characters.
  - I've done quite a bit of reading into the details of YOLO. The papers and articles of which are listed below.
    - [You Only Look Once: Unified, Real-Time Object Detection](https://arxiv.org/pdf/1506.02640.pdf)
@@ -198,8 +199,56 @@ Now that we know the dataset is valid, we can work on writing a network from the
      - Since our results from FRCNN were from 30,000 training steps, ideally i'd like to reach the same amount of training for RetinaNet. As such, I'll be training it for around ~15 hours.
   - [Speed Comparison](https://medium.com/@jonathan_hui/object-detection-speed-and-accuracy-comparison-faster-r-cnn-r-fcn-ssd-and-yolo-5425656ae359)
   - It actually seems after a couple of hours of training RetinaNet it's heavily overfitting. As regression converges, classification spikes super hard - this kind of makes sense since the characters look pretty similar. Will have to look into that. For now, the best implementation is that which exists in our usage of tensorflow's Faster R-CNN implementation. I might look into implementing that if this is still acting weird after another few hours.
+    - Further through the epoch, it seems to be re-balancing - this might be similar to the top right graph from tensorboard in the FRCNN model.
     - If I do implement Faster R-CNN, I'm likely going to use pytorch, since it tends to run faster.
+  - After 30 epochs of 1000 steps each, training for around 15 hours, my RetinaNet implementation seems to prefer just classifying everything as Naruto himself - since there's a pretty large portion of images with him, it will get decent validation results from doing so. It's box locations are pretty good, the classification is just super off.
+![](docs/retina_class_loss.png) ![](docs/retina_regression_loss.png)
+    - The losses seem to indicate something must be wrong re-classification
+    - If the classification isn't the problem, my thoughts about fixing this would be to back propogate more, i.e. less steps, more epochs, rather than the 1000 steps * 30 epochs it's at currently. 
+    - Thinking about it... I froze ResNet weights before training... that would explain why classification is whacky. :man_facepalming:
+      - Unfortunately, this means our training will take **even longer**! Keras predicts each epoch will take 1 hour, so I'm going to need to train for 30 hours. I'll keep an eye on it for the first few to make sure it's worth it.
+      - After running this for a while (30*100=3000) I was experiencing some memory issues while training. I stopped since it had converged pretty quickly anyways and was starting to overfit. The new loss graphs are as follows:
+![](docs/retina_class_loss_all.png) ![](docs/retina_regression_loss_all.png)
 
+
+This points out a major problem with writing Object detection models from scratch (for custom datasets) in general - training will be a big challenge without pre-trained weights. 
+
+The retinanet implementation looks fine from a model summary standpoint, but all the weights are random on our FPN, while the ResNet layers are pre-trained to imagenet. This results in a LOT of required training and data - both of which are scarce with a deadline :stuck_out_tongue:.
+
+So, building on my usage of tensorflow's modelzoo, we're going to be looking at the implementation of each of these networks as a case study into their efficacy in detecting animated faces (which hasn't actually been expored all too thoroughly - probably due to its "uselessness", haha.).
+
+**SSD Loss**
+![](docs/ssd_loss.png)
+
+**Final Notes**
+  - [x] Faster R-CNN (Inception v2, COCO weights) *Tensorflow* [source](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)
+    - 30,000 steps, 3 hours
+    - Naruto Vs. Sasuke: [Dropbox](https://www.dropbox.com/s/fd5bdtas09fk4kw/naruto_vs_sasuke.mp4?dl=0)
+    - Kakashi's Mask: [Dropbox](https://www.dropbox.com/s/0u7qzyvc6ex9rjn/kakashis_mask.mp4?dl=0)
+    - Notes:
+      - As expected, high accuracy all around.
+        - Has some trouble with characters which look similar.
+        - Does really well when characters make weird faces.
+      - Slow training rate (2.7s/step)
+      - Slow inference time (10 mins to run inference for Kakashi's mask)
+  - [x] SSD (Inception v2, COCO weights) *Tensorflow* [source](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)
+    - 30,000 steps, 1.5 hrs
+    - Naruto vs. Sasuke: [Dropbox]()
+    - Kakashi's Mask: [Dropbox]()
+    - Notes:
+      - Good accuracy with close characters.
+        - **Really** struggles when they're further away, or if they're making weird faces
+        - This would suggest that it's not the greatest for this use case, since Anime characters often make weird faces :stuck_out_tongue:
+      - *Very* fast training rate (0.2s/step)
+      - *Very* fast inference rate (Real time for Kakashi's mask)
+  - [ ] YOLOv3 (Darknet) *PyTorch* [source](https://github.com/ultralytics/yolov3)
+    - Notes:
+      - **Very** fast training rate (0.05s/step)(273 epoch x 1156 step in 3.869 hours).
+      - **Very** fast inference rate (Real time for everything)
+  - [ ] RetinaNet (ResNet50) *Keras* [source](https://github.com/fizyr/keras-retinanet)
+    - Notes:
+      - Slow training (~5s/step)
+      - Slow inference 
 #### Village Symbol Recognition
  - Not started.
 #### Main Application
