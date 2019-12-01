@@ -8,7 +8,6 @@ import cv2
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Button
 import symbols
-from plot_utils import plot_sift_keypoints
 
     
 def create_symbol(id, R, num_edges, w=100):
@@ -75,7 +74,8 @@ class InitSymbolGUI():
         self.ax_im = None
         self.ax = None
         self.id = -1
-        self.symbols = [symbols.Symbol(i) for i in range(len(symbols.SYMBOL_IDS))]
+        self.symbols = symbols.load_symbols()
+        print('All symbols loaded from file.')
 
         self.phi_steps = int((symbols.MAX_GRAD - symbols.MIN_GRAD) / symbols.GRAD_STEP) + 1
         self.min_phi = symbols.MIN_GRAD * np.pi / 180
@@ -128,7 +128,7 @@ class InitSymbolGUI():
                 gy = cv2.Sobel(img, cv2.CV_64F, 0, 1, ksize=3)
                 phi = np.arctan2(gy, gx)
                 img = (img * 255).astype(np.uint8)
-                edges = cv2.Canny(img, 10, 20)
+                edges = cv2.Canny(img, 120, 140)
                 display = np.zeros((n, m, 3))
                 dist_thresh = 3 * cx / 4
                 inds = np.argwhere(edges > 0)
