@@ -48,11 +48,11 @@ def propogate_data(folder='images', split=0.9):
 
     for img_path in train_paths:
         dir_path, fname = os.path.split(img_path)
-        char_name = os.path.split(dir_path)[0]
+        char_name = os.path.split(dir_path)[-1]
         shutil.copy2(img_path, os.path.join(f'{folder}/train', char_name + '_' + fname))
     for img_path in test_paths:
         dir_path, fname = os.path.split(img_path)
-        char_name = os.path.split(dir_path)[0]
+        char_name = os.path.split(dir_path)[-1]
         shutil.copy2(img_path, os.path.join(f'{folder}/test', char_name + '_' + fname))
 
     # Get imagepaths from vid_data/
@@ -95,7 +95,6 @@ def get_csv_labels(folder, order):
             _filename = f"{f_name.split('.')[0]}.png"
             _width = int(get_xml_val(sizeobj, 'width'))
             _height = int(get_xml_val(sizeobj, 'height'))
-
             # If the width/height wasn't read by labelImg, we have to do it.
             if _width == 0 or _height == 0:
                 _width, _height = Image.open(os.path.join(folder, _filename)).size
