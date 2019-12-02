@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 from . import symbols
 from .plot_utils import plot_sift_keypoints, draw_bounding_box
 import math
+import time
 
 
 def match_features_to_predictions(img, kp, desc, symbol, thresh=5000):
@@ -37,6 +38,7 @@ class SymbolDetector():
         if frame is None:
             return None
 
+        time_start = time.clock()
         frame_grey = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
         # detect keypoints and match descriptors
@@ -117,6 +119,8 @@ class SymbolDetector():
 
         #plot_sift_keypoints(frame, kp, (0, 0, 255))
 
+        time_stop = time.clock()
+        print(f'Time elapsed: {time_stop - time_start}')
         return frame
 
         
