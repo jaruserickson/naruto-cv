@@ -7,8 +7,8 @@ import queue
 import time
 import threading
 
-from algoctrl import AlgoCtrl
-from vidctrl import VidCtrl
+from .algoctrl import AlgoCtrl
+from .vidctrl import VidCtrl
 
 
 class Application():
@@ -16,7 +16,7 @@ class Application():
     def __init__(self):
         """ Initialize application """
         self._args = None
-        self._buf_size = 10
+        self._buf_size = 2
 
     """ Attribute setters """
     def set_args(self, args):

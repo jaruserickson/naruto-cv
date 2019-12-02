@@ -209,8 +209,6 @@ Now that we know the dataset is valid, we can work on writing a network from the
       - Unfortunately, this means our training will take **even longer**! Keras predicts each epoch will take 1 hour, so I'm going to need to train for 30 hours. I'll keep an eye on it for the first few to make sure it's worth it.
       - After running this for a while (30*100=3000) I was experiencing some memory issues while training. I stopped since it had converged pretty quickly anyways and was starting to overfit. The new loss graphs are as follows:
 ![](docs/retina_class_loss_all.png) ![](docs/retina_regression_loss_all.png)
-
-
 This points out a major problem with writing Object detection models from scratch (for custom datasets) in general - training will be a big challenge without pre-trained weights. 
 
 The retinanet implementation looks fine from a model summary standpoint, but all the weights are random on our FPN, while the ResNet layers are pre-trained to imagenet. This results in a LOT of required training and data - both of which are scarce with a deadline :stuck_out_tongue:.
@@ -249,8 +247,39 @@ So, building on my usage of tensorflow's modelzoo, we're going to be looking at 
     - Notes:
       - Slow training (~5s/step)
       - Slow inference 
-#### Village Symbol Recognition
- - Not started.
+
+#### Village Symbol Recognition (Feature Based Matching)
+ - Initially, I plan on using a Generalized Hough Transform with voting based on SIFT feature points and descriptors. Voting will be used to determine the position, scale and rotation of the symbols, along with detecting the symbol itself. Once the locations, sizes, and rotations of the symbols are known, we can re-gather the points that were used for each symbol during voting and calculate any homographies or bounding boxes using these points.
+ - I have created an initial dataset of symbols using https://www.deviantart.com/makibo031226/art/NARUTO-village-symbols-521654313.
+ 
+ **Approach 1 - Generalized Hough Transform (SIFT Based)**
+ - I have now implemented a rough version of detection using interest points, however, I have come to realize some of the issues in the approach I have taken thus far:
+   - The symbols I am trying to detect are too simple to gather enough feature point to do detection solely on these points, unless the symbols are quite large.
+   - Using SIFT as a base for detection and matching feature descriptors is extremely slow and I will not likely be able to make it run at 24 fps even if I implement a "codebook of words" to speed up matching as SIFT itself does not run at 24 fps.
+ - The results I was getting, however, were promising on images with large symbols and not too many features (i.e. a symbol on a simple background). A certain amount of visual proofs and geometric calculations were required to get the interest points to act as predictors for the Hough transform and the results were all sound. Following is a visual representation of how new interest points were matched to the stored interest points of a symbol and the corresponding prediction for each point: 
+   - <img src="/docs/leaf_detect1.PNG" alt="drawing" width="350"/> 
+ - Here each of the red circles are detected interest points and each of the corresponding blue circles are the predicted symbols, where the prediction includes location, relative scale, and rotation.
+ - As you can see, there are very few interest points, even on such a large symbol, therefore when this is done on a smaller scale image, not enough interest points are detected. 
+ - For these reasons, I will be moving to a more standard approach, I will first try using edges as the predictors (as in the usual general Hough transform), then if that doesn't work (e.g. there may not be enough edges when the symbols are small), I will try using an approach simiar to the implicit shape model by Bastian Leibe, Ales Leonardis, and Bernt Schiele - [Paper](https://link.springer.com/chapter/10.1007/11957959_26).
+ 
+**Approach 2 - Generalized Hough Transform (Edges)**
+ - I implemented my own generalized Hough transform algorithm from scratch, using OpenCV's `Sobel` and `Canny` to get edge information. The algorithm follows closely with the methods and terms in the [paper](http://www.cs.utexas.edu/~dana/HoughT.pdf), except for a few optimizations which I will elaborate more on in the following notes.
+ - The first thing I noticed when I implemented the Hough transform was how slow it was. I needed the detections to be both scale and rotation invariant, but using the standard loop for the Hough transform (see [Wikipedia](https://en.wikipedia.org/wiki/Generalised_Hough_transform)) was way too slow and even small images (appr. 200x200) would take up to a minute plus if there were a lot of edges to consider. 
+ - These are the optimizations I made:
+   - Modified the "R-table" to include the entire set of indeces needed for each $\phi$ so that I wouldn't have to loop over the scale and rotation in order to calculate them. That is, the R-table now maps $\phi$ to the indeces in the accumulator that need to be incremented (as offsets from the location of the edge with gradient $\phi$). In the paper, the R-table maps $\phi$ to $r$ which is the offset to the location only, not inlcuding the scale and rotation. 
+   - Limited the range of rotation to be from -45 degrees to 45 degrees as it is unlikely that we would need to detect beyond that.
+ - Some of the problems I was facing:
+   - The algorithm is still relatively slow, even after making the above optimizations as there are many edges in a single image and an extremely large number of possible positions that the symbol could be in given only that we know a single edge pixel. 
+   - Some of the symbols are very generic, thus making them hard to distinguish from other objects in the image (e.g. the Mist Village symbol is simply 4 of the same slightly curved line).
+   - The symbols change from one scene/image to another - that is, they are drawings and thus are not depicted exectly the same way all the time.
+ - I have concluded that the scope of the inital problem was too large for a feature detection algorithm to be able to complete, at least in the amount of time we are given for this project. We initially said that the goal of this part of the project was to detect all symbols in the scene, and then match them to their corresponding characters if possible. However, given that the object we wish to detect vary in both of scale and rotation (and homography in general), and that they are not constant, it seems more reasonable to limit the scope of this problem to detecting symbols within a smaller region of the image where we know that the symbol exists. That is, from now on, the goal of symbol detection is to take a cropped image output from the face detector, and then, given the character and village, determine where and at what orientation the symbol on the headband of that character is, then place a bounding box around it. 
+   - This reduces the problem from detecting which village a character is from, to only detecting the location, orientation, and size of the character's headband symbol (but doing this for multiple symbols, in a generic way). This is a better problem for feature detection to solve, as finding non-constant symbols, along with distinguishing them from each other, is not only unnecessary (given that we know the character and where their face is), but is also much more representative of a problem for deep learning to solve.
+ - After experimenting with optimizations and methods on improveing detections for an extended amount of time, these what the results look like:
+   - <img src="/docs/leaf_detect4.PNG" alt="drawing" width="350"/> 
+ - There are still a lot of misses, especially when the frame is large, but with some tuning of the symbols (the original symbols used as templates are quite different from the actual symbols for most of the show), I think it is reasonable.
+ - On average, it takes between 5 and 10 seconds for the algorithm to process one image (compared to minutes before). Also, if the input is larger than 200x200, it is resized before processing.
+ - In summary, the Hough transform using edges for voting performs well enough and fast enough so that we can continue working with this as our symbol detection algorithm. It detects symbols at different scales, rotations, and can even detect them when partially occluded as well. Given that any one symbol varies from image to image, I believe this these are appropriate results.
+
 #### Main Application
  - Goal was to create a simple gui which would display a video as we processed it, as well as help the debugging process once we get to testing using videos.
  - Tried to implement the gui using Qt, but this ended up requiring more work to install and learn their video player widgets than it did to create my own OpenCV based version
