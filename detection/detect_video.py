@@ -67,7 +67,7 @@ VIDEOS = {
         'name': '【MAD】 Naruto VS Sasuke  ナルト VS サスケ 『アウトサイダー』.mp4',
         'uri': 'https://www.youtube.com/watch?v=u_1onhckHuw'},
     'naruto_chill': {
-        'name': "Kakashi's mask",
+        'name': "Kakashi&39s mask.mp4",
         'uri': 'https://www.youtube.com/watch?v=UGn-Tg1j8w0'},
     'sasuke_oroch': {
         'name': 'Sasuke vs Orochimaru  Naruto.mp4',
@@ -154,10 +154,7 @@ class TensorFlowDetector():
 
 def detect_yolo(vid_choice, is_video=True):
     """ Detect a video using weights from YOLO model. """
-    if is_video:
-        vid_path = download_video(vid_choice)
-    else:
-        vid_path = vid_choice
+    vid_path = download_video(vid_choice) if is_video else vid_choice
     try:
         subprocess.check_call(f'python3 yolov3/detect.py --weights ../frozen_weights/yolo_last.pt --source "{vid_path}" --data yolo.data --cfg {os.path.abspath("../dataset/yolov3.cfg")}', shell=True)
         # Attatch audio
@@ -182,7 +179,7 @@ class BBox():
 def download_video(tag='ns_op18'):
     """ Download a chosen video for use. """
     if VIDEOS[tag]['name'] not in os.listdir(os.getcwd()):
-        return YouTube(VIDEOS[tag]['uri']).streams.first().download()
+        return YouTube(VIDEOS[tag]['uri']).streams.filter(mime_type='video/mp4').first().download()
     else:
         return os.path.join(os.getcwd(), VIDEOS[tag]['name'])
 

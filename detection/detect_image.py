@@ -71,7 +71,7 @@ def main(img, detector, thresh=0.6, iou=0.2, display=True):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('image', type=str, default='image.jpg')
+    parser.add_argument('image', type=str, default='images/image.jpg')
     parser.add_argument('--detector', type=str, default='frcnn')
     arg = parser.parse_args()
     img, detector = arg.image, arg.detector

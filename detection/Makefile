@@ -1,7 +1,7 @@
 .DEFAULT_GOAL := all
 
-all: install tensorflow  # In case you don't have the packages installed
-tensorflow: download faster-rcnn migrate setup
+all: install tensorflow download-weights # In case you don't have the packages installed
+tensorflow: download install-yolo faster-rcnn ssd migrate setup
 
 # Can change this to your liking.
 TF_FOLDER=tensorflow
@@ -33,11 +33,20 @@ setup:
 		python3 setup.py install
 
 download:
-	@ echo "Installing tensorflow models..."
+	@echo "Installing tensorflow models..."
 	# Download tensorflow/models and model of choice
 	mkdir $(TF_FOLDER)
 	cd $(TF_FOLDER) && \
 		git clone https://github.com/tensorflow/models.git
+
+download-weights:
+	@echo "Downloading weights from Dropbox..."
+	mkdir ../frozen_weights; \
+	cd ../frozen_weights && \
+	wget https://www.dropbox.com/s/tviko492oyi8lr0/frcnn.pb; \
+	wget https://www.dropbox.com/s/rtm26uyf1hspsxv/retina.h5; \
+	wget https://www.dropbox.com/s/iikd3e71kp4cxuu/ssd.pb; \
+	wget https://www.dropbox.com/s/vh2hr5tqunuljps/yolo_last.pt
 
 faster_rcnn:
 	cd $(TF_FOLDER) && \
