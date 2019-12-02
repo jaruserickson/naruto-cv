@@ -5,6 +5,7 @@ AlgoCtrl
 import threading
 import time
 from detect_symbols.symbol_detector import SymbolDetector
+from detect_symbols.headband_detector import HeadbandDetector
 from detect_symbols import symbols
 
 
@@ -32,6 +33,7 @@ class AlgoCtrl(threading.Thread):
     def run(self):
         """ Run """
         symbol_detector = SymbolDetector()
+        headband_detector = HeadbandDetector()
 
         # main loop
         while not self._exit_event.is_set():
@@ -41,6 +43,7 @@ class AlgoCtrl(threading.Thread):
                 frame_num = in_frame['frame_id']
                 frame = in_frame['frame']
                 bnd_boxes = {}
+                lines = []
 
                 if frame is not None:
                     self.verbose and print(f'Algo: Processing frame {frame_num}')
@@ -51,13 +54,16 @@ class AlgoCtrl(threading.Thread):
                         img_name = in_frame['img_name']
                         sym_id = int(img_name[0])
 
-                    p, score = symbol_detector.process(frame, sym_id)
+                    lines.extend(headband_detector.process(frame))
 
-                    if p is not None:
-                        bnd_boxes[symbols.SYMBOL_IDS[sym_id]] = p
+                    if False:#self._enable_village_symbol_detection:
+                        p, score = symbol_detector.process(frame, sym_id)
+
+                        if p is not None:
+                            bnd_boxes[symbols.SYMBOL_IDS[sym_id]] = p
 
                 # send frame output to application
-                output = {'frame_id': frame_num, 'frame': frame, 'bounding_boxes': bnd_boxes}
+                output = {'frame_id': frame_num, 'frame': frame, 'bounding_boxes': bnd_boxes, 'lines': lines}
                 self._output.put(output)
             else:
                 # wait for new frame

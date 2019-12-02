@@ -32,6 +32,11 @@ class VidPlayer(threading.Thread):
         if 'bounding_boxes' in output:
             for title, box in output['bounding_boxes'].items():
                 draw_bounding_box(frame, tuple(box[0]), tuple(box[1]), tuple(box[2]), tuple(box[3]), (255, 0, 0), title)
+
+        if 'lines' in output:
+            for line in output['lines']:
+                p1, p2 = line
+                cv2.line(frame, p1, p2, (0, 0, 255))
         
     def process_key_event(self, key):
         """ Process a key event """
