@@ -82,7 +82,7 @@ class RetinaNetDetector():
         """
         print('Creating detector based on snapshots...')
         
-        self.model = keras.models.load_model('frozen_weights/retina.h5', custom_objects={
+        self.model = keras.models.load_model('../frozen_weights/retina.h5', custom_objects={
             'UpsampleLike'     : UpsampleLike,
             'PriorProbability' : PriorProbability,
             'RegressBoxes'     : RegressBoxes,
@@ -123,10 +123,8 @@ class TensorFlowDetector():
         https://github.com/EdjeElectronics/TensorFlow-Object-Detection-API-Tutorial-Train-Multiple-Objects-Windows-10
         """
         print('Creating detector based on frozen graph...')
-        graph_path = os.path.join(os.getcwd(), \
-            'frozen_weights', 'faster-rcnn-frozen.pb' if model=='frcnn' else 'ssd-frozen.pb')
-        label_path = os.path.join(os.getcwd(), \
-            'tensorflow/models/research/object_detection/training', 'labelmap.pbtxt')
+        graph_path = os.path.join('../frozen_weights', 'frcnn.pb' if model=='frcnn' else 'ssd.pb')
+        label_path = os.path.join('tensorflow/models/research/object_detection/training', 'labelmap.pbtxt')
         num_classes = 27
 
         label_map = label_map_util.load_labelmap(label_path)
@@ -163,11 +161,12 @@ class TensorFlowDetector():
 def detect_yolo(vid_choice):
     """ Detect a video using weights from YOLO model. """
     vid_path = download_video(vid_choice)
-    # subprocess.call(f'python3 yolov3/detect.py --weights frozen_weights/last.pt --source "{vid_path}" --output . --data yolo.data --cfg {os.path.abspath("../dataset/yolov3.cfg")}', shell=True)
+    subprocess.call(f'python3 yolov3/detect.py --weights frozen_weights/last.pt --source "{vid_path}" --data yolo.data --cfg {os.path.abspath("../dataset/yolov3.cfg")}', shell=True)
     # # Attatch audio
-    # name = VIDEOS[vid_choice]['name']
-    # subprocess.call(f'ffmpeg -i "{name}" -ab 160k -ac 2 -ar 44100 -vn {vid_choice}_audio.wav', shell=True)
-    # subprocess.call(f'ffmpeg -i "{name}" -i {vid_choice}_audio.wav -c:v copy -c:a aac -strict experimental -map 0:v:0 -map 1:a:0 {vid_choice}_audio.mp4', shell=True)
+    os.chdir('output')
+    name = VIDEOS[vid_choice]['name']
+    subprocess.call(f'ffmpeg -i "{name}" -ab 160k -ac 2 -ar 44100 -vn {vid_choice}_audio.wav', shell=True)
+    subprocess.call(f'ffmpeg -i "{name}" -i {vid_choice}_audio.wav -c:v copy -c:a aac -strict experimental -map 0:v:0 -map 1:a:0 {vid_choice}_audio.mp4', shell=True)
 
     # Clean out temporary files.
     # os.remove(vid_path)
