@@ -146,8 +146,6 @@ There's a number of implementations of both YOLO and SSD on github:
  - Might have to clean out sasuke's curse mark recognition.
 
 After omitting the problem characters, everything is looking quite a bit better.
-
-(We never said in the proposal that we would be implementing the network, just training one LOL. I'm going to try anyway, but as mentioned before, there's a LOT of points of failure and it can get super complex.)
 Now that we know the dataset is valid, we can work on writing a network from the ground up. Based on the notes before, I'm probably going to implement an SSD network.
 
  - [Understanding SSD MultiBox — Real-Time Object Detection In Deep Learning](https://towardsdatascience.com/understanding-ssd-multibox-real-time-object-detection-in-deep-learning-495ef744fab)
@@ -239,11 +237,11 @@ So, building on my usage of tensorflow's modelzoo, we're going to be looking at 
         - This would suggest that it's not the greatest for this use case, since Anime characters often make weird faces :stuck_out_tongue:
       - *Very* fast training rate (0.2s/step)
       - *Very* fast inference rate (Real time for Kakashi's mask)
-  - [ ] YOLOv3 (Darknet) *PyTorch* [source](https://github.com/ultralytics/yolov3)
+  - [x] YOLOv3 (Darknet) *PyTorch* [source](https://github.com/ultralytics/yolov3)
     - Notes:
       - **Very** fast training rate (0.05s/step)(273 epoch x 1156 step in 3.869 hours).
       - **Very** fast inference rate (Real time for everything)
-  - [ ] RetinaNet (ResNet50) *Keras* [source](https://github.com/fizyr/keras-retinanet)
+  - [x] RetinaNet (ResNet50) *Keras* [source](https://github.com/fizyr/keras-retinanet)
     - Notes:
       - Slow training (~5s/step)
       - Slow inference 
