@@ -16,5 +16,15 @@ def plot_sift_keypoints(img, kp, color):
         y = int(y)
         r = int(round(2 * s))
 
-        cv2.circle(img, (x, y), r, color, 2)
+        cv2.circle(img, (x, y), r, color, 1)
         cv2.line(img, (x, y), (int(x + r * np.cos(th)), int(y + r * np.sin(th))), color)
+
+
+def draw_bounding_box(img, p1, p2, p3, p4, color, title=None):
+    cv2.line(img, p1, p2, color)
+    cv2.line(img, p2, p3, color)
+    cv2.line(img, p3, p4, color)
+    cv2.line(img, p4, p1, color)
+
+    if title is not None:
+        cv2.putText(img, title, p1, 0, 1, color)

@@ -7,7 +7,8 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 from . import symbols
-from .plot_utils import plot_sift_keypoints
+from .plot_utils import plot_sift_keypoints, draw_bounding_box
+import math
 
 
 def match_features_to_predictions(img, kp, desc, symbol, thresh=5000):
@@ -45,21 +46,39 @@ class SymbolDetector():
             peak_thresh=10)
 
         n, m = frame_grey.shape
-        acc = np.zeros((n, m, 10, 36), dtype=np.int16)
+        min_scale = 10
+        max_scale = 200
+        d_scale = 10
+        min_theta = 0 * np.pi / 180
+        max_theta = 360 * np.pi / 180 
+        d_theta = 5 * np.pi / 180 
+        scale_steps = int((max_scale - min_scale) / d_scale) + 1
+        theta_step = int((max_theta - min_theta) / d_theta) + 1
+        acc = np.zeros((n, m, scale_steps, theta_step), dtype=np.int16)
 
         leaf = self._symbols[0]
 
-        #match_features_to_predictions(frame, kp, desc, leaf, thresh=10000)
+        ### uncomment to see each detected feature's best prediction
+        # match_features_to_predictions(frame, kp, desc, leaf, thresh=10000)
+        # return frame
 
         dists = np.empty((len(kp), len(leaf.kp)))
         inds = np.empty((len(kp), len(leaf.kp), 4))
 
         for i in range(len(leaf.kp)):
             dists[:, i] = np.sum((desc - leaf.desc[i])**2, axis=1)
-            inds[:, i, 3] = kp[:, 3] - leaf.kp[i, 2]
-            inds[:, i, 2] = kp[:, 2] / leaf.kp[i, 1]
-            inds[:, i, 1] = kp[:, 1] + leaf.kp[i, 0] * inds[:, i, 2] * np.cos(inds[:, i, 3] - leaf.kp[i, 3])
-            inds[:, i, 0] = kp[:, 0] + leaf.kp[i, 0] * inds[:, i, 2] * np.sin(inds[:, i, 3] - leaf.kp[i, 3])
+            th = kp[:, 3] - leaf.kp[i, 2]
+            s = kp[:, 2] / leaf.kp[i, 1]
+            cx = kp[:, 1] + leaf.kp[i, 0] * s * np.cos(th - leaf.kp[i, 3])
+            cy = kp[:, 0] + leaf.kp[i, 0] * s * np.sin(th - leaf.kp[i, 3])
+
+            th[th < 0] += np.pi * 2
+            th[th < 0] -= np.pi * 2
+
+            inds[:, i, 0] = cy
+            inds[:, i, 1] = cx
+            inds[:, i, 2] = (s * 100 - min_scale) / d_scale
+            inds[:, i, 3] = (th - min_theta) / d_theta
         
         thresh = 5000
         inds = inds[dists < thresh].astype(np.int)
@@ -72,9 +91,29 @@ class SymbolDetector():
         inds = np.argwhere(acc > thresh)
         max_a = len(leaf.kp)
 
-        for y, x, s, th in inds:
-            conf = acc[y, x, s, th] / max_a
-            plot_sift_keypoints(frame, np.array([y, x, s * 10, th]), (255, 255, 255 - int(conf * 255)))
+        for cy, cx, k, h in inds:
+            s = min_scale + k * d_scale
+            th = min_theta + h * d_theta
+            conf = acc[cy, cx, k, h] / max_a
+
+            w = s
+            th = -th
+            r = np.array([
+                [math.cos(th), -math.sin(th)],
+                [math.sin(th), math.cos(th)]
+            ])
+            p = np.array([
+                [-w, -w],
+                [-w, w],
+                [w, w],
+                [w, -w]
+            ])
+            p = np.matmul(r, p.T).T + [cx, cy]
+            p = p.astype(np.int)
+
+            color = (255, 255, 100 + int(conf * 155))
+            draw_bounding_box(frame, tuple(p[0]), tuple(p[1]), tuple(p[2]), tuple(p[3]), (255, 0, 0))
+            # plot_sift_keypoints(frame, np.array([y, x, s * 10, th]), color)
 
         #plot_sift_keypoints(frame, kp, (0, 0, 255))
 
