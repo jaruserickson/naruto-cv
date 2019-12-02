@@ -2,6 +2,8 @@
 import sys
 import os
 import subprocess
+import time
+import argparse
 from collections import defaultdict
 CWD = os.getcwd()
 sys.path.extend([
@@ -13,11 +15,17 @@ import cv2
 from tqdm import tqdm
 from pytube import YouTube
 import tensorflow as tf
+from tensorflow import keras
 import numpy as np
 # tensorflow utils
 from utils import label_map_util
 from utils import visualization_utils as vis_util
-
+# RetinaNet
+from retinanet.keras_retinanet.visualization import label_color
+from retinanet.keras_retinanet.util import UpsampleLike, RegressBoxes, FilterDetections, PriorProbability, ClipBoxes
+from retinanet.keras_retinanet.losses import smooth_l1, focal
+from retinanet.keras_retinanet.anchors import Anchors
+from retinanet.keras_retinanet.image import preprocess_image, resize_image
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 STANDARD_COLORS = [
@@ -45,19 +53,72 @@ STANDARD_COLORS = [
     'Teal', 'Thistle', 'Tomato', 'Turquoise', 'Violet', 'Wheat', 'White',
     'WhiteSmoke', 'Yellow', 'YellowGreen'
 ]
+VIDEOS = {
+    'ns_op18': {
+        'name': 'Naruto Shippuden Opening 18  LINE (HD).mp4',
+        'uri': 'https://www.youtube.com/watch?v=HdgD7E6JEE4'},
+    'n_op2': {
+        'name': 'Naruto Opening 2  Haruka Kanata (HD).mp4',
+        'uri': 'https://www.youtube.com/watch?v=SRn99oN1p_c'},
+    'naruto_hinata_wedding': {
+        'name': 'Naruto and Hinata Wedding.mp4',
+        'uri': 'https://www.youtube.com/watch?v=BoMBsDIGkKI'},
+    'naruto_v_sasuke': {
+        'name': '【MAD】 Naruto VS Sasuke  ナルト VS サスケ 『アウトサイダー』.mp4',
+        'uri': 'https://www.youtube.com/watch?v=u_1onhckHuw'},
+    'naruto_chill': {
+        'name': "Kakashi&39s mask.mp4",
+        'uri': 'https://www.youtube.com/watch?v=UGn-Tg1j8w0'},
+    'sasuke_oroch': {
+        'name': 'Sasuke vs Orochimaru  Naruto.mp4',
+        'uri': 'https://www.youtube.com/watch?v=MwJUK2JtSgw'}}
 
-class Detector():
-    """ Create detector based on training. """
+class RetinaNetDetector():
+    """ Create RetinaNet Detector based on trianing. """
     def __init__(self):
         """ Return bounding boxes for an image.
         Modified from @EdjeElectronics on github:
         https://github.com/EdjeElectronics/TensorFlow-Object-Detection-API-Tutorial-Train-Multiple-Objects-Windows-10
         """
+        print('Creating detector based on snapshots...')
+        
+        self.model = keras.models.load_model('../frozen_weights/retina.h5', custom_objects={
+            'UpsampleLike'     : UpsampleLike,
+            'PriorProbability' : PriorProbability,
+            'RegressBoxes'     : RegressBoxes,
+            'FilterDetections' : FilterDetections,
+            'Anchors'          : Anchors,
+            'ClipBoxes'        : ClipBoxes,
+            '_smooth_l1'       : smooth_l1(),
+            '_focal'           : focal(),
+        }, compile=False)
+
+        self.label_to_name = [
+            'naruto_uzumaki', 'sasuke_uchiha', 'kakashi_hatake', 'gaara', \
+                'itachi_uchiha', 'deidara', 'minato_namikaze', 'shikamaru_nara', \
+                    'hinata_hyuuga', 'sakura_haruno', 'sai', 'yamato', 'neji_hyuuga', \
+                        'jiraya', 'temari', 'rock_lee', 'kushina_uzumaki', 'kisame_hoshigaki', \
+                            'killer_bee', 'might_guy', 'kiba_inuzuka', 'ino_yamanaka', 'sasori', \
+                                'pain', 'konan', 'iruka_umino', 'shino_aburame']
+        
+    def detect_image(self, image):
+        """ Run the actual detector """
+        image = preprocess_image(image)
+        image, scale = resize_image(image)
+        boxes, scores, labels = self.model.predict_on_batch(np.expand_dims(image, axis=0))
+        boxes /= scale
+        return (boxes[0], scores[0], labels[0])
+
+class TensorFlowDetector():
+    """ Create Faster R-CNN detector based on training. """
+    def __init__(self, model='frcnn'):
+        """ Return bounding boxes for an image.
+        Modified from @EdjeElectronics on github:
+        https://github.com/EdjeElectronics/TensorFlow-Object-Detection-API-Tutorial-Train-Multiple-Objects-Windows-10
+        """
         print('Creating detector based on frozen graph...')
-        graph_path = os.path.join(os.getcwd(), \
-            'tensorflow/models/research/object_detection/inference_graph', 'frozen_inference_graph.pb')
-        label_path = os.path.join(os.getcwd(), \
-            'tensorflow/models/research/object_detection/training', 'labelmap.pbtxt')
+        graph_path = os.path.join('../frozen_weights', 'frcnn.pb' if model=='frcnn' else 'ssd.pb')
+        label_path = os.path.join('tensorflow/models/research/object_detection/training', 'labelmap.pbtxt')
         num_classes = 27
 
         label_map = label_map_util.load_labelmap(label_path)
@@ -83,14 +144,28 @@ class Detector():
     def detect_image(self, image):
         """ Run the actual detector """
         image_xp = np.expand_dims(image, axis=0)
-        (boxes, scores, classes, num) = self.sess.run(self.fetches,
+        (boxes, scores, classes, _) = self.sess.run(self.fetches,
             feed_dict={self.image_tensor: image_xp})
-        return (boxes, scores, classes, num)
+        return (boxes[0], scores[0], classes[0])
 
     def get_class_index(self):
         """ Getter for class index """
         return self.class_index
 
+def detect_yolo(vid_choice, is_video=True):
+    """ Detect a video using weights from YOLO model. """
+    vid_path = download_video(vid_choice) if is_video else vid_choice
+    try:
+        subprocess.check_call(f'python3 yolov3/detect.py --weights ../frozen_weights/yolo_last.pt --source "{vid_path}" --data yolo.data --cfg {os.path.abspath("../dataset/yolov3.cfg")}', shell=True)
+        # Attatch audio
+        if is_video:
+            inname = VIDEOS[vid_choice]['name']
+            outname = os.path.join('output', VIDEOS[vid_choice]['name'])
+            subprocess.call(f'ffmpeg -i "{inname}" -ab 160k -ac 2 -ar 44100 -vn {vid_choice}_audio.wav', shell=True)
+            subprocess.call(f'ffmpeg -i "{outname}" -i {vid_choice}_audio.wav -c:v copy -c:a aac -strict experimental -map 0:v:0 -map 1:a:0 {vid_choice}_audio.mp4', shell=True)
+    except subprocess.CalledProcessError as e:
+        print(f'Failure: {e}')
+    
 class BBox():
     """ Bounding box object """
     def __init__(self, box, name, color):
@@ -103,28 +178,10 @@ class BBox():
 
 def download_video(tag='ns_op18'):
     """ Download a chosen video for use. """
-    videos = {
-        'ns_op18': {
-            'name': 'Naruto Shippuden Opening 18 | LINE (HD).mp4',
-            'uri': 'https://www.youtube.com/watch?v=HdgD7E6JEE4'},
-        'n_op2': {
-            'name': 'Naruto Opening 2  Haruka Kanata (HD).mp4',
-            'uri': 'https://www.youtube.com/watch?v=SRn99oN1p_c'},
-        'naruto_hinata_wedding': {
-            'name': 'Naruto and Hinata Wedding.mp4',
-            'uri': 'https://www.youtube.com/watch?v=BoMBsDIGkKI'},
-        'naruto_v_sasuke': {
-            'name': '【MAD】 Naruto VS Sasuke / ナルト VS サスケ 『アウトサイダー』.mp4',
-            'uri': 'https://www.youtube.com/watch?v=u_1onhckHuw'},
-        'naruto_chill': {
-            'name': "Kakashi's mask",
-            'uri': 'https://www.youtube.com/watch?v=UGn-Tg1j8w0'
-        }}
-
-    if videos[tag]['name'] not in os.listdir(os.getcwd()):
-        return YouTube(videos[tag]['uri']).streams.first().download()
+    if VIDEOS[tag]['name'] not in os.listdir(os.getcwd()):
+        return YouTube(VIDEOS[tag]['uri']).streams.filter(mime_type='video/mp4').first().download()
     else:
-        return os.path.join(os.getcwd(), videos[tag]['name'])
+        return os.path.join(os.getcwd(), VIDEOS[tag]['name'])
 
 def filter_boxes(boxes, classes, scores, class_index, min_score_thresh):
     """ Modified version of tensorflow's visualize_boxes_and_labels_on_image_array """
@@ -165,17 +222,17 @@ def create_tracker(frame, boxes):
 
     return tracker
 
-def main(vid_choice, detect_rate=5, thresh=0.6, display=True):
+def main(vid_choice, detector, detect_rate=5, thresh=0.6, iou=0.2, display=True):
     """ main function. """
     # Download video
     vid_path = download_video(vid_choice)
     cap = cv2.VideoCapture(vid_path)
     multi_tracker = cv2.MultiTracker_create()
-    det = Detector()
     out = cv2.VideoWriter(f'{vid_choice}.mp4', \
         cv2.VideoWriter_fourcc(*'mp4v'), cap.get(cv2.CAP_PROP_FPS), \
             (int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))))
     progress = tqdm(total=cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    sess = tf.compat.v1.Session()
     count = 0
     tracking_boxes = []
     while cap.isOpened():
@@ -186,20 +243,38 @@ def main(vid_choice, detect_rate=5, thresh=0.6, display=True):
             break
         # Run a new detection:
         if count % detect_rate == 0:
-            boxes, scores, classes, num = det.detect_image(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-            # Get boxes
-            # indicies = cv2.dnn.NMSBoxes(boxes, scores, score_threshold=thresh, nms_threshold=0.3)
-            box2color, box2name = filter_boxes(
-                np.squeeze(boxes),
-                np.squeeze(classes).astype(np.int32),
-                np.squeeze(scores),
-                det.get_class_index(),
-                min_score_thresh=thresh)
-
-            # Get boxes, replace tracking boxes
+            # Get detections
+            boxes, scores, classes = detector.detect_image(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+            # Non-maximum supression
+            if len(boxes) > 0:
+                indices = tf.image.non_max_suppression(boxes, scores, 20, iou_threshold=iou, score_threshold=thresh)
+                with sess.as_default():
+                    indices = indices.eval()
+                    boxes = np.take(boxes, indices, 0)
+                    scores = np.take(scores, indices, 0)
+                    classes = np.take(classes, indices, 0)
+            
             tracking_boxes = []
-            for box in box2color.keys():
-                tracking_boxes.append(BBox(box, box2name[box], box2color[box]))
+            if isinstance(detector, TensorFlowDetector):
+                box2color, box2name = filter_boxes(
+                    boxes,
+                    classes.astype(np.int32),
+                    scores,
+                    detector.get_class_index(),
+                    min_score_thresh=thresh)
+                
+                # Get boxes, replace tracking boxes
+                for box in box2color.keys():
+                    tracking_boxes.append(BBox(box, box2name[box], box2color[box]))
+            elif isinstance(detector, RetinaNetDetector):
+                for box, score, label in zip(boxes, scores, classes):
+                    color = tuple(label_color(label))
+                    label = f'{detector.label_to_name[int(label)]}: {score}'
+                    h, w = frame.shape[:2]
+                    xmin, ymin, xmax, ymax = box
+                    box = tuple([ymin / h, xmin / w, ymax / h, xmax / w])
+                    tracking_boxes.append(BBox(box, label, color))
+
             # Set the tracker.
             multi_tracker = create_tracker(frame, tracking_boxes)
         else: # Use a tracker for the in-between frames
@@ -220,7 +295,7 @@ def main(vid_choice, detect_rate=5, thresh=0.6, display=True):
                 frame,
                 ymin, xmin, ymax, xmax,
                 color=box.color,
-                display_str_list=box.name,
+                display_str_list=box.name if isinstance(detector, TensorFlowDetector) else [box.name],
                 use_normalized_coordinates=True)
 
         out.write(frame)
@@ -236,12 +311,21 @@ def main(vid_choice, detect_rate=5, thresh=0.6, display=True):
     subprocess.call(f'ffmpeg -i "{vid_path}" -ab 160k -ac 2 -ar 44100 -vn {vid_choice}_audio.wav', shell=True)
     subprocess.call(f'ffmpeg -i "{vid_choice}.mp4" -i {vid_choice}_audio.wav -c:v copy -c:a aac -strict experimental -map 0:v:0 -map 1:a:0 {vid_choice}_audio.mp4', shell=True)
 
-    # Clean out temporary files.
-    os.remove(vid_path)
-    os.remove(f'{vid_choice}_audio.wav')
-
-# TODO: IOU Box filtering (too much overlap means just pick the larger.)
-    # Need to get NMS working.
-
 if __name__ == '__main__':
-    main('naruto_v_sasuke', detect_rate=2, thresh=0.6, display=False)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('video', type=str, default='naruto_v_sasuke')
+    parser.add_argument('--detector', type=str, default='frcnn')
+    arg = parser.parse_args()
+    vid, detector = arg.video, arg.detector
+    
+    if detector == 'frcnn' or detector == 'ssd':
+        print(f'Running {detector.upper()} Detector')
+        main(vid, detector=TensorFlowDetector(detector), detect_rate=2, thresh=0.6, display=False)
+    elif detector == 'retina':
+        print('Running RetinaNet Detector')
+        main(vid, detector=RetinaNetDetector(), detect_rate=5, thresh=0.6, iou=0.01, display=False)
+    elif detector == 'yolo':
+        print('Running YOLO Detector')
+        detect_yolo(vid)
+    else:
+        print('No valid detector specified.')

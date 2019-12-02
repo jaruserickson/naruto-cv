@@ -5,7 +5,6 @@ google_images.txt
 __pycache__
 *.pyc
 *.webm
-*.cfg
 *.record
 dataset/vid_data/frames
 tensorflow
@@ -17,4 +16,7 @@ detection/retinanet/saved
 detection/retinanet/logs
 detection/retinanet/snapshots
 dataset/retimages
-*.h5
+detection/*.h5
+dataset/coco
+detection/yolov3
+detection/runs

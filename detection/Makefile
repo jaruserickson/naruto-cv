@@ -1,7 +1,7 @@
 .DEFAULT_GOAL := all
 
-all: install tensorflow  # In case you don't have the packages installed
-tensorflow: download faster-rcnn migrate setup
+all: install tensorflow download-weights # In case you don't have the packages installed
+tensorflow: download install-yolo faster-rcnn ssd migrate setup
 
 # Can change this to your liking.
 TF_FOLDER=tensorflow
@@ -19,6 +19,9 @@ install:
 	sudo unzip -o $(PROTOC_ZIP) -d /usr/local 'include/*'
 	rm -f $(PROTOC_ZIP)
 
+install-yolo:
+	git clone https://github.com/ultralytics/yolov3
+
 setup:
 	@echo "Setting up tensorflow/models..."
 	# Protoc usage, create PB2 files
@@ -30,11 +33,20 @@ setup:
 		python3 setup.py install
 
 download:
-	@ echo "Installing tensorflow models..."
+	@echo "Installing tensorflow models..."
 	# Download tensorflow/models and model of choice
 	mkdir $(TF_FOLDER)
 	cd $(TF_FOLDER) && \
 		git clone https://github.com/tensorflow/models.git
+
+download-weights:
+	@echo "Downloading weights from Dropbox..."
+	mkdir ../frozen_weights; \
+	cd ../frozen_weights && \
+	wget https://www.dropbox.com/s/tviko492oyi8lr0/frcnn.pb; \
+	wget https://www.dropbox.com/s/rtm26uyf1hspsxv/retina.h5; \
+	wget https://www.dropbox.com/s/iikd3e71kp4cxuu/ssd.pb; \
+	wget https://www.dropbox.com/s/vh2hr5tqunuljps/yolo_last.pt
 
 faster_rcnn:
 	cd $(TF_FOLDER) && \
@@ -78,6 +90,14 @@ train-ssd:
 		cd $(TF_FOLDER)/models/research/object_detection && \
 			cp legacy/train.py . && \
 			python3 train.py --logtostderr --train_dir=training/ --pipeline_config_path=training/ssd_inception_v2_naruto.config
+
+train-yolo:
+	@echo "Training YOLO model on dataset..."
+	cd yolov3 && \
+		python3 train.py --epochs 1500 --batch-size 8 --cfg ../../dataset/yolov3.cfg --data ../../dataset/coco/naruto.data --weights darknet53.conv.74 --device 0 
+
+tensorboard-yolo:
+	tensorboard --logdir=yolov3/runs
 
 tensorboard:
 	@echo "Spinning up tensorboard..."
