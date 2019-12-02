@@ -10,6 +10,6 @@ cd ${OBJ} && \
 	rm -rf inference_graph/; \
 	python3 export_inference_graph.py \
 		--input_type image_tensor \
-		--pipeline_config_path training/${SSD}.config \
+		--pipeline_config_path training/${FRCNN}.config \
 		--trained_checkpoint_prefix training/model.ckpt-${1} \
 		--output_directory inference_graph

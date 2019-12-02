@@ -55,7 +55,7 @@ STANDARD_COLORS = [
 ]
 VIDEOS = {
     'ns_op18': {
-        'name': 'Naruto Shippuden Opening 18 | LINE (HD).mp4',
+        'name': 'Naruto Shippuden Opening 18  LINE (HD).mp4',
         'uri': 'https://www.youtube.com/watch?v=HdgD7E6JEE4'},
     'n_op2': {
         'name': 'Naruto Opening 2  Haruka Kanata (HD).mp4',
@@ -64,7 +64,7 @@ VIDEOS = {
         'name': 'Naruto and Hinata Wedding.mp4',
         'uri': 'https://www.youtube.com/watch?v=BoMBsDIGkKI'},
     'naruto_v_sasuke': {
-        'name': '【MAD】 Naruto VS Sasuke / ナルト VS サスケ 『アウトサイダー』.mp4',
+        'name': '【MAD】 Naruto VS Sasuke  ナルト VS サスケ 『アウトサイダー』.mp4',
         'uri': 'https://www.youtube.com/watch?v=u_1onhckHuw'},
     'naruto_chill': {
         'name': "Kakashi's mask",
@@ -107,8 +107,8 @@ class RetinaNetDetector():
         image, scale = resize_image(image)
 
         start = time.time()
-        boxes, scores, labels = self.model.predict_on_batch(np.expand_dims(image, axis=0))
-
+        predictions = self.model.predict_on_batch(np.expand_dims(image, axis=0))
+        print(predictions)
         iou_threshold = 0.3
         score_threshold = 0.3
 
@@ -161,16 +161,15 @@ class TensorFlowDetector():
 def detect_yolo(vid_choice):
     """ Detect a video using weights from YOLO model. """
     vid_path = download_video(vid_choice)
-    subprocess.call(f'python3 yolov3/detect.py --weights frozen_weights/last.pt --source "{vid_path}" --data yolo.data --cfg {os.path.abspath("../dataset/yolov3.cfg")}', shell=True)
-    # # Attatch audio
-    os.chdir('output')
-    name = VIDEOS[vid_choice]['name']
-    subprocess.call(f'ffmpeg -i "{name}" -ab 160k -ac 2 -ar 44100 -vn {vid_choice}_audio.wav', shell=True)
-    subprocess.call(f'ffmpeg -i "{name}" -i {vid_choice}_audio.wav -c:v copy -c:a aac -strict experimental -map 0:v:0 -map 1:a:0 {vid_choice}_audio.mp4', shell=True)
-
-    # Clean out temporary files.
-    # os.remove(vid_path)
-    # os.remove(f'{vid_choice}_audio.wav')
+    try:
+        # subprocess.check_call(f'python3 yolov3/detect.py --weights ../frozen_weights/yolo_last.pt --source "{vid_path}" --data yolo.data --cfg {os.path.abspath("../dataset/yolov3.cfg")}', shell=True)
+        # Attatch audio
+        inname = VIDEOS[vid_choice]['name']
+        outname = os.path.join('output', VIDEOS[vid_choice]['name'])
+        subprocess.call(f'ffmpeg -i "{inname}" -ab 160k -ac 2 -ar 44100 -vn {vid_choice}_audio.wav', shell=True)
+        subprocess.call(f'ffmpeg -i "{outname}" -i {vid_choice}_audio.wav -c:v copy -c:a aac -strict experimental -map 0:v:0 -map 1:a:0 {vid_choice}_audio.mp4', shell=True)
+    except subprocess.CalledProcessError as e:
+        print(f'Failure: {e}')
     
 class BBox():
     """ Bounding box object """
