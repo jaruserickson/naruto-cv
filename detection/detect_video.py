@@ -21,7 +21,7 @@ import numpy as np
 from utils import label_map_util
 from utils import visualization_utils as vis_util
 # RetinaNet
-from retinanet.keras_retinanet.visualization import draw_box, draw_caption, label_color
+from retinanet.keras_retinanet.visualization import label_color
 from retinanet.keras_retinanet.util import UpsampleLike, RegressBoxes, FilterDetections, PriorProbability, ClipBoxes
 from retinanet.keras_retinanet.losses import smooth_l1, focal
 from retinanet.keras_retinanet.anchors import Anchors
@@ -105,12 +105,7 @@ class RetinaNetDetector():
         """ Run the actual detector """
         image = preprocess_image(image)
         image, scale = resize_image(image)
-
-        start = time.time()
         boxes, scores, labels = self.model.predict_on_batch(np.expand_dims(image, axis=0))
-        iou_threshold = 0.3
-        score_threshold = 0.3
-
         boxes /= scale
         return (boxes[0], scores[0], labels[0])
 
@@ -157,16 +152,20 @@ class TensorFlowDetector():
         """ Getter for class index """
         return self.class_index
 
-def detect_yolo(vid_choice):
+def detect_yolo(vid_choice, is_video=True):
     """ Detect a video using weights from YOLO model. """
-    vid_path = download_video(vid_choice)
+    if is_video:
+        vid_path = download_video(vid_choice)
+    else:
+        vid_path = vid_choice
     try:
-        # subprocess.check_call(f'python3 yolov3/detect.py --weights ../frozen_weights/yolo_last.pt --source "{vid_path}" --data yolo.data --cfg {os.path.abspath("../dataset/yolov3.cfg")}', shell=True)
+        subprocess.check_call(f'python3 yolov3/detect.py --weights ../frozen_weights/yolo_last.pt --source "{vid_path}" --data yolo.data --cfg {os.path.abspath("../dataset/yolov3.cfg")}', shell=True)
         # Attatch audio
-        inname = VIDEOS[vid_choice]['name']
-        outname = os.path.join('output', VIDEOS[vid_choice]['name'])
-        subprocess.call(f'ffmpeg -i "{inname}" -ab 160k -ac 2 -ar 44100 -vn {vid_choice}_audio.wav', shell=True)
-        subprocess.call(f'ffmpeg -i "{outname}" -i {vid_choice}_audio.wav -c:v copy -c:a aac -strict experimental -map 0:v:0 -map 1:a:0 {vid_choice}_audio.mp4', shell=True)
+        if is_video:
+            inname = VIDEOS[vid_choice]['name']
+            outname = os.path.join('output', VIDEOS[vid_choice]['name'])
+            subprocess.call(f'ffmpeg -i "{inname}" -ab 160k -ac 2 -ar 44100 -vn {vid_choice}_audio.wav', shell=True)
+            subprocess.call(f'ffmpeg -i "{outname}" -i {vid_choice}_audio.wav -c:v copy -c:a aac -strict experimental -map 0:v:0 -map 1:a:0 {vid_choice}_audio.mp4', shell=True)
     except subprocess.CalledProcessError as e:
         print(f'Failure: {e}')
     
@@ -226,20 +225,17 @@ def create_tracker(frame, boxes):
 
     return tracker
 
-def main(vid_choice, detector, detect_rate=5, thresh=0.6, display=True):
+def main(vid_choice, detector, detect_rate=5, thresh=0.6, iou=0.2, display=True):
     """ main function. """
     # Download video
     vid_path = download_video(vid_choice)
     cap = cv2.VideoCapture(vid_path)
     multi_tracker = cv2.MultiTracker_create()
-    det = detector
     out = cv2.VideoWriter(f'{vid_choice}.mp4', \
         cv2.VideoWriter_fourcc(*'mp4v'), cap.get(cv2.CAP_PROP_FPS), \
             (int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))))
     progress = tqdm(total=cap.get(cv2.CAP_PROP_FRAME_COUNT))
     sess = tf.compat.v1.Session()
-    iou_threshold = 0.2
-    score_threshold = thresh
     count = 0
     tracking_boxes = []
     while cap.isOpened():
@@ -251,10 +247,10 @@ def main(vid_choice, detector, detect_rate=5, thresh=0.6, display=True):
         # Run a new detection:
         if count % detect_rate == 0:
             # Get detections
-            boxes, scores, classes = det.detect_image(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+            boxes, scores, classes = detector.detect_image(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
             # Non-maximum supression
             if len(boxes) > 0:
-                indices = tf.image.non_max_suppression(boxes, scores, 20, iou_threshold=iou_threshold, score_threshold=score_threshold)
+                indices = tf.image.non_max_suppression(boxes, scores, 20, iou_threshold=iou, score_threshold=thresh)
                 with sess.as_default():
                     indices = indices.eval()
                     boxes = np.take(boxes, indices, 0)
@@ -262,23 +258,23 @@ def main(vid_choice, detector, detect_rate=5, thresh=0.6, display=True):
                     classes = np.take(classes, indices, 0)
             
             tracking_boxes = []
-            if isinstance(det, TensorFlowDetector):
+            if isinstance(detector, TensorFlowDetector):
                 box2color, box2name = filter_boxes(
                     boxes,
                     classes.astype(np.int32),
                     scores,
-                    det.get_class_index(),
+                    detector.get_class_index(),
                     min_score_thresh=thresh)
                 
                 # Get boxes, replace tracking boxes
                 for box in box2color.keys():
                     tracking_boxes.append(BBox(box, box2name[box], box2color[box]))
-            elif isinstance(det, RetinaNetDetector):
+            elif isinstance(detector, RetinaNetDetector):
                 for box, score, label in zip(boxes, scores, classes):
                     color = tuple(label_color(label))
-                    label = f'{det.label_to_name[int(label)]}: {score}'
+                    label = f'{detector.label_to_name[int(label)]}: {score}'
                     h, w = frame.shape[:2]
-                    ymin, xmin, ymax, xmax = box
+                    xmin, ymin, xmax, ymax = box
                     box = tuple([ymin / h, xmin / w, ymax / h, xmax / w])
                     tracking_boxes.append(BBox(box, label, color))
 
@@ -302,7 +298,7 @@ def main(vid_choice, detector, detect_rate=5, thresh=0.6, display=True):
                 frame,
                 ymin, xmin, ymax, xmax,
                 color=box.color,
-                display_str_list=box.name if isinstance(det, TensorFlowDetector) else [box.name],
+                display_str_list=box.name if isinstance(detector, TensorFlowDetector) else [box.name],
                 use_normalized_coordinates=True)
 
         out.write(frame)
@@ -318,10 +314,6 @@ def main(vid_choice, detector, detect_rate=5, thresh=0.6, display=True):
     subprocess.call(f'ffmpeg -i "{vid_path}" -ab 160k -ac 2 -ar 44100 -vn {vid_choice}_audio.wav', shell=True)
     subprocess.call(f'ffmpeg -i "{vid_choice}.mp4" -i {vid_choice}_audio.wav -c:v copy -c:a aac -strict experimental -map 0:v:0 -map 1:a:0 {vid_choice}_audio.mp4', shell=True)
 
-    # Clean out temporary files.
-    # os.remove(vid_path)
-    # os.remove(f'{vid_choice}_audio.wav')
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('video', type=str, default='naruto_v_sasuke')
@@ -334,7 +326,7 @@ if __name__ == '__main__':
         main(vid, detector=TensorFlowDetector(detector), detect_rate=2, thresh=0.6, display=False)
     elif detector == 'retina':
         print('Running RetinaNet Detector')
-        main(vid, detector=RetinaNetDetector(), detect_rate=2, thresh=0.6, display=False)
+        main(vid, detector=RetinaNetDetector(), detect_rate=5, thresh=0.6, iou=0.01, display=False)
     elif detector == 'yolo':
         print('Running YOLO Detector')
         detect_yolo(vid)
