@@ -107,8 +107,7 @@ class RetinaNetDetector():
         image, scale = resize_image(image)
 
         start = time.time()
-        predictions = self.model.predict_on_batch(np.expand_dims(image, axis=0))
-        print(predictions)
+        boxes, scores, labels = self.model.predict_on_batch(np.expand_dims(image, axis=0))
         iou_threshold = 0.3
         score_threshold = 0.3
 
