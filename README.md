@@ -26,6 +26,10 @@ Some options:
 #### Object Detection
  - Modify the paths in `dataset/training/*.config` to use your current path to `detection/` where `/home/jacob/Desktop/code/csc420/naruto-cv/detection` exists.
  - While in the `detection/` folder, after creating the dataset, to setup the models using tensorflow, run `sudo make`
+<<<<<<< HEAD
+=======
+
+>>>>>>> 0d6d0510cc05cb55c00ec1c631faad98c791512d
 **Training**
    - To train the model with the data created above, run `sudo make train-frcnn` to train a Faster R-CNN model, `sudo make train-ssd` to train an SSD model, and `make train-yolo` to train a YOLO model.
      - *Note*: Before training a different model, make sure to run `sudo make clean-data migrate`. This will clean up old checkpoints from the other model, so be sure to move your checkpoints if you'd like to keep them.
