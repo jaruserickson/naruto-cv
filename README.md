@@ -26,13 +26,25 @@ Some options:
 #### Object Detection
  - Modify the paths in `dataset/training/*.config` to use your current path to `detection/` where `/home/jacob/Desktop/code/csc420/naruto-cv/detection` exists.
  - While in the `detection/` folder, after creating the dataset, to setup the models using tensorflow, run `sudo make`
-   - To train the model with the data created above, run `sudo make train-frcnn` to train a Faster R-CNN model, and `sudo make train-ssd` to train an SSD model.
+**Training**
+   - To train the model with the data created above, run `sudo make train-frcnn` to train a Faster R-CNN model, `sudo make train-ssd` to train an SSD model, and `make train-yolo` to train a YOLO model.
      - *Note*: Before training a different model, make sure to run `sudo make clean-data migrate`. This will clean up old checkpoints from the other model, so be sure to move your checkpoints if you'd like to keep them.
-   - To bring up tensorboard while you train, open another teminal and run `sudo make tensorboard`
+   - To bring up tensorboard while you train, open another teminal and run `sudo make tensorboard`, or `make tensorboard-yolo`
    - When training is complete, run `./export-graph.sh 1234` where `1234` is the latest checkpoint number in `HOME/TF_FOLDER/models/research/object_detection/training`
  - If you have the required modules installed (under the Makefile's install step), you can opt to run `make tf-migrate setup`
  - To clean up only the migrated datafiles from the dataset, run `sudo make clean-data`
- - To entirely clean up the detection setup, run `sudo make clean`
+ - To entirely clean up the training + detection setup, run `sudo make clean`
+**Detection**
+ - To run detection without training, its as easy as running `sudo make` within `detection/`
+ - You can then run `python3 detect_video.py naruto_chill --detector frcnn` to detect a video from the list below, with any of the detectors: `frcnn`, `ssd`, `yolo`, `retina`.
+   - `naruto_chill`: [Kakashi's Mask](https://www.youtube.com/watch?v=UGn-Tg1j8w0)
+   - `naruto_v_sasuke`: [Naruto vs Sasuke](https://www.youtube.com/watch?v=u_1onhckHuw)
+   - `sasuke_oroch`: [Sasuke vs Orochimaru](https://www.youtube.com/watch?v=MwJUK2JtSgw)
+   - `naruto_hinata_wedding`: [Naruto and Hinata Wedding](https://www.youtube.com/watch?v=BoMBsDIGkKI)
+   - `n_op2`: [Naruto Opening 2](https://www.youtube.com/watch?v=SRn99oN1p_c)
+   - `ns_op18`: [Naruto Shippuden Opening 18](https://www.youtube.com/watch?v=HdgD7E6JEE4)
+ - If you want to add more videos, add them as specified within `detect_video.py`.
+ - If you wish to run detection on an image, run `python3 detect_image.py image.jpg --detector frcnn`, with the same options as video. 
 
 
 ### Tasks
