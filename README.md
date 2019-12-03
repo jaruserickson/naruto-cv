@@ -25,7 +25,20 @@ Some options:
  - To clean up the dataset, run `make clean`
 #### Object Detection
  - Modify the paths in `dataset/training/*.config` to use your current path to `detection/` where `/home/jacob/Desktop/code/csc420/naruto-cv/detection` exists.
- - While in the `detection/` folder, after creating the dataset, to setup the models using tensorflow, run `sudo make`
+ - While in the `detection/` folder, after creating the dataset, to setup all models for training and detecting, run `sudo make`
+
+
+**Detection**
+ - From within `detection/`, run `python3 detect_video.py naruto_chill --detector frcnn` to detect a video from the list below, with any of the detectors: `frcnn`, `ssd`, `yolo`, `retina`.
+   - `naruto_chill`: [Kakashi's Mask](https://www.youtube.com/watch?v=UGn-Tg1j8w0)
+   - `naruto_v_sasuke`: [Naruto vs Sasuke](https://www.youtube.com/watch?v=u_1onhckHuw)
+   - `sasuke_oroch`: [Sasuke vs Orochimaru](https://www.youtube.com/watch?v=MwJUK2JtSgw)
+   - `naruto_hinata_wedding`: [Naruto and Hinata Wedding](https://www.youtube.com/watch?v=BoMBsDIGkKI)
+   - `n_op2`: [Naruto Opening 2](https://www.youtube.com/watch?v=SRn99oN1p_c)
+   - `ns_op18`: [Naruto Shippuden Opening 18](https://www.youtube.com/watch?v=HdgD7E6JEE4)
+ - If you want to add more videos, add them as specified within `detect_video.py`.
+ - If you wish to run detection on an image, run `python3 detect_image.py image.jpg --detector frcnn`, with the same options as video. 
+
 
 **Training**
    - To train the model with the data created above, run `sudo make train-frcnn` to train a Faster R-CNN model, `sudo make train-ssd` to train an SSD model, and `make train-yolo` to train a YOLO model.
@@ -37,17 +50,7 @@ Some options:
  - To entirely clean up the training + detection setup, run `sudo make clean`
  - Training RetinaNet is as simple as going to `detection/retinanet` and running something along the lines of `python3 train.py ../../dataset/retimages/train_labels.csv ../../dataset/retimages/characters.csv --val-annotations ../../dataset/retimages/test_labels.csv --epochs 20000 --steps 100`, assuming `generate_split.py` has been run with the appropriate parameters to genrate a RetinaNet compatable dataset.
 
-**Detection**
- - To run detection without training, its as easy as running `sudo make` within `detection/`
- - You can then run `python3 detect_video.py naruto_chill --detector frcnn` to detect a video from the list below, with any of the detectors: `frcnn`, `ssd`, `yolo`, `retina`.
-   - `naruto_chill`: [Kakashi's Mask](https://www.youtube.com/watch?v=UGn-Tg1j8w0)
-   - `naruto_v_sasuke`: [Naruto vs Sasuke](https://www.youtube.com/watch?v=u_1onhckHuw)
-   - `sasuke_oroch`: [Sasuke vs Orochimaru](https://www.youtube.com/watch?v=MwJUK2JtSgw)
-   - `naruto_hinata_wedding`: [Naruto and Hinata Wedding](https://www.youtube.com/watch?v=BoMBsDIGkKI)
-   - `n_op2`: [Naruto Opening 2](https://www.youtube.com/watch?v=SRn99oN1p_c)
-   - `ns_op18`: [Naruto Shippuden Opening 18](https://www.youtube.com/watch?v=HdgD7E6JEE4)
- - If you want to add more videos, add them as specified within `detect_video.py`.
- - If you wish to run detection on an image, run `python3 detect_image.py image.jpg --detector frcnn`, with the same options as video. 
+
 
 
 ### Tasks
