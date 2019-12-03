@@ -24,9 +24,7 @@ Some options:
  - While in the `dataset/` folder, to retrieve the dataset images and setup the dataset for usage in training, run `make`
  - To clean up the dataset, run `make clean`
 #### Object Detection
- - Modify the paths in `dataset/training/*.config` to use your current path to `detection/` where `/home/jacob/Desktop/code/csc420/naruto-cv/detection` exists.
  - While in the `detection/` folder, after creating the dataset, to setup all models for training and detecting, run `sudo make`
-
 
 **Detection**
  - From within `detection/`, run `python3 detect_video.py naruto_chill --detector frcnn` to detect a video from the list below, with any of the detectors: `frcnn`, `ssd`, `yolo`, `retina`.
@@ -41,17 +39,53 @@ Some options:
 
 
 **Training**
-   - To train the model with the data created above, run `sudo make train-frcnn` to train a Faster R-CNN model, `sudo make train-ssd` to train an SSD model, and `make train-yolo` to train a YOLO model.
-     - *Note*: Before training a different model, make sure to run `sudo make clean-data migrate`. This will clean up old checkpoints from the other model, so be sure to move your checkpoints if you'd like to keep them.
-   - To bring up tensorboard while you train, open another teminal and run `sudo make tensorboard`, or `make tensorboard-yolo`
-   - When training is complete, run `./export-graph.sh 1234` where `1234` is the latest checkpoint number in `HOME/TF_FOLDER/models/research/object_detection/training`
- - If you have the required modules installed (under the Makefile's install step), you can opt to run `make tf-migrate setup`
+ - Modify the paths in `dataset/training/*.config` to use your current path to `detection/` where `/home/jacob/Desktop/code/csc420/naruto-cv/detection` exists.
+
+This assumes you've created the dataset by the step above.
+
+*RetinaNet*
+ - To train, run the following from within `detection/retinanet`
+    - ```
+      python3 train.py ../../dataset/retimages/train_labels.csv 
+        ../../dataset/retimages/characters.csv --val-annotations 
+        ../../dataset/retimages/test_labels.csv --epochs 20000 --steps 100
+      ```
+ - After, to get a usable model for detections, run
+   - ```
+      python3 convert_model.py <latest_snapshot in snapshots/> <out_name>
+      ```
+
+*Faster R-CNN*
+ - To train, run the following from within `detection/`
+    - ```
+      sudo make train-frcnn
+      ```
+ - After, to get a usable model for detections, run
+   - ```
+      sudo ./export-graph.sh <epoch>
+      ```
+   - where epoch is the latest checkpoint in `HOME/TF_FOLDER/models/research/object_detection/training`
+
+*SSD*
+ - To train, run the following from within `detection/`
+    - ```
+      sudo make train-ssd
+      ```
+ - After, to get a usable model for detections, run
+   - ```
+      sudo ./export-graph.sh <epoch> 
+      ```
+    - where epoch is the latest checkpoint in `HOME/TF_FOLDER/models/research/object_detection/training`
+
+*YOLO*
+ - To train, run the following from within `detection/`
+    - ```
+      sudo make train-yolo
+      ```
+
+**Finally**
  - To clean up only the migrated datafiles from the dataset, run `sudo make clean-data`
  - To entirely clean up the training + detection setup, run `sudo make clean`
- - Training RetinaNet is as simple as going to `detection/retinanet` and running something along the lines of `python3 train.py ../../dataset/retimages/train_labels.csv ../../dataset/retimages/characters.csv --val-annotations ../../dataset/retimages/test_labels.csv --epochs 20000 --steps 100`, assuming `generate_split.py` has been run with the appropriate parameters to genrate a RetinaNet compatable dataset.
-
-
-
 
 ### Tasks
 - [x] Create a dataset of character faces with tags, pulling character images from [Jikan](https://jikan.moe/), and cropping faces using the detector [lbpcascade_animeface](https://github.com/nagadomi/lbpcascade_animeface) (Note: this detector will only be used during the generation of the dataset, and only to crop faces).
