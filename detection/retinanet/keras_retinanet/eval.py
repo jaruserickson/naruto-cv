@@ -23,7 +23,7 @@ assert(callable(progressbar.progressbar)), "Using wrong progressbar module, inst
 
 # NOTE: if running from /detection, run
 if os.path.split(os.getcwd())[-1] == 'detection':
-    from retinanet.keras_retinanet.keras_retinanet.compute_overlap import compute_overlap
+    from retinanet.keras_retinanet.compute_overlap import compute_overlap
 else:
     from keras_retinanet.compute_overlap import compute_overlap
 from .visualization import draw_detections, draw_annotations
