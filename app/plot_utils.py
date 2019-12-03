@@ -27,4 +27,15 @@ def draw_bounding_box(img, p1, p2, p3, p4, color, title=None):
     cv2.line(img, p4, p1, color)
 
     if title is not None:
-        cv2.putText(img, title, p1, 0, 1, color)
+        if color[0] + color[1] + color[2] > 255 * 3 / 2:
+            text_col = (0, 0, 0)
+        else:
+            text_col = (255, 255, 255)
+        text_size = cv2.getTextSize(title, 0, 1, 1)
+
+        if p1[1] - text_size[0][1] > 0:
+            text_orig = p1
+        else:
+            text_orig = p4
+        cv2.rectangle(img, text_orig, (text_orig[0] + text_size[0][0], text_orig[1] - text_size[0][1]), color, -1)
+        cv2.putText(img, title, text_orig, 0, 1, text_col)
