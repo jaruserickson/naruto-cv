@@ -31,6 +31,9 @@ setup:
 	cd $(TF_FOLDER)/models/research && \
 		python3 setup.py build && \
 		python3 setup.py install
+	# Setup retinanet
+	cd retinanet/keras_retinanet/ && \
+		python3 setup.py build_ext
 
 download:
 	@echo "Installing tensorflow models..."
