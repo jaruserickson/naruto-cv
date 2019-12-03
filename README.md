@@ -26,10 +26,7 @@ Some options:
 #### Object Detection
  - Modify the paths in `dataset/training/*.config` to use your current path to `detection/` where `/home/jacob/Desktop/code/csc420/naruto-cv/detection` exists.
  - While in the `detection/` folder, after creating the dataset, to setup the models using tensorflow, run `sudo make`
-<<<<<<< HEAD
-=======
 
->>>>>>> 0d6d0510cc05cb55c00ec1c631faad98c791512d
 **Training**
    - To train the model with the data created above, run `sudo make train-frcnn` to train a Faster R-CNN model, `sudo make train-ssd` to train an SSD model, and `make train-yolo` to train a YOLO model.
      - *Note*: Before training a different model, make sure to run `sudo make clean-data migrate`. This will clean up old checkpoints from the other model, so be sure to move your checkpoints if you'd like to keep them.
@@ -38,7 +35,7 @@ Some options:
  - If you have the required modules installed (under the Makefile's install step), you can opt to run `make tf-migrate setup`
  - To clean up only the migrated datafiles from the dataset, run `sudo make clean-data`
  - To entirely clean up the training + detection setup, run `sudo make clean`
- - Training RetinaNet is as simple as going to `detection/retinanet` and running something along the lines of `python3 train.py ../../dataset/retimages/train_labels.csv ../../dataset/retimages/characters.csv --val-annotations ../../dataset/retimages/train_labels.csv --epochs 20000 --steps 100`, assuming `generate_split.py` has been run with the appropriate parameters to genrate a RetinaNet compatable dataset.
+ - Training RetinaNet is as simple as going to `detection/retinanet` and running something along the lines of `python3 train.py ../../dataset/retimages/train_labels.csv ../../dataset/retimages/characters.csv --val-annotations ../../dataset/retimages/test_labels.csv --epochs 20000 --steps 100`, assuming `generate_split.py` has been run with the appropriate parameters to genrate a RetinaNet compatable dataset.
 
 **Detection**
  - To run detection without training, its as easy as running `sudo make` within `detection/`
