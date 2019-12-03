@@ -22,6 +22,14 @@ dataset:
 	python3 generate_tfrecord.py --csv_input=images/train_labels.csv --image_dir=images/train --output_path=train.record
 	python3 generate_tfrecord.py --csv_input=images/test_labels.csv --image_dir=images/test --output_path=test.record
 
+retina:
+	@echo "Generating retina set..."
+	python3 generate_split.py retimages Retina
+
+coco:
+	@echo "Generating coco set..."
+	python3 to_coco.py
+
 fix_png:
 	@echo "Fixing pngs in images/"
 	mogrify images/train/*.png
