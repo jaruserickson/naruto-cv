@@ -18,7 +18,7 @@ import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 from .util import shift as backendshift
-from keras_retinanet.compute_overlap import compute_overlap
+from .compute_overlap import compute_overlap
 K = keras.backend
 
 class AnchorParameters:
