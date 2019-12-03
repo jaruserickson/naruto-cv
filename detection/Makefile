@@ -112,4 +112,4 @@ clean-data:
 	rm $(TF_FOLDER)/models/research/object_detection/train.record
 
 clean:
-	rm -rf $(TF_FOLDER)
+	rm -rf $(TF_FOLDER) yolov3
