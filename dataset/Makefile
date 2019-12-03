@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := all
 
-all: download youtube dataset
+all: download youtube dataset retina coco
 download: mal google-images
 
 mal:
