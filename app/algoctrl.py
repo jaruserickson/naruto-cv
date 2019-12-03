@@ -43,7 +43,13 @@ class AlgoCtrl(threading.Thread):
                 if frame is not None:
                     self.verbose and print(f'Algo: Processing frame {frame_num}')
 
-                    frame = symbol_detector.process(frame)
+                    sym_id = 0
+
+                    if 'img_name' in in_frame and in_frame['img_name'] is not None:
+                        img_name = in_frame['img_name']
+                        sym_id = int(img_name[0])
+
+                    frame = symbol_detector.process(frame, sym_id)
 
                 # send frame output to application
                 output = {'frame_id': frame_num, 'frame': frame}

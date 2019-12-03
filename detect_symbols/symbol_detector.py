@@ -34,7 +34,7 @@ class SymbolDetector():
     def __init__(self):
         self._symbols = symbols.load_symbols()
 
-    def process(self, frame):
+    def process(self, frame, sym_id):
         if frame is None:
             return None
 
@@ -58,21 +58,21 @@ class SymbolDetector():
         theta_step = int((max_theta - min_theta) / d_theta) + 1
         acc = np.zeros((n, m, scale_steps, theta_step), dtype=np.int16)
 
-        leaf = self._symbols[0]
+        sym = self._symbols[sym_id]
 
         ### uncomment to see each detected feature's best prediction
-        # match_features_to_predictions(frame, kp, desc, leaf, thresh=10000)
+        # match_features_to_predictions(frame, kp, desc, sym, thresh=10000)
         # return frame
 
-        dists = np.empty((len(kp), len(leaf.kp)))
-        inds = np.empty((len(kp), len(leaf.kp), 4))
+        dists = np.empty((len(kp), len(sym.kp)))
+        inds = np.empty((len(kp), len(sym.kp), 4))
 
-        for i in range(len(leaf.kp)):
-            dists[:, i] = np.sum((desc - leaf.desc[i])**2, axis=1)
-            th = kp[:, 3] - leaf.kp[i, 2]
-            s = kp[:, 2] / leaf.kp[i, 1]
-            cx = kp[:, 1] + leaf.kp[i, 0] * s * np.cos(th - leaf.kp[i, 3])
-            cy = kp[:, 0] + leaf.kp[i, 0] * s * np.sin(th - leaf.kp[i, 3])
+        for i in range(len(sym.kp)):
+            dists[:, i] = np.sum((desc - sym.desc[i])**2, axis=1)
+            th = kp[:, 3] - sym.kp[i, 2]
+            s = kp[:, 2] / sym.kp[i, 1]
+            cx = kp[:, 1] + sym.kp[i, 0] * s * np.cos(th - sym.kp[i, 3])
+            cy = kp[:, 0] + sym.kp[i, 0] * s * np.sin(th - sym.kp[i, 3])
 
             th[th < 0] += np.pi * 2
             th[th < 0] -= np.pi * 2
@@ -91,7 +91,7 @@ class SymbolDetector():
 
         thresh = 0
         inds = np.argwhere(acc > thresh)
-        max_a = len(leaf.kp)
+        max_a = len(sym.kp)
 
         for cy, cx, k, h in inds:
             s = min_scale + k * d_scale
