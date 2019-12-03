@@ -46,6 +46,8 @@ clean-youtube:
 clean-dataset:
 	@echo "Clean images/..."
 	rm -rf images
+	rm -rf retimages
+	rm -rf coco
 	rm *.record
 
 clean: clean-downloaded clean-youtube clean-dataset

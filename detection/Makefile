@@ -48,7 +48,7 @@ download-weights:
 	wget https://www.dropbox.com/s/iikd3e71kp4cxuu/ssd.pb; \
 	wget https://www.dropbox.com/s/vh2hr5tqunuljps/yolo_last.pt
 
-faster_rcnn:
+faster-rcnn:
 	cd $(TF_FOLDER) && \
 		wget http://download.tensorflow.org/models/object_detection/$(FRCNN) && \
 		mv $(FRCNN) models/research/object_detection/
