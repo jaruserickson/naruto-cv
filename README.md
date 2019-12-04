@@ -4,12 +4,28 @@ Given a scene from an episode of *Naruto*, track major character's faces, and id
 
 <img src="http://i.imgur.com/70KWWkZ.png" alt="drawing" width="300"/>
 
-### Source Clips
-Some example clips we're planning to be able to run on:
- - [Naruto Shippuden Opening 18](https://www.youtube.com/watch?v=HdgD7E6JEE4) (Character variety)
- - [Naruto Opening 2](https://www.youtube.com/watch?v=SRn99oN1p_c) (Character variety)
- - [Naruto and Hinata Wedding](https://www.youtube.com/watch?v=BoMBsDIGkKI) (Character variety)
- - [Naruto vs Sasuke](https://www.youtube.com/watch?v=u_1onhckHuw) (Validation of the two main characters, and their augmentations during a fight scene.)
+### Examples of Character Detection
+[Compilation of various demos and models](https://www.youtube.com/watch?v=MVNIarH7nuQ)
+
+RetinaNet:
+ - [Naruto Opening 18](https://www.youtube.com/watch?v=irAurunhLOg)
+ - [Kakashi's Mask](https://www.youtube.com/watch?v=cCNGbH16D-8))
+ - [Naruto vs Sasuke](https://www.youtube.com/watch?v=0IFSbNOhwio)
+
+Faster R-CNN:
+ - [Naruto Opening 18](https://www.youtube.com/watch?v=pk6ksVBd4FU)
+ - [Kakashi's Mask](https://www.youtube.com/watch?v=TfKEbfND4cg)
+ - [Naruto vs Sasuke](https://www.youtube.com/watch?v=e5IyuF8Ovcw)
+
+YOLO:
+ - [Naruto Opening 18](https://www.youtube.com/watch?v=gCYjTJPDV1s)
+ - [Kakashi's Mask](https://www.youtube.com/watch?v=_NFJQLtwLHI)
+ - [Naruto vs Sasuke](https://www.youtube.com/watch?v=AqWutiaT0_E)
+
+SSD:
+ - [Naruto Opening 18](https://www.youtube.com/watch?v=zQZ_GR8fyPU)
+ - [Kakashi's Mask](https://www.youtube.com/watch?v=p9ecIKhzz_M)
+ - [Naruto vs Sasuke](https://www.youtube.com/watch?v=HNau2KhekMI)
 
 
 ### Facial Detection Network
