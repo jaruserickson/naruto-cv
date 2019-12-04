@@ -1,5 +1,5 @@
 numpy
 skimage
 matplotlib
-opencv-python
+python-opencv
 pickle

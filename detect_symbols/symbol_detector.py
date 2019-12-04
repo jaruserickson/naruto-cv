@@ -1,5 +1,5 @@
 """
-Symbol Detector
+Symbol Detector.
 """
 
 import cv2
@@ -12,6 +12,8 @@ import imgproc
 
 
 class SymbolDetector():
+    """ The symbol detector class. """
+    
     def __init__(self):
         self._symbols = symbols.load_symbols()
         
@@ -23,6 +25,12 @@ class SymbolDetector():
 
 
     def process(self, frame, sym_id):
+        """ Process one frame, or one image 
+        
+        Args:
+            - frame: input image
+            - sym_id: symbol id to detect
+        """
         p, score = None, 0
 
         if frame is None:
@@ -40,15 +48,15 @@ class SymbolDetector():
         # check size
         max_size = 200
 
-        if n > 200 or m > 200:
+        if n > max_size or m > max_size:
             if n > m:
-                fsize = 200 / n
+                fsize = max_size / n
                 m = int(m * fsize)
-                n = 200
+                n = max_size
             else:
-                fsize = 200 / m
+                fsize = max_size / m
                 n = int(n * fsize)
-                m = 200
+                m = max_size
             frame = cv2.resize(frame, (m, n), interpolation=cv2.INTER_LINEAR)
 
         # Canny 

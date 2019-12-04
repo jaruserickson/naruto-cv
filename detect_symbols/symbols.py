@@ -13,6 +13,7 @@ import cv2
 import pickle
 
 
+""" Symbol ID's """
 SYMBOL_IDS = {
     0 : "leaf",
     1 : "sand",
@@ -24,8 +25,8 @@ SYMBOL_IDS = {
 SYMBOLS_DIR = os.path.dirname(os.path.realpath(__file__))
 SYMBOLS_FILE = os.path.join(SYMBOLS_DIR, 'symbols.pkl')
 
-# Constants defining range of symbol detection
-# (if modified, must re-initialize symbols)
+""" Constants defining range of symbol detection
+    (if modified, must re-initialize symbols) """
 MIN_ROTATION = -45
 MAX_ROTATION = 45
 ROTATION_STEP = 5
@@ -40,6 +41,7 @@ GRAD_STEP = 10
 
 
 def load_symbols(file=SYMBOLS_FILE):
+    """ Load symbols from file. """
     sys.path.insert(0, SYMBOLS_DIR)
 
     if os.path.isfile(file):
@@ -52,6 +54,7 @@ def load_symbols(file=SYMBOLS_FILE):
     return symbols
     
 def save_symbols(symbols, file=SYMBOLS_FILE):
+    """ Save symbols to file. """
     sys.path.insert(0, SYMBOLS_DIR)
 
     with open(file, 'wb') as infile:
@@ -61,8 +64,8 @@ def save_symbols(symbols, file=SYMBOLS_FILE):
 
 
 class Symbol():
-    """ The symbol class which holds the R-table for a single symbol. 
-    """
+    """ The symbol class which holds the R-table for a single symbol. """
+
     def __init__(self, id, R=None, num_edges=None):
         self.id = id
         self._d_phi = GRAD_STEP
@@ -70,6 +73,7 @@ class Symbol():
         self.num_edges = num_edges
 
     def R(self, phi):
+        """ Get indeces for given gradient orientation. """
         return self._R[phi]
 
 
