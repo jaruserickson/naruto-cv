@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import math
 from . import symbols
 import time
+import imgproc
 
 
 class SymbolDetector():
@@ -53,24 +54,20 @@ class SymbolDetector():
 
         # Canny 
         frame_grey = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
-        gx = cv2.Sobel(frame_grey, cv2.CV_64F, 1, 0, ksize=3)
-        gy = cv2.Sobel(frame_grey, cv2.CV_64F, 0, 1, ksize=3)
-        phi = np.arctan2(gy, gx)
+        frame_grey = (frame_grey * 255).astype(np.uint8)
+        edges, phi = imgproc.canny(frame_grey, 20, 40)
 
         min_phi = symbols.MIN_GRAD * np.pi / 180
         d_phi = symbols.GRAD_STEP * np.pi / 180
         phi = ((phi - min_phi) / d_phi).astype(np.int)
 
-        frame_grey = (frame_grey * 255).astype(np.uint8)
-        edges = cv2.Canny(frame_grey, 20, 40)
-        inds = np.argwhere(edges > 0)
-
         # Hough
         scale_steps = int((symbols.MAX_SCALE - symbols.MIN_SCALE) / symbols.SCALE_STEP) + 1
         theta_steps = int((symbols.MAX_ROTATION - symbols.MIN_ROTATION) / symbols.ROTATION_STEP) + 1
         acc = np.zeros((n, m, scale_steps, theta_steps), dtype=np.int32)
+
         sym = self._symbols[sym_id]
+        inds = np.argwhere(edges > 0)
 
         for y, x in inds:
             cx = x + sym.R(phi[y, x])[:, 1]
