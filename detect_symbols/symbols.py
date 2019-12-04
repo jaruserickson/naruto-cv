@@ -10,7 +10,7 @@ import os
 from collections import defaultdict
 import numpy as np
 import cv2
-import _pickle as pickle
+import pickle
 
 
 SYMBOL_IDS = {
