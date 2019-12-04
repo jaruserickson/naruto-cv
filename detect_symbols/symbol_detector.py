@@ -55,6 +55,7 @@ class SymbolDetector():
         # Canny 
         frame_grey = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         frame_grey = (frame_grey * 255).astype(np.uint8)
+        frame_grey = imgproc.gaussian_blur(frame_grey, 5, 1.2)
         edges, phi = imgproc.canny(frame_grey, 20, 40)
 
         min_phi = symbols.MIN_GRAD * np.pi / 180
