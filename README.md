@@ -86,14 +86,38 @@ This assumes you've created the dataset by the step above.
 **Finally**
  - To clean up only the migrated datafiles from the dataset, run `sudo make clean-data`
  - To entirely clean up the training + detection setup, run `sudo make clean`
+ 
+ 
+#### Symbol Detection
+**Detection**
+ - To run symbol detection, you may run `main.py` located in the root directory of the project (see `main` folder for details). Run it in image mode and ensure that all the images you wish to test it on contain as the first character of their filename, the id of the symbol you wish to detect in it. 
+   - e.g. `python main.py --vid-file <image-folder> --mode images`
+ 
+ - You may also run it on a single image as so,
+   - e.g. `python main.py --vid-file <image-path> --mode images`
+  
+These are the currently supported symbols and their id's:
+ - Leaf - 0
+ - Sand - 1
+ - Cloud - 2
+ - Stone - 3
+ - Mist - 4
+ 
+There is a test folder `detect_symbols/test_images` which contains examples of the types of images on which the detector may run. You may use this to test the detector as it stands now, or you may find your own images as well.
+ 
+Note that even with the time improvements, it still takes 5-10 seconds to run detection on any given image.
+  
+**Initialization**
+ - To recreate the R-tables used in the Hough transform, you may run the script `init_symbols.py` located in the `detect_symbols` folder (see "Readme" in `detect_symbols` for details).
+   
 
 ### Tasks
 - [x] Create a dataset of character faces with tags, pulling character images from [Jikan](https://jikan.moe/), and cropping faces using the detector [lbpcascade_animeface](https://github.com/nagadomi/lbpcascade_animeface) (Note: this detector will only be used during the generation of the dataset, and only to crop faces).
    - If more character pictures are needed, we’ll manually pick them to be added from Google Images.
 - [x] Train a network with the created dataset to detect and classify character faces.
   - [x] Draw a bounding box around the character faces, with their name as the tag.
-- [ ] Locate and identify village symbols within each scene.
-  - [ ] Determine the orientation of the found symbols and draw the corresponding box around them.
+- [x] Locate and identify village symbols within each scene. (Task modified - algorithm will locate village symbols, given their respective village, and detection is done on images with the characters face only.)
+  - [x] Determine the orientation of the found symbols and draw the corresponding box around them.
    - (Optional) If the headband symbol lays within a character bounding box, we can determine which village they are from.
    - (Optional) Detect if the village symbol on a headband has been crossed out (i.e. character is an ex-member of the village).
    - (Optional) Track characters with their respective headbands. 
