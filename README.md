@@ -24,16 +24,68 @@ Some options:
  - While in the `dataset/` folder, to retrieve the dataset images and setup the dataset for usage in training, run `make`
  - To clean up the dataset, run `make clean`
 #### Object Detection
- - Modify the paths in `dataset/training/*.config` to use your current path to `detection/` where `/home/jacob/Desktop/code/csc420/naruto-cv/detection` exists.
- - While in the `detection/` folder, after creating the dataset, to setup the models using tensorflow, run `sudo make`
-   - To train the model with the data created above, run `sudo make train-frcnn` to train a Faster R-CNN model, and `sudo make train-ssd` to train an SSD model.
-     - *Note*: Before training a different model, make sure to run `sudo make clean-data migrate`. This will clean up old checkpoints from the other model, so be sure to move your checkpoints if you'd like to keep them.
-   - To bring up tensorboard while you train, open another teminal and run `sudo make tensorboard`
-   - When training is complete, run `./export-graph.sh 1234` where `1234` is the latest checkpoint number in `HOME/TF_FOLDER/models/research/object_detection/training`
- - If you have the required modules installed (under the Makefile's install step), you can opt to run `make tf-migrate setup`
- - To clean up only the migrated datafiles from the dataset, run `sudo make clean-data`
- - To entirely clean up the detection setup, run `sudo make clean`
+ - While in the `detection/` folder, after creating the dataset, to setup all models for training and detecting, run `sudo make`
 
+**Detection**
+ - From within `detection/`, run `python3 detect_video.py naruto_chill --detector frcnn` to detect a video from the list below, with any of the detectors: `frcnn`, `ssd`, `yolo`, `retina`.
+   - `naruto_chill`: [Kakashi's Mask](https://www.youtube.com/watch?v=UGn-Tg1j8w0)
+   - `naruto_v_sasuke`: [Naruto vs Sasuke](https://www.youtube.com/watch?v=u_1onhckHuw)
+   - `sasuke_oroch`: [Sasuke vs Orochimaru](https://www.youtube.com/watch?v=MwJUK2JtSgw)
+   - `naruto_hinata_wedding`: [Naruto and Hinata Wedding](https://www.youtube.com/watch?v=BoMBsDIGkKI)
+   - `n_op2`: [Naruto Opening 2](https://www.youtube.com/watch?v=SRn99oN1p_c)
+   - `ns_op18`: [Naruto Shippuden Opening 18](https://www.youtube.com/watch?v=HdgD7E6JEE4)
+ - If you want to add more videos, add them as specified within `detect_video.py`.
+ - If you wish to run detection on an image, run `python3 detect_image.py image.jpg --detector frcnn`, with the same options as video. 
+
+
+**Training**
+ - Modify the paths in `dataset/training/*.config` to use your current path to `detection/` where `/home/jacob/Desktop/code/csc420/naruto-cv/detection` exists.
+
+This assumes you've created the dataset by the step above.
+
+*RetinaNet*
+ - To train, run the following from within `detection/retinanet`
+    - ```
+      python3 train.py ../../dataset/retimages/train_labels.csv 
+        ../../dataset/retimages/characters.csv --val-annotations 
+        ../../dataset/retimages/test_labels.csv --epochs 20000 --steps 100
+      ```
+ - After, to get a usable model for detections, run
+   - ```
+      python3 convert_model.py <latest_snapshot in snapshots/> <out_name>
+      ```
+
+*Faster R-CNN*
+ - To train, run the following from within `detection/`
+    - ```
+      sudo make train-frcnn
+      ```
+ - After, to get a usable model for detections, run
+   - ```
+      sudo ./export-graph.sh <epoch>
+      ```
+   - where epoch is the latest checkpoint in `HOME/TF_FOLDER/models/research/object_detection/training`
+
+*SSD*
+ - To train, run the following from within `detection/`
+    - ```
+      sudo make train-ssd
+      ```
+ - After, to get a usable model for detections, run
+   - ```
+      sudo ./export-graph.sh <epoch> 
+      ```
+    - where epoch is the latest checkpoint in `HOME/TF_FOLDER/models/research/object_detection/training`
+
+*YOLO*
+ - To train, run the following from within `detection/`
+    - ```
+      sudo make train-yolo
+      ```
+
+**Finally**
+ - To clean up only the migrated datafiles from the dataset, run `sudo make clean-data`
+ - To entirely clean up the training + detection setup, run `sudo make clean`
 
 ### Tasks
 - [x] Create a dataset of character faces with tags, pulling character images from [Jikan](https://jikan.moe/), and cropping faces using the detector [lbpcascade_animeface](https://github.com/nagadomi/lbpcascade_animeface) (Note: this detector will only be used during the generation of the dataset, and only to crop faces).
@@ -77,6 +129,7 @@ Some options:
    - This didn't work, so I'm going to download larger videos instead (720p instead of 360p). Need to write a quick script to convert annotations.
  - Note*: Downloading the dataset can result in corrupt data on occasion, I need to look into a better way of keeping track of the validated google images
 #### CNN Face Detection
+*Note:* All training done in this section was performed on a GTX 1070 Ti.
  - Initially planned on using a YOLO CNN to detect and track characters.
  - I've done quite a bit of reading into the details of YOLO. The papers and articles of which are listed below.
    - [You Only Look Once: Unified, Real-Time Object Detection](https://arxiv.org/pdf/1506.02640.pdf)
@@ -145,8 +198,6 @@ There's a number of implementations of both YOLO and SSD on github:
  - Might have to clean out sasuke's curse mark recognition.
 
 After omitting the problem characters, everything is looking quite a bit better.
-
-(We never said in the proposal that we would be implementing the network, just training one LOL. I'm going to try anyway, but as mentioned before, there's a LOT of points of failure and it can get super complex.)
 Now that we know the dataset is valid, we can work on writing a network from the ground up. Based on the notes before, I'm probably going to implement an SSD network.
 
  - [Understanding SSD MultiBox — Real-Time Object Detection In Deep Learning](https://towardsdatascience.com/understanding-ssd-multibox-real-time-object-detection-in-deep-learning-495ef744fab)
@@ -198,21 +249,87 @@ Now that we know the dataset is valid, we can work on writing a network from the
      - Since our results from FRCNN were from 30,000 training steps, ideally i'd like to reach the same amount of training for RetinaNet. As such, I'll be training it for around ~15 hours.
   - [Speed Comparison](https://medium.com/@jonathan_hui/object-detection-speed-and-accuracy-comparison-faster-r-cnn-r-fcn-ssd-and-yolo-5425656ae359)
   - It actually seems after a couple of hours of training RetinaNet it's heavily overfitting. As regression converges, classification spikes super hard - this kind of makes sense since the characters look pretty similar. Will have to look into that. For now, the best implementation is that which exists in our usage of tensorflow's Faster R-CNN implementation. I might look into implementing that if this is still acting weird after another few hours.
+    - Further through the epoch, it seems to be re-balancing - this might be similar to the top right graph from tensorboard in the FRCNN model.
     - If I do implement Faster R-CNN, I'm likely going to use pytorch, since it tends to run faster.
+  - After 30 epochs of 1000 steps each, training for around 15 hours, my RetinaNet implementation seems to prefer just classifying everything as Naruto himself - since there's a pretty large portion of images with him, it will get decent validation results from doing so. It's box locations are pretty good, the classification is just super off.
+![](docs/retina_class_loss.png) ![](docs/retina_regression_loss.png)
+    - The losses seem to indicate something must be wrong re-classification
+    - If the classification isn't the problem, my thoughts about fixing this would be to back propogate more, i.e. less steps, more epochs, rather than the 1000 steps * 30 epochs it's at currently. 
+    - Thinking about it... I froze ResNet weights before training... that would explain why classification is whacky. :man_facepalming:
+      - Unfortunately, this means our training will take **even longer**! Keras predicts each epoch will take 1 hour, so I'm going to need to train for 30 hours. I'll keep an eye on it for the first few to make sure it's worth it.
+      - After running this for a while (30*100=3000) I was experiencing some memory issues while training. I stopped since it had converged pretty quickly anyways and was starting to overfit. The new loss graphs are as follows:
+![](docs/retina_class_loss_all.png) ![](docs/retina_regression_loss_all.png)
+This points out a major problem with writing Object detection models from scratch (for custom datasets) in general - training will be a big challenge without pre-trained weights. 
+
+The retinanet implementation looks fine from a model summary standpoint, but all the weights are random on our FPN, while the ResNet layers are pre-trained to imagenet. This results in a LOT of required training and data - both of which are scarce with a deadline :stuck_out_tongue:.
+
+So, building on my usage of tensorflow's modelzoo, we're going to be looking at the implementation of each of these networks as a case study into their efficacy in detecting animated faces (which hasn't actually been expored all too thoroughly - probably due to its "uselessness", haha.).
+
+**SSD Loss**
+![](docs/ssd_loss.png)
+
+**Final Notes**
+  - [x] Faster R-CNN (Inception v2, COCO weights) *Tensorflow* [source](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)
+    - 30,000 steps, 3 hours
+    - Naruto Vs. Sasuke: [Dropbox](https://www.dropbox.com/s/fd5bdtas09fk4kw/naruto_vs_sasuke.mp4?dl=0)
+    - Kakashi's Mask: [Dropbox](https://www.dropbox.com/s/0u7qzyvc6ex9rjn/kakashis_mask.mp4?dl=0)
+    - Notes:
+      - As expected, high accuracy all around.
+        - Has some trouble with characters which look similar.
+        - Does really well when characters make weird faces.
+      - Slow training rate (2.7s/step)
+      - Slow inference time (10 mins to run inference for Kakashi's mask)
+  - [x] SSD (Inception v2, COCO weights) *Tensorflow* [source](https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md)
+    - 30,000 steps, 1.5 hrs
+    - Naruto vs. Sasuke: [Dropbox]()
+    - Kakashi's Mask: [Dropbox]()
+    - Notes:
+      - Good accuracy with close characters.
+        - **Really** struggles when they're further away, or if they're making weird faces
+        - This would suggest that it's not the greatest for this use case, since Anime characters often make weird faces :stuck_out_tongue:
+      - *Very* fast training rate (0.2s/step)
+      - *Very* fast inference rate (Real time for Kakashi's mask)
+  - [x] YOLOv3 (Darknet) *PyTorch* [source](https://github.com/ultralytics/yolov3)
+    - Notes:
+      - **Very** fast training rate (0.05s/step)(273 epoch x 1156 step in 3.869 hours).
+      - **Very** fast inference rate (Real time for everything)
+  - [x] RetinaNet (ResNet50) *Keras* [source](https://github.com/fizyr/keras-retinanet)
+    - Notes:
+      - Slow training (~5s/step)
+      - Slow inference 
 
 #### Village Symbol Recognition (Feature Based Matching)
  - Initially, I plan on using a Generalized Hough Transform with voting based on SIFT feature points and descriptors. Voting will be used to determine the position, scale and rotation of the symbols, along with detecting the symbol itself. Once the locations, sizes, and rotations of the symbols are known, we can re-gather the points that were used for each symbol during voting and calculate any homographies or bounding boxes using these points.
  - I have created an initial dataset of symbols using https://www.deviantart.com/makibo031226/art/NARUTO-village-symbols-521654313.
  
- **Approach 1 - SIFT Intererst Points**
+ **Approach 1 - Generalized Hough Transform (SIFT Based)**
  - I have now implemented a rough version of detection using interest points, however, I have come to realize some of the issues in the approach I have taken thus far:
    - The symbols I am trying to detect are too simple to gather enough feature point to do detection solely on these points, unless the symbols are quite large.
    - Using SIFT as a base for detection and matching feature descriptors is extremely slow and I will not likely be able to make it run at 24 fps even if I implement a "codebook of words" to speed up matching as SIFT itself does not run at 24 fps.
  - The results I was getting, however, were promising on images with large symbols and not too many features (i.e. a symbol on a simple background). A certain amount of visual proofs and geometric calculations were required to get the interest points to act as predictors for the Hough transform and the results were all sound. Following is a visual representation of how new interest points were matched to the stored interest points of a symbol and the corresponding prediction for each point: 
    - <img src="/docs/leaf_detect1.PNG" alt="drawing" width="350"/> 
- - Here each of the red circles are detected interest points and each of the corresponding blue circles are the predicted symbols, where the prediction includes location, relative scale, and rotation.
+ - Here each of the red circles are detected interest points and each of the corresponding blue circles are the predicted symbols, where the prediction includes location, relative scale, and rotation (scale and rotation not shown).
  - As you can see, there are very few interest points, even on such a large symbol, therefore when this is done on a smaller scale image, not enough interest points are detected. 
- - For these reasons, I will be moving to a more standard approach, I will first try using edges as the predictors (as in the usual general Hough transform), then if this doesn't work (e.g. there may not be enough edges when the symbols are small), I will try using an approach simiar to the implicit shape model by Bastian Leibe, Ales Leonardis, and Bernt Schiele - [Paper](https://link.springer.com/chapter/10.1007/11957959_26).
+ - For these reasons, I will be moving to a more standard approach, I will first try using edges as the predictors (as in the usual general Hough transform), then if that doesn't work (e.g. there may not be enough edges when the symbols are small), I will try using an approach simiar to the implicit shape model by Bastian Leibe, Ales Leonardis, and Bernt Schiele - [Paper](https://link.springer.com/chapter/10.1007/11957959_26).
+ 
+**Approach 2 - Generalized Hough Transform (Edges)**
+ - I implemented my own generalized Hough transform algorithm from scratch, using OpenCV's `Sobel` and `Canny` to get edge information. The algorithm follows closely with the methods and terms in the [paper](http://www.cs.utexas.edu/~dana/HoughT.pdf), except for a few optimizations which I will elaborate more on in the following notes.
+ - The first thing I noticed when I implemented the Hough transform was how slow it was. I needed the detections to be both scale and rotation invariant, but using the standard loop for the Hough transform (see [Wikipedia](https://en.wikipedia.org/wiki/Generalised_Hough_transform)) was way too slow and even small images (appr. 200x200) would take up to a minute plus if there were a lot of edges to consider. 
+ - These are the optimizations I made:
+   - Modified the "R-table" to include the entire set of indeces needed for each edge orientation so that I wouldn't have to loop over the scale and rotation in order to calculate them. That is, the R-table now maps the edge gradient to the indeces in the accumulator that need to be incremented (as offsets from the location of the edge). In the paper, the R-table maps edge orientation to the offset of the location only, not inlcuding the scale and rotation. 
+   - Limited the range of rotation to be from -45 degrees to 45 degrees as it is unlikely that we would need to detect beyond that.
+ - Some of the problems I was facing:
+   - The algorithm is still relatively slow, even after making the above optimizations as there are many edges in a single image and an extremely large number of possible positions that the symbol could be in given only that we know a single edge pixel. 
+   - Some of the symbols are very generic, thus making them hard to distinguish from other objects in the image (e.g. the Mist Village symbol is simply 4 of the same slightly curved line).
+   - The symbols change from one scene/image to another - that is, they are drawings and thus are not depicted exectly the same way all the time.
+ - I have concluded that the scope of the inital problem was too large for a feature detection algorithm to be able to complete, at least in the amount of time we are given for this project. We initially said that the goal of this part of the project was to detect all symbols in the scene, and then match them to their corresponding characters if possible. However, given that the object we wish to detect vary in both of scale and rotation (and homography in general), and that they are not constant, it seems more reasonable to limit the scope of this problem to detecting symbols within a smaller region of the image where we know that the symbol exists. That is, from now on, the goal of symbol detection is to take a cropped image output from the face detector, and then, given the character and village, determine where and at what orientation the symbol on the headband of that character is, then place a bounding box around it. 
+   - This reduces the problem from detecting which village a character is from, to only detecting the location, orientation, and size of the character's headband symbol (but doing this for multiple symbols, in a generic way). This is a better problem for feature detection to solve, as finding non-constant symbols, along with distinguishing them from each other, is not only unnecessary (given that we know the character and where their face is), but is also much more representative of a problem for deep learning to solve.
+ - After experimenting with optimizations and methods on improveing detections for an extended amount of time, these what the results look like:
+   - <img src="/docs/leaf_detect4.PNG" alt="drawing" width="350"/> 
+ - There are still a lot of misses, especially when the frame is large, but with some tuning of the symbols (the original symbols used as templates are quite different from the actual symbols for most of the show), I think it is reasonable.
+ - On average, it takes between 5 and 10 seconds for the algorithm to process one image (compared to minutes before). Also, if the input is larger than 200x200, it is resized before processing.
+ - In summary, the Hough transform using edges for voting performs well enough and fast enough so that we can continue working with this as our symbol detection algorithm. It detects symbols at different scales, rotations, and can even detect them when partially occluded as well. Given that any one symbol varies from image to image, I believe these are appropriate results.
+
 #### Main Application
  - Goal was to create a simple gui which would display a video as we processed it, as well as help the debugging process once we get to testing using videos.
  - Tried to implement the gui using Qt, but this ended up requiring more work to install and learn their video player widgets than it did to create my own OpenCV based version

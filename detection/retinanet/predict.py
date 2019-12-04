@@ -23,7 +23,7 @@ model = keras.models.load_model('out.h5', custom_objects={
 }, compile=False)
 
 label_to_name = [
-    'naruto_uzumaki=',
+    'naruto_uzumaki',
     'sasuke_uchiha',
     'kakashi_hatake',
     'gaara',
@@ -71,11 +71,12 @@ for filepath in images:
     print("processing time: ", time.time() - start)
 
     iou_threshold = 0.3
+    score_threshold = 0.3
 
     boxes /= scale
     boxes, scores, labels = boxes[0], scores[0], labels[0]
     if len(boxes[0]) > 0:
-        indices = tf.image.non_max_suppression(boxes, scores, 20, iou_threshold=iou_threshold, score_threshold=0.5)
+        indices = tf.image.non_max_suppression(boxes, scores, 20, iou_threshold=iou_threshold, score_threshold=score_threshold)
         sess = tf.compat.v1.Session()
         with sess.as_default():
             indices = indices.eval()
