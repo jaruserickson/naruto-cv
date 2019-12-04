@@ -41,6 +41,13 @@ In the SIFT based branch, the initialization script is somewhat different:
 To run the SIFT-based implementation, use the same command as the main version.
 
 
+#### Headband detection
+Another branch named `symbols_addingHeadbandDetection` has been created where experiments have been done to try and make the symbol detector's job easier by first detecting the region of an image that corresponds to a character's headband. The branch is still currently in progress.
+
+A modified Hough line detector has been implemented to try and approximate the upper and lower edges of the headband. 
+ - The line detector is a more lenient version of the original Hough line detector and allows for variance in both the position and angle of the lines in order to detect headbands which look curved (i.e. when the character looks upward or when the headband is on top of their head, not facing the "camera").
+
+
 ## Extras
 #### Init Symbols GUI
 ![](/docs/init_symbols2.png)
