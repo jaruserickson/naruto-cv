@@ -1,7 +1,7 @@
 requests
 google_images_download
 tqdm
-tensorflow-gpu==1.15.2
+tensorflow-gpu==1.15.4
 pytube
 pandas
 # Linting
